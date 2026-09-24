@@ -1,0 +1,84 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/enthonydev/PROJETO-ESTACAO-METEOROLOGICA/blob/main/docs/contratos/telemetria-v1.0.json",
+  "title": "Contrato de telemetria da estação meteorológica",
+  "description": "Schema da mensagem publicada pelo ESP32 e consumida pelo backend.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "station_id",
+    "timestamp",
+    "location",
+    "measurements",
+    "quality"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "1.0"
+    },
+    "station_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "location": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["latitude", "longitude"],
+      "properties": {
+        "latitude": { "type": ["number", "null"] },
+        "longitude": { "type": ["number", "null"] }
+      }
+    },
+    "measurements": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "temperature_c",
+        "humidity_pct",
+        "pressure_hpa",
+        "air_quality_raw",
+        "luminosity_pct",
+        "rain_mm"
+      ],
+      "properties": {
+        "temperature_c": { "type": ["number", "null"] },
+        "humidity_pct": { "type": ["number", "null"] },
+        "pressure_hpa": { "type": ["number", "null"] },
+        "air_quality_raw": { "type": ["number", "null"] },
+        "luminosity_pct": { "type": ["number", "null"] },
+        "rain_mm": { "type": ["number", "null"] }
+      }
+    },
+    "quality": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "temperature",
+        "humidity",
+        "pressure",
+        "air_quality",
+        "luminosity",
+        "rain"
+      ],
+      "properties": {
+        "temperature": { "$ref": "#/$defs/quality_status" },
+        "humidity": { "$ref": "#/$defs/quality_status" },
+        "pressure": { "$ref": "#/$defs/quality_status" },
+        "air_quality": { "$ref": "#/$defs/quality_status" },
+        "luminosity": { "$ref": "#/$defs/quality_status" },
+        "rain": { "$ref": "#/$defs/quality_status" }
+      }
+    }
+  },
+  "$defs": {
+    "quality_status": {
+      "type": "string",
+      "enum": ["ok", "suspect", "invalid", "error"]
+    }
+  }
+}
