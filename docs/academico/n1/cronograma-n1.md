@@ -33,7 +33,7 @@ As datas abaixo são as datas do plano `N1_Sprints_James_v2.docx`. Não foram ac
 |---|---|---|---|
 | J-S2-01 | Matriz de rastreabilidade requisito → implementação → teste → evidência | Contrato de Enthony e plano/artefatos de Luan | Matriz inicial produzida; relações dependentes permanecem explicitamente bloqueadas ou pendentes. |
 | J-S2-02 | Metodologia de desenvolvimento | Governança e sprints definidas | Concluída documentalmente na branch da Sprint 2. |
-| J-S2-03 | Fundamentação teórica | Fontes confiáveis disponíveis | Em elaboração; somente fontes verificáveis serão incorporadas. |
+| J-S2-03 | Fundamentação teórica | Fontes confiáveis disponíveis | Produzida com fontes verificáveis e integrada à `main`. |
 | J-S2-04 | Cronograma acadêmico | Plano operacional da N1 | Concluído com as datas oficiais do plano. |
 | J-S2-05 | Estrutura do documento N1 | Roteiro do professor e insumos de Enthony/Luan | Estrutura proposta com pendências explícitas; a estrutura final aguarda confirmação dos insumos. |
 

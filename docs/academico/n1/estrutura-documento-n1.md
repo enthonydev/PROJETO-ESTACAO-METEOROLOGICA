@@ -1,21 +1,19 @@
-# Estrutura proposta do documento da N1
+# Estrutura do documento da N1
 
 ## 1. Objetivo e estado
 
 Este documento atende à task J-S2-05 da Sprint 2. Ele propõe a organização do documento acadêmico da N1 a partir do Guia Mestre, do plano de sprints e dos artefatos já disponíveis no repositório.
 
-**Estado:** estrutura proposta, não versão final. A liberação final depende da confirmação do roteiro do professor e do recebimento dos insumos de Enthony e Luan. Nenhuma seção pendente deve ser preenchida com resultados, referências, pinagem, calibração ou evidência inventados.
+**Estado:** estrutura alinhada ao roteiro acadêmico oficial e aos artefatos disponíveis. A consolidação final ainda depende dos resultados e das evidências aplicáveis das frentes técnicas. Nenhuma seção pendente deve ser preenchida com resultados, referências, pinagem, calibração ou evidência inventados.
 
 ## 2. Estrutura proposta
 
-### 2.1 Elementos iniciais
+### 2.1 Elementos iniciais conforme o roteiro
 
 1. Capa e identificação da disciplina.
-2. Resumo, se exigido pelo roteiro do professor.
+2. Resumo.
 3. Sumário.
-4. Lista de figuras, tabelas e siglas, quando aplicável.
-
-A necessidade e a ordem exatas desses elementos permanecem **TBD** até a confirmação do roteiro acadêmico.
+4. Lista de figuras, tabelas e siglas.
 
 ### 2.2 Contextualização do problema
 
@@ -43,7 +41,7 @@ Esta seção deve apresentar o processo de desenvolvimento, a organização em s
 
 ### 2.6 Fundamentação teórica
 
-Esta seção deve relacionar Smart Cities, monitoramento ambiental, IoT, ESP32, sensores, MQTT, backend, banco de dados, geolocalização, dashboard e disciplinas integradas ao problema do projeto. Cada afirmação deve possuir fonte confiável e verificável. A fundamentação está pendente de consolidação e revisão das fontes.
+Esta seção deve relacionar Smart Cities, monitoramento ambiental, IoT, ESP32, sensores, MQTT, backend, banco de dados, geolocalização, dashboard e disciplinas integradas ao problema do projeto. Cada afirmação deve possuir fonte confiável e verificável. A fundamentação está documentada em `docs/academico/n1/fundamentacao-teorica.md`, produzida na J-S2-03.
 
 ### 2.7 Arquitetura e decisões técnicas
 
@@ -79,15 +77,15 @@ A versão final deve incluir referências no padrão solicitado pelo professor e
 
 | Dependência | Impacto | Estado |
 |---|---|---|
-| Roteiro ou rubrica oficial do professor | Pode alterar a ordem, os títulos e a extensão das seções | BLOQUEADA até confirmação |
+| Roteiro ou rubrica oficial do professor | Orienta a ordem e os títulos das seções | Confirmado e aplicado nesta estrutura |
 | Insumos de Enthony | Necessários para modelagem técnica, backend e resultados disponíveis | Backend, DER, migration, firmware estrutural e testes técnicos integrados na `main`; MQTT, persistência runtime e hardware continuam pendentes |
 | Insumos de Luan | Necessários para hardware, pinout, protótipo e evidências físicas | Não localizados; BLOQUEADA a parte física |
-| Fundamentação teórica revisada | Necessária para fechar a seção acadêmica | Em elaboração na J-S2-03 |
+| Fundamentação teórica revisada | Necessária para fechar a seção acadêmica | Produzida na J-S2-03 e integrada à `main` |
 | Casos de teste e evidências | Necessários para resultados e análise | Parcialmente disponíveis; conclusão pendente |
 
 ## 4. Critério de aceite da task
 
-A task será considerada aplicável nesta etapa quando a estrutura proposta estiver versionada, vinculada aos artefatos existentes e acompanhada das dependências que impedem a versão final. A estrutura não será apresentada como documento N1 concluído antes da confirmação do roteiro e dos insumos obrigatórios.
+A task será considerada aplicável nesta etapa quando a estrutura estiver versionada, alinhada ao roteiro oficial, vinculada aos artefatos existentes e acompanhada das dependências que impedem a versão final. A estrutura não será apresentada como documento N1 concluído antes da consolidação dos resultados e das evidências obrigatórias.
 
 ## 5. Referências
 
