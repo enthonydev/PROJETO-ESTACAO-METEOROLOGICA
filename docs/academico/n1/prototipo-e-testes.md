@@ -63,7 +63,7 @@ A auditoria `docs/testes/auditoria-coerencia-s3.md` foi integrada à `main` junt
 
 ## 6. Procedimento de reprodução do software
 
-Os testes de backend devem ser executados a partir de `backend/` com as dependências de `backend/requirements.txt` instaladas e o pacote `app` no `PYTHONPATH`. Os testes de firmware estrutural devem ser executados a partir de `firmware/`, também sem placa conectada. O script `scripts/validate_contract.py` deve ser executado a partir da raiz do repositório.
+Os testes devem ser executados a partir da raiz do repositório, após a instalação das dependências de `backend/requirements.txt`. Para o backend, use `PYTHONPATH=backend python -m pytest backend/tests -q`. Para o firmware estrutural, use `PYTHONPATH=firmware/src python -m pytest firmware/tests -q`. O script `python scripts/validate_contract.py` e a compilação `python -m compileall -q backend/app backend/tests firmware/src firmware/tests` também devem ser executados a partir da raiz, sempre sem placa conectada.
 
 A reprodução desses testes demonstra o comportamento dos módulos em software. Ela não demonstra consumo, latência física, cobertura Wi-Fi, precisão, estabilidade ambiental ou funcionamento da eletrônica.
 
