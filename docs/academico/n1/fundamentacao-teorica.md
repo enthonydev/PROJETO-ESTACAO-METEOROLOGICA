@@ -72,7 +72,7 @@ A ISO/IEC/IEEE 29148:2018 trata de processos e produtos de engenharia de requisi
 
 Um estudo de rastreabilidade de medições meteorológicas descreve uma cadeia com aquisição, armazenamento, calibração por padrões e orçamento de incerteza em um contexto metrológico específico [23]. O caso demonstra que software e procedimentos de calibração participam da qualidade do arquivo de medições. Ele não valida a estação deste projeto, mas ajuda a definir o tipo de evidência que será necessário produzir quando houver hardware e instrumentos de referência disponíveis.
 
-A matriz `docs/requisitos/matriz-rastreabilidade-n1.md` aplica esses princípios ao projeto. Cada requisito deve ser relacionado ao artefato que o implementa, ao caso de teste correspondente e à evidência disponível. Uma linha somente pode ser classificada como validada quando o teste ou a evidência existir. A matriz distingue documentação, implementação em branch técnica, validação em software, simulação e validação física.
+A matriz `docs/requisitos/matriz-rastreabilidade-n1.md` aplica esses princípios ao projeto. Cada requisito deve ser relacionado ao artefato que o implementa, ao caso de teste correspondente e à evidência disponível. Uma linha somente pode ser classificada como validada quando o teste ou a evidência existir. A matriz distingue documentação, implementação na `main` ou em branch de trabalho, validação em software, simulação e validação física.
 
 ## 9. Síntese aplicada ao projeto
 

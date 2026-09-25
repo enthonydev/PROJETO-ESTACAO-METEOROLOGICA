@@ -53,7 +53,7 @@ Decisões ainda não aprovadas devem ser identificadas como propostas. A seção
 
 ### 2.8 Modelagem de dados
 
-Esta seção deve apresentar o modelo conceitual, lógico e físico no nível exigido pela N1, incluindo entidades, chaves, relacionamentos, integridade, timestamps e índice de série temporal. O DER e a migration da branch técnica de Enthony devem ser considerados somente como artefatos identificados até sua revisão e integração centralizadas.
+Esta seção deve apresentar o modelo conceitual, lógico e físico no nível exigido pela N1, incluindo entidades, chaves, relacionamentos, integridade, timestamps e índice de série temporal. O DER e a migration de Enthony estão integrados na `main`; sua execução contra PostgreSQL e a persistência em runtime ainda não possuem evidência nesta etapa.
 
 ### 2.9 Protótipo e simulação
 
@@ -80,7 +80,7 @@ A versão final deve incluir referências no padrão solicitado pelo professor e
 | Dependência | Impacto | Estado |
 |---|---|---|
 | Roteiro ou rubrica oficial do professor | Pode alterar a ordem, os títulos e a extensão das seções | BLOQUEADA até confirmação |
-| Insumos de Enthony | Necessários para modelagem técnica, backend e resultados disponíveis | Parcialmente identificados na branch técnica; revisão pendente |
+| Insumos de Enthony | Necessários para modelagem técnica, backend e resultados disponíveis | Backend, DER, migration, firmware estrutural e testes técnicos integrados na `main`; MQTT, persistência runtime e hardware continuam pendentes |
 | Insumos de Luan | Necessários para hardware, pinout, protótipo e evidências físicas | Não localizados; BLOQUEADA a parte física |
 | Fundamentação teórica revisada | Necessária para fechar a seção acadêmica | Em elaboração na J-S2-03 |
 | Casos de teste e evidências | Necessários para resultados e análise | Parcialmente disponíveis; conclusão pendente |

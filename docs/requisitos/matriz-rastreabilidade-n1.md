@@ -2,7 +2,7 @@
 
 ## 1. Objetivo e estado
 
-Este documento atende à task J-S3-01 da Sprint 3. A matriz relaciona requisitos aos artefatos, testes e evidências efetivamente disponíveis na `main` após a integração da Sprint 2.
+Este documento atende à task J-S3-01 da Sprint 3. A matriz relaciona requisitos aos artefatos, testes e evidências efetivamente disponíveis na `main` após a integração técnica da Sprint 3.
 
 A matriz diferencia implementação, teste executado em software, simulação, projeto e validação física. Nenhum resultado desta versão é apresentado como validação física. Não há pinagem validada, calibração, teste de bancada ou evidência física integrada ao repositório.
 
@@ -32,8 +32,8 @@ A matriz diferencia implementação, teste executado em software, simulação, p
 | RF-08 | Validar leituras e qualidade no firmware. | `SensorService`; estados `ok` e `error` | Teste de isolamento de falha de driver | Validado em software para caso estrutural; faixas físicas não definidas |
 | RF-09 | Publicar telemetria por Wi-Fi/MQTT. | Contrato e arquitetura; conectividade skeleton | Nenhum teste de publicação MQTT | Projetado; broker e firmware de publicação pendentes |
 | RF-10 | Reconectar sem bloquear funções. | Arquitetura; `connectivity.py` skeleton | Nenhum teste de reconexão | Projetado; validação no ESP32 bloqueada |
-| RF-11 | Validar telemetria no backend. | `backend/app/schemas/telemetry.py`; `telemetry_validation.py` | `backend/tests/test_api.py`: válido, parcial e inválido | Validado em software |
-| RF-12 | Persistir medição e qualidade. | DER e `database/migrations/001_schema_inicial.sql` | Inspeção de SQL; nenhum banco executado no CI atual | Implementado como modelo/migration; persistência runtime pendente |
+| RF-11 | Validar telemetria no backend. | `backend/app/schemas/telemetry.py`; `telemetry_validation.py` | `backend/tests/test_api.py` e `backend/tests/test_contract.py`: válido, parcial, inválido, versão, campos extras e estação vazia | Validado em software |
+| RF-12 | Persistir medição e qualidade. | DER e `database/migrations/001_schema_inicial.sql` | Inspeção de SQL; nenhum banco executado no CI atual | Implementado como modelo/migration; execução contra PostgreSQL e persistência runtime pendentes |
 | RF-13 | Expor saúde, estações, última leitura, histórico e resumo. | `/health` e `/api/v1/telemetry/validate` implementados; endpoints restantes na arquitetura | Teste de healthcheck e validação | Parcialmente validado em software; endpoints de consulta pendentes |
 | RF-14 | Exibir métricas atuais. | Requisito; frontend ainda sem implementação | Nenhum teste de interface | Pendente |
 | RF-15 | Consultar histórico por período. | Endpoint previsto na arquitetura | Nenhum endpoint/teste integrado | Pendente |
@@ -54,7 +54,7 @@ A matriz diferencia implementação, teste executado em software, simulação, p
 | RNF-02 | Manter ciclos independentes. | `firmware/src/tasks/tasks.py`; arquitetura | Nenhum teste de concorrência no ESP32 | Implementado como skeleton/projetado; validação física pendente |
 | RNF-03 | Operar de forma degradada. | Arquitetura; serviços skeleton | Falha de driver isolada em software | Validado em software parcialmente; operação offline física bloqueada |
 | RNF-04 | Usar Python/FastAPI no backend. | `backend/app/main.py`; requirements | `test_health` e testes de endpoints | Validado em software |
-| RNF-05 | Usar PostgreSQL com modelo compatível. | DER e migration SQL | Inspeção de schema; sem execução PostgreSQL no CI atual | Implementado como modelo; execução e integração pendentes |
+| RNF-05 | Usar PostgreSQL com modelo compatível. | DER e migration SQL | Inspeção de schema; sem execução PostgreSQL no CI atual | Implementado como modelo; execução do banco e persistência runtime pendentes |
 | RNF-06 | Usar política temporal única. | DER com `TIMESTAMPTZ`; arquitetura | Inspeção documental | Implementado/documentado; conversão apresentada em software |
 | RNF-07 | Indexar estação e instante. | `measurements_station_measured_at_idx` | Inspeção da migration | Implementado em SQL; execução do banco pendente |
 | RNF-08 | Separar dashboard do banco. | Arquitetura; frontend ainda sem implementação | Inspeção estrutural | Documentado; implementação frontend pendente |
@@ -63,7 +63,7 @@ A matriz diferencia implementação, teste executado em software, simulação, p
 | RNF-11 | Não versionar segredos. | `.gitignore`; `SECURITY.md` | Inspeção do repositório | Documentado e verificado por inspeção |
 | RNF-12 | Produzir logs úteis sem segredos. | Skeletons de backend/firmware | Nenhum ensaio de logs integrado | Pendente/parcial |
 | RNF-13 | Versionar schema e compatibilidade. | JSON schema v1.0 e fixtures | `validate_contract.py` e checks CI | Validado em software |
-| RNF-14 | Cobrir camadas de teste. | Testes backend e firmware estrutural | Pytest executável; camadas físicas ainda ausentes | Parcialmente validado em software |
+| RNF-14 | Cobrir camadas de teste. | Testes backend, contrato e firmware estrutural | Pytest, `test_contract.py`, `test_structure.py` e `test_tasks.py`; camadas físicas ainda ausentes | Parcialmente validado em software |
 | RNF-15 | Separar evidência física e simulada. | Metodologia, matriz e docs da Sprint 3 | Inspeção documental | Validado documentalmente; evidência física ainda inexistente |
 | RNF-16 | Trabalhar por branch e PR. | Governança e branch da Sprint 3 | Histórico Git e PR | Aplicado |
 | RNF-17 | Commits em português e autoria autorizada. | Histórico Git | Inspeção de autoria e mensagens | Aplicado |
@@ -75,11 +75,11 @@ A matriz diferencia implementação, teste executado em software, simulação, p
 
 ### 5.1 Backend
 
-A `main` contém um skeleton FastAPI com `GET /health` e `POST /api/v1/telemetry/validate`. Os testes verificam healthcheck, payload válido, payload parcial com qualidade de erro e rejeição de payload inválido. Esses testes são validações em software com fixtures; não demonstram conexão MQTT, persistência PostgreSQL ou operação em hardware.
+A `main` contém um skeleton FastAPI com `GET /health` e `POST /api/v1/telemetry/validate`. Os testes verificam healthcheck, payload válido, payload parcial com qualidade de erro, rejeição de payload inválido, campos desconhecidos, versão de schema não suportada e `station_id` vazio. Esses testes são validações em software com fixtures; não demonstram conexão MQTT, persistência PostgreSQL ou operação em hardware.
 
 ### 5.2 Firmware
 
-A `main` contém serviços, estados, renderers e tarefas estruturais. O teste do firmware usa drivers e displays fake para verificar isolamento de falha de sensor, recebimento de estado processado pelo display meteorológico, recebimento de tempo resolvido pelo display de relógio e conversão de estado temporal. O arquivo declara explicitamente que não há hardware físico.
+A `main` contém serviços, estados, renderers e tarefas estruturais. Os testes do firmware usam drivers e displays fake para verificar isolamento de falha de sensor, recebimento de estado processado pelos displays, conversão de estado temporal, delegação da tarefa de sensores, combinação de serviços de clima e relógio e entrega de estados às tarefas de display. Esses testes são simulações controladas e validações em software; não há hardware físico.
 
 ### 5.3 Banco de dados
 
@@ -89,6 +89,10 @@ A `main` contém um DER e uma migration SQL com as entidades `stations`, `measur
 
 Não existem evidências integradas de pinagem, montagem, leitura de sensores reais, calibração do MQ-135, conversão validada de chuva, coordenadas físicas, comunicação MQTT real, sincronização NTP/RTC em hardware, operação offline no ESP32, dashboard funcional ou teste de campo.
 
+### 5.4 Auditoria de coerência
+
+A auditoria `docs/testes/auditoria-coerencia-s3.md`, integrada na mesma `main`, compara implementação, arquitetura, contrato, modelo de dados e requisitos. Ela confirma que o contrato, os fixtures, a validação FastAPI e os serviços/estados de firmware estão validados em software, enquanto MQTT, PostgreSQL runtime, API de consultas, displays, sensores, Wi-Fi, dashboard e testes de campo permanecem projetados, pendentes ou bloqueados.
+
 ## 6. Referências
 
 [1]: ../arquitetura/arquitetura-sistema.md "Arquitetura do Projeto — Estação Meteorológica Inteligente"
@@ -97,3 +101,4 @@ Não existem evidências integradas de pinagem, montagem, leitura de sensores re
 [4]: ../arquitetura/adr/ADR-001-baseline-tecnica.md "ADR-001 — Baseline técnica do sistema"
 [5]: ../academico/n1/metodologia-desenvolvimento.md "Metodologia de desenvolvimento da N1"
 [6]: ../academico/n1/prototipo-e-testes.md "Protótipo e casos de teste da N1"
+[7]: ../testes/auditoria-coerencia-s3.md "Auditoria de coerência técnica — Sprint 3"
