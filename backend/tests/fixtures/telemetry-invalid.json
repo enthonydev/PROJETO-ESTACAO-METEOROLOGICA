@@ -1,0 +1,25 @@
+{
+  "schema_version": "9.9",
+  "station_id": "estacao-01",
+  "timestamp": "data-invalida",
+  "location": {
+    "latitude": null,
+    "longitude": null
+  },
+  "measurements": {
+    "temperature_c": 23.7,
+    "humidity_pct": 58.4,
+    "pressure_hpa": 1012.8,
+    "air_quality_raw": 398,
+    "luminosity_pct": 68.0,
+    "rain_mm": 0.0
+  },
+  "quality": {
+    "temperature": "ok",
+    "humidity": "ok",
+    "pressure": "ok",
+    "air_quality": "ok",
+    "luminosity": "ok",
+    "rain": "ok"
+  }
+}
