@@ -1,6 +1,6 @@
 <div align="center">
 
-# 🌦️ Estação Meteorológica Inteligente com ESP32
+# Estação Meteorológica Inteligente com ESP32
 
 **Projeto acadêmico de monitoramento ambiental com ESP32, telemetria MQTT, backend Python e visualização web.**
 
@@ -16,7 +16,7 @@
 
 ---
 
-## 📌 Sobre o projeto
+## Sobre o projeto
 
 A **Estação Meteorológica Inteligente com ESP32** é um projeto acadêmico voltado à aquisição, transmissão, armazenamento e visualização de dados ambientais.
 
@@ -24,7 +24,7 @@ A solução foi projetada para integrar sensores ao ESP32, transmitir telemetria
 
 Além da interface web, a arquitetura prevê duas telas OLED locais para informações meteorológicas e relógio/calendário.
 
-## 🏗️ Arquitetura
+## Arquitetura
 
 ```text
 Sensores
@@ -48,7 +48,7 @@ O **MQTT** é o caminho principal projetado para a telemetria. A **API REST** at
 
 A arquitetura completa está documentada em [`docs/arquitetura/arquitetura-sistema.md`](docs/arquitetura/arquitetura-sistema.md).
 
-## 🧰 Stack e componentes
+## Stack e componentes
 
 | Camada | Tecnologia / componente | Situação |
 |---|---|---|
@@ -67,7 +67,7 @@ A arquitetura completa está documentada em [`docs/arquitetura/arquitetura-siste
 
 > **Importante:** “projetado” ou “implementado em software” não significa validação física. O projeto mantém essa distinção em toda a documentação.
 
-## 🌡️ Dados ambientais previstos
+## Dados ambientais previstos
 
 O MVP contempla:
 
@@ -80,7 +80,7 @@ O MVP contempla:
 
 Cada amostra deve possuir identificação da estação, timestamp e informação de qualidade das medições.
 
-## 🖥️ Interfaces locais
+## Interfaces locais
 
 A arquitetura prevê duas telas OLED **SH1106 128×64** independentes, utilizando o multiplexador **TCA9548A**:
 
@@ -99,7 +99,7 @@ A arquitetura prevê duas telas OLED **SH1106 128×64** independentes, utilizand
 
 A camada de apresentação recebe dados processados pelos serviços do firmware e não consulta diretamente sensores, APIs ou NTP.
 
-## 📡 Contrato de telemetria
+## Contrato de telemetria
 
 O contrato atual está na versão **1.0**.
 
@@ -122,11 +122,11 @@ quality
 
 O contrato completo está em [`docs/contratos/telemetria-v1.0.json`](docs/contratos/telemetria-v1.0.json).
 
-## 🚀 Estado atual
+## Estado atual
 
 As **Sprints 1 a 4** estão consolidadas na `main`.
 
-### ✅ Disponível no repositório
+### Disponível no repositório
 
 - requisitos funcionais e não funcionais;
 - stakeholders e fronteiras de escopo;
@@ -148,7 +148,7 @@ As **Sprints 1 a 4** estão consolidadas na `main`.
 - relatório acadêmico consolidado da N1;
 - auditorias de coerência técnica e acadêmica.
 
-### ⏳ Pendente ou bloqueado
+### Pendente ou bloqueado
 
 - ingestão MQTT real;
 - persistência PostgreSQL em runtime;
@@ -164,7 +164,7 @@ As **Sprints 1 a 4** estão consolidadas na `main`.
 
 > A evidência atual comprova comportamento e organização de **software**. Ela não comprova uma estação física integrada.
 
-## 🧪 Validação
+## Validação
 
 A base atual possui validações automatizadas para backend, contrato e estrutura do firmware.
 
@@ -172,7 +172,7 @@ O CI verifica os artefatos aplicáveis antes da integração das alterações na
 
 As validações físicas serão registradas somente quando houver montagem e evidência reproduzível de bancada ou campo.
 
-## 📚 Documentação da N1
+## Documentação da N1
 
 Os principais documentos consolidados são:
 
@@ -182,7 +182,7 @@ Os principais documentos consolidados são:
 - [Contrato de telemetria v1.0](docs/contratos/telemetria-v1.0.json)
 - [Guia de contribuição](CONTRIBUTING.md)
 
-## 🔀 Desenvolvimento e governança
+## Desenvolvimento e governança
 
 O desenvolvimento ocorre em branches próprias. Cada alteração deve passar por **Pull Request** antes de chegar à `main`.
 
@@ -206,7 +206,7 @@ Uma etapa não é promovida automaticamente para a seguinte. **Evidência de sof
 
 <div align="center">
 
-### 🎓 Projeto e Desenvolvimento II · Ciência da Computação
+### Projeto e Desenvolvimento II · Ciência da Computação
 
 **Estação Meteorológica Inteligente com ESP32**
 
