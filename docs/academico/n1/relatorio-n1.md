@@ -102,7 +102,7 @@ Os requisitos funcionais e não funcionais completos estão nos documentos de re
 | RNF-08 a RNF-15 | Separação do dashboard, acessibilidade, validação, segurança, logs, schema e testes | Validação documental e de software parcial; frontend, logs completos e camadas físicas pendentes |
 | RNF-16 a RNF-20 | Governança Git, autoria, ADR, rastreabilidade e demonstração reproduzível | Aplicados documentalmente; demonstração física ainda pendente |
 
-O contrato v1.0 exige `schema_version`, `station_id`, `timestamp`, `location`, `measurements` e `quality`. O tópico MQTT previsto é `estacao/<station_id>/telemetry`. O backend rejeita versões não suportadas, campos extras e identificador vazio nos testes complementares integrados à `main`.
+O contrato v1.0 exige `schema_version`, `station_id`, `timestamp`, `location`, `measurements` e `quality`. O tópico MQTT previsto é `estacao/<station_id>/telemetry`. O backend rejeita versões não suportadas, campos extras, timestamp inválido e identificador vazio nos testes complementares integrados à `main`.
 
 ## 7. Casos de uso
 
@@ -133,7 +133,7 @@ O DER inicial contém `stations`, `measurements` e `measurement_quality`. Uma es
 
 A migration define chaves primárias, chave estrangeira, unicidade do código da estação, estados de qualidade permitidos e índice `station_id + measured_at`. Os timestamps usam `TIMESTAMPTZ`, seguindo a política de armazenar UTC e converter na apresentação.
 
-O modelo é um artefato implementado no repositório. Não há evidência de execução contra PostgreSQL nesta N1. Não há faixas físicas, calibração, coordenadas reais ou fator de conversão de chuva no modelo.
+O modelo é projetado e implementado como artefato SQL versionado no repositório. Não há evidência de execução contra PostgreSQL nesta N1. Não há faixas físicas, calibração, coordenadas reais ou fator de conversão de chuva no modelo.
 
 ## 10. Protótipo e testes
 
@@ -203,7 +203,7 @@ Recomenda-se que as próximas atividades mantenham a matriz atualizada e prioriz
 
 A auditoria também está registrada em `docs/academico/n1/auditoria-consolidacao-n1.md` para permitir revisão independente dos critérios abaixo.
 
-A auditoria da consolidação verificou os seguintes pontos:
+A auditoria da consolidação, revisada após a integração de `docs/academico/n1/insumos-tecnicos-consolidacao.md`, verificou os seguintes pontos:
 
 | Verificação | Resultado | Observação |
 |---|---|---|
@@ -244,3 +244,4 @@ A versão final pode incluir como apêndices o contrato JSON v1.0, fixtures de t
 [19]: https://journals.sagepub.com/doi/10.1177/0309133320956567 "Low-cost electronic sensors for environmental research: Pitfalls and opportunities"
 [20]: https://docs.google.com/document/d/1ij1nmvs1P_PxaeunHD-nefCdfW433h46/edit "Plano operacional N1 — Sprints James v2"
 [21]: auditoria-consolidacao-n1.md "Auditoria de coerência da consolidação acadêmica da N1"
+[22]: insumos-tecnicos-consolidacao.md "Insumos técnicos para consolidação da N1"
