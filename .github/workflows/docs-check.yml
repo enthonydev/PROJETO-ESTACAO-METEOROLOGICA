@@ -1,0 +1,39 @@
+name: Checks de documentação e contratos
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+  workflow_dispatch:
+
+jobs:
+  validate-baseline:
+    name: Validar baseline e contrato
+    runs-on: ubuntu-latest
+    steps:
+      - name: Baixar o repositório
+        uses: actions/checkout@v4
+
+      - name: Verificar arquivos essenciais
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -s README.md
+          test -s CONTRIBUTING.md
+          test -s docs/arquitetura/arquitetura-sistema.md
+          test -s docs/arquitetura/adr/ADR-001-baseline-tecnica.md
+          test -s docs/contratos/contratos-integracao.md
+          test -s docs/contratos/telemetria-v1.0.json
+          test -s docs/contratos/examples/telemetry-v1.0-valid.json
+          test -s docs/contratos/examples/telemetry-v1.0-partial.json
+          test -s scripts/validate_contract.py
+
+      - name: Validar JSON e contrato
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m json.tool docs/contratos/telemetria-v1.0.json >/dev/null
+          python -m json.tool docs/contratos/examples/telemetry-v1.0-valid.json >/dev/null
+          python -m json.tool docs/contratos/examples/telemetry-v1.0-partial.json >/dev/null
+          python scripts/validate_contract.py

@@ -1,0 +1,14 @@
+# Configurações locais e segredos
+.env
+.env.*
+!.env.example
+
+# Ambientes e caches Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+venv/
+
+# Artefatos locais
+.DS_Store

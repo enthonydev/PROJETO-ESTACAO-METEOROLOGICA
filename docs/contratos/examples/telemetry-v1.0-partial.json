@@ -1,0 +1,25 @@
+{
+  "schema_version": "1.0",
+  "station_id": "estacao-01",
+  "timestamp": "2026-09-24T12:05:00Z",
+  "location": {
+    "latitude": null,
+    "longitude": null
+  },
+  "measurements": {
+    "temperature_c": null,
+    "humidity_pct": 61.0,
+    "pressure_hpa": 1013.1,
+    "air_quality_raw": 405,
+    "luminosity_pct": 71.0,
+    "rain_mm": 0.0
+  },
+  "quality": {
+    "temperature": "error",
+    "humidity": "ok",
+    "pressure": "ok",
+    "air_quality": "ok",
+    "luminosity": "ok",
+    "rain": "ok"
+  }
+}
