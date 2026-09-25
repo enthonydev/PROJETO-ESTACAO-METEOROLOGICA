@@ -33,13 +33,13 @@ As datas abaixo são as datas do plano `N1_Sprints_James_v2.docx`. Não foram ac
 |---|---|---|---|
 | J-S2-01 | Matriz de rastreabilidade requisito → implementação → teste → evidência | Contrato de Enthony e plano/artefatos de Luan | Matriz inicial produzida; relações dependentes permanecem explicitamente bloqueadas ou pendentes. |
 | J-S2-02 | Metodologia de desenvolvimento | Governança e sprints definidas | Concluída documentalmente na branch da Sprint 2. |
-| J-S2-03 | Fundamentação teórica | Fontes confiáveis disponíveis | Em elaboração; somente fontes verificáveis serão incorporadas. |
+| J-S2-03 | Fundamentação teórica | Fontes confiáveis disponíveis | Produzida com fontes verificáveis e integrada à `main`. |
 | J-S2-04 | Cronograma acadêmico | Plano operacional da N1 | Concluído com as datas oficiais do plano. |
 | J-S2-05 | Estrutura do documento N1 | Roteiro do professor e insumos de Enthony/Luan | Estrutura proposta com pendências explícitas; a estrutura final aguarda confirmação dos insumos. |
 
 ## 5. Dependências de outras frentes
 
-A branch técnica de Enthony contém um skeleton de backend, fixtures de telemetria, serviço de validação, DER inicial e migration inicial. Esses artefatos são utilizados na matriz como implementação identificada, mas não são declarados como integrados enquanto não passarem pelo fluxo centralizado de revisão e merge.
+A Sprint 2 foi integrada à `main`. A main atual contém o skeleton de backend, fixtures de telemetria, serviço de validação, DER inicial, migration inicial, firmware estrutural e testes técnicos de contrato e tasks. Esses artefatos podem ser tratados como integrados, mas MQTT, persistência runtime, dashboard, pinagem, calibração e evidências físicas continuam pendentes ou bloqueados conforme a matriz da Sprint 3.
 
 Não foi localizado plano ou artefato de Luan no repositório ou na pasta do Drive consultada. Portanto, tarefas que dependam de pinout, componentes, calibração, teste físico ou evidência de bancada devem manter o estado BLOQUEADO até o fornecimento do insumo correspondente.
 
@@ -55,7 +55,7 @@ A documentação, o contrato e o backend com fixtures podem avançar sem hardwar
 
 ## 7. Gate da Sprint 2
 
-O Gate da Sprint 2 ainda não está liberado para a Sprint 3. Para a frente de James, devem estar disponíveis a matriz, a metodologia, a fundamentação, o cronograma e a estrutura da N1, com bloqueios e dependências claramente classificados. A liberação integral também depende da auditoria centralizada das frentes aplicáveis e não autoriza merge feito por este PO.
+O Gate da Sprint 2 foi encerrado com a integração das frentes aplicáveis na `main`. A Sprint 3 atualiza a matriz, consolida arquitetura e dados, documenta protótipo e testes e relaciona as disciplinas. A integração desta frente continua sujeita à fila oficial e à revisão centralizada; não autoriza merge feito por este PO.
 
 ## 8. Referências
 
