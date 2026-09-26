@@ -92,7 +92,7 @@ A coerência entre hardware, firmware e contrato está registrada em `docs/arqui
 
 O estado desta frente deve permanecer separado em gate documental/preparatório e gate físico. O primeiro pode ser revisado pelos POs com base nos artefatos versionados. O segundo permanece pendente de hardware e sem evidência física.
 
-## 7. Referências internas
+## 8. Referências internas
 
 [1]: ../../arquitetura/arquitetura-sistema.md "Arquitetura do Projeto — Estação Meteorológica Inteligente"
 [2]: ../../contratos/contratos-integracao.md "Contratos de integração"
