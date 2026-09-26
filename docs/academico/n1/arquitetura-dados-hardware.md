@@ -84,6 +84,14 @@ A N1 já possui uma arquitetura coerente e um modelo de dados inicial implementa
 
 A ausência de evidência física não impede a apresentação do projeto como protótipo de software e arquitetura. Ela impede apenas conclusões sobre exatidão dos sensores, confiabilidade da estação, autonomia, representatividade espacial e funcionamento da montagem no ambiente real.
 
+## 7. Artefatos preparatórios da frente de hardware
+
+Como recuperação documental das tarefas de Luan até a Sprint 4 N1, a branch de trabalho acrescenta `hardware/bom.md`, `hardware/pinout.md`, `hardware/diagrams/interconexoes.md` e `hardware/plano-testes.md`. Esses artefatos consolidam componentes previstos, interfaces conceituais, TBDs, critérios e testes futuros. Eles não representam BOM disponível, pinagem definitiva, montagem, leitura real, calibração ou validação física.
+
+A coerência entre hardware, firmware e contrato está registrada em `docs/arquitetura/coerencia-hardware-firmware-contrato.md`. A divergência entre BME280 e DHT22 + BMP280 está registrada como gate de decisão conjunta em `docs/arquitetura/decisao-pendente-sensores.md`; nenhum componente foi excluído ou escolhido unilateralmente.
+
+O estado desta frente deve permanecer separado em gate documental/preparatório e gate físico. O primeiro pode ser revisado pelos POs com base nos artefatos versionados. O segundo permanece pendente de hardware e sem evidência física.
+
 ## 7. Referências internas
 
 [1]: ../../arquitetura/arquitetura-sistema.md "Arquitetura do Projeto — Estação Meteorológica Inteligente"

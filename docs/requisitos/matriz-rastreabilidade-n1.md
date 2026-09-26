@@ -73,6 +73,10 @@ A matriz diferencia implementação, teste executado em software, simulação, p
 
 ## 5. Evidências efetivamente existentes
 
+### 5.0 Artefatos preparatórios da frente de hardware
+
+A frente de Luan acrescenta `hardware/bom.md`, `hardware/pinout.md`, `hardware/diagrams/interconexoes.md` e `hardware/plano-testes.md`, além de `docs/arquitetura/coerencia-hardware-firmware-contrato.md` e `docs/arquitetura/decisao-pendente-sensores.md`. Esses artefatos são documentação de projeto, critérios e preparação de testes. Eles não comprovam disponibilidade de componentes, pinagem, montagem, leitura real, calibração ou validação física. A divergência entre BME280 e DHT22 + BMP280 permanece como decisão conjunta pendente dos POs.
+
 ### 5.1 Backend
 
 A `main` contém um skeleton FastAPI com `GET /health` e `POST /api/v1/telemetry/validate`. Os testes verificam healthcheck, payload válido, payload parcial com qualidade de erro, rejeição de payload inválido, campos desconhecidos, versão de schema não suportada e `station_id` vazio. Esses testes são validações em software com fixtures; não demonstram conexão MQTT, persistência PostgreSQL ou operação em hardware.

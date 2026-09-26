@@ -197,6 +197,8 @@ A N1 consolidada apresenta uma especificação rastreável, arquitetura coerente
 
 A N1 não demonstra ainda a estação física. Não há autorização para declarar validação física de sensores, displays, pinagem, calibração, conectividade, operação offline ou medições ambientais. Essas conclusões dependem de evidências de bancada e de campo.
 
+Na revisão da frente de Luan, foram preparados artefatos de BOM, pinout preliminar, mapa conceitual de interconexões, plano de testes, matriz de coerência hardware–firmware–contrato e análise da decisão pendente entre BME280 e DHT22 + BMP280. Esses documentos recuperam trabalho preparatório possível sem peças, mas não alteram o estado físico: montagem, leituras, alimentação, endereços, calibração, operação offline no ESP32 e testes de campo continuam **PENDENTES DE HARDWARE**.
+
 Recomenda-se que as próximas atividades mantenham a matriz atualizada e priorizem a implementação incremental das camadas ausentes. Cada avanço deve incluir teste, log ou evidência correspondente. A calibração do MQ-135, o fator do pluviômetro, as coordenadas, a pinagem e a infraestrutura do broker devem ser decididos e documentados antes de qualquer afirmação de conclusão.
 
 ## 15. Auditoria de coerência acadêmica
