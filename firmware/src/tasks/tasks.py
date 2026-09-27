@@ -1,4 +1,4 @@
-"""Tarefas cooperativas como unidades independentes de atualização."""
+"""Tarefas cooperativas independentes da topologia física da interface."""
 
 
 class SensorTask:
@@ -10,6 +10,8 @@ class SensorTask:
 
 
 class SyncTask:
+    """Atualiza fontes complementares de rede sem substituir sensores locais."""
+
     def __init__(self, weather_service, time_service):
         self.weather_service = weather_service
         self.time_service = time_service
@@ -21,19 +23,14 @@ class SyncTask:
         }
 
 
-class WeatherTask:
+class LocalDisplayTask:
+    """Renderiza em uma única interface o estado composto fornecido pela aplicação."""
+
     def __init__(self, display, state_provider):
         self.display = display
         self.state_provider = state_provider
 
     def run_once(self):
-        self.display.render(self.state_provider())
-
-
-class ClockTask:
-    def __init__(self, display, state_provider):
-        self.display = display
-        self.state_provider = state_provider
-
-    def run_once(self):
-        self.display.render(self.state_provider())
+        state = self.state_provider()
+        self.display.render(state)
+        return state

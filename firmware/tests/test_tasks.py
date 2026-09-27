@@ -1,7 +1,7 @@
-"""Testes de integração estrutural entre serviços, estados e tasks."""
+"""Testes estruturais das tasks da baseline ADR-002."""
 
 from models.state import ClockState, WeatherState
-from tasks.tasks import ClockTask, SensorTask, SyncTask, WeatherTask
+from tasks.tasks import LocalDisplayTask, SensorTask, SyncTask
 
 
 class SensorService:
@@ -37,26 +37,23 @@ class Display:
 
 def test_sensor_task_delegates_to_service():
     service = SensorService()
-
     assert SensorTask(service).run_once() == "snapshot"
     assert service.calls == 1
 
 
-def test_sync_task_combines_weather_and_clock_services():
+def test_sync_task_combines_complementary_services():
     result = SyncTask(WeatherService(), TimeService()).run_once()
-
     assert result["weather"].external["condition"] == "clear"
     assert result["clock"].hour == 10
 
 
-def test_display_tasks_receive_state_from_provider():
-    weather_display = Display()
-    clock_display = Display()
-    weather_state = WeatherState(local={"temperature_c": 21.0})
-    clock_state = ClockState(2026, 9, 25, 4, 10, 30)
-
-    WeatherTask(weather_display, lambda: weather_state).run_once()
-    ClockTask(clock_display, lambda: clock_state).run_once()
-
-    assert weather_display.rendered == [weather_state]
-    assert clock_display.rendered == [clock_state]
+def test_single_local_display_receives_composed_state():
+    display = Display()
+    state = {
+        "local": {"temperature_c": 21.0},
+        "clock": ClockState(2026, 9, 25, 4, 10, 30),
+        "external": {"condition": "clear"},
+    }
+    returned = LocalDisplayTask(display, lambda: state).run_once()
+    assert display.rendered == [state]
+    assert returned == state
