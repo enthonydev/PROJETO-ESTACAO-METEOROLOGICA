@@ -1,104 +1,83 @@
 # Arquitetura, dados e hardware da N1
 
-## 1. Objetivo e classificação da evidência
+## 1. Objetivo e classificação
 
-Este documento atende à task J-S3-02 da Sprint 3. Ele consolida no material acadêmico os artefatos de arquitetura, backend, firmware e banco de dados efetivamente presentes na `main` após a integração da Sprint 2.
+Este documento consolida os artefatos de arquitetura, backend, firmware, banco e hardware disponíveis na `main`. Documentação, código, CI e simulação não são tratados como validação física.
 
-A classificação usada é:
-
-| Classificação | Aplicação nesta versão |
+| Classificação | Aplicação |
 |---|---|
-| Implementado | Código, SQL ou documento versionado na `main`. |
-| Validado em software | Comportamento exercitado por teste local ou CI, sem hardware. |
-| Simulado | Comportamento exercitado com fixtures, doubles ou estados sintéticos. |
-| Projetado | Decisão arquitetural ou skeleton sem integração comprovada. |
-| Pendente | Artefato ainda não disponível. |
+| Implementado | Código, SQL ou documento versionado. |
+| Validado em software | Comportamento exercitado por teste/CI sem hardware. |
+| Simulado | Comportamento exercitado com doubles, fixtures ou estados sintéticos. |
+| Projetado | Decisão arquitetural sem integração comprovada. |
+| Pendente | Artefato/teste ainda não disponível. |
 | Bloqueado | Conclusão depende de hardware, pinout, calibração ou evidência física. |
-
-Documentação, código e teste de software não são tratados como validação física.
 
 ## 2. Arquitetura integrada
 
-A baseline integrada descreve o seguinte fluxo:
-
 ```text
-Sensores → ESP32/MicroPython → Wi-Fi → MQTT → Backend/FastAPI → PostgreSQL → API REST → Dashboard Web
+DHT22 + BMP280 + MQ-135 + LDR + chuva experimental
+                    ↓
+             ESP32 / MicroPython
+                    ↓
+                Wi-Fi/MQTT
+                    ↓
+             Backend/FastAPI
+                    ↓
+               PostgreSQL
+                    ↓
+               API REST
+                    ↓
+             Dashboard Web
 ```
 
-O ESP32 também possui uma frente local de visualização, com dois displays OLED mediados pelo TCA9548A. A arquitetura diferencia a interface embarcada da interface web pública. A API meteorológica externa complementa a tela local e não substitui os sensores físicos.
+O ESP32 possui uma única OLED I²C 128x64. NTP é a fonte principal de sincronização temporal. A API meteorológica externa é complementar e não substitui sensores físicos.
 
-Na `main`, a separação de camadas está representada por:
+A baseline física foi decidida no ADR-002. BME280 adicional, DS3231, segunda OLED e TCA9548A não fazem parte da baseline atual.
 
-- `firmware/src/models/`, para estados internos;
-- `firmware/src/services/`, para aquisição, conectividade, tempo e API externa;
-- `firmware/src/displays/`, para renderização de estados;
-- `firmware/src/tasks/`, para tarefas estruturais;
-- `backend/app/api/`, `schemas/`, `services/` e `core/`, para a aplicação FastAPI;
-- `database/diagrams/` e `database/migrations/`, para o modelo persistente.
+## 3. Backend e contrato
 
-Essa separação foi verificada por inspeção estrutural e pelos testes existentes. Ainda não há integração ponta a ponta comprovada entre firmware, broker, backend, banco e dashboard.
+O backend disponível contém healthcheck e validação de telemetria. O contrato v1.0 permanece a fronteira de integração. MQTT, persistência runtime, consultas completas e dashboard continuam etapas posteriores quando ainda não houver evidência correspondente.
 
-## 3. Backend e contrato de telemetria
-
-O backend implementado contém `GET /health` e `POST /api/v1/telemetry/validate`. O endpoint de validação recebe um objeto JSON, aplica o schema `TelemetryPayload` e retorna erro HTTP 422 para payload inválido. A própria implementação informa que a validação não persiste dados e que a ingestão MQTT será adicionada posteriormente.
-
-O contrato v1.0 define `schema_version`, `station_id`, `timestamp`, localização, medições e qualidade por métrica. O tópico MQTT previsto é `estacao/<station_id>/telemetry`. A manutenção da versão do schema é uma decisão implementada no contrato e verificada pelos fixtures e pelo script de validação.
-
-Os endpoints de estações, última leitura, histórico e resumo permanecem como baseline arquitetural, não como implementação comprovada nesta etapa.
+O campo `rain_mm` permanece no contrato por compatibilidade, porém o módulo de chuva da baseline não sustenta milímetros quantitativos sem método/fator validado. Nenhum valor deve ser inventado para preencher esse campo.
 
 ## 4. Modelo de dados
 
-O DER inicial contém três entidades principais:
-
-| Entidade | Papel | Estado |
-|---|---|---|
-| `stations` | Identidade, código, nome, coordenadas, estado ativo e timestamps | Implementado na migration SQL |
-| `measurements` | Instante medido e valores ambientais associados à estação | Implementado na migration SQL |
-| `measurement_quality` | Estado e motivo por métrica da medição | Implementado na migration SQL |
-
-A relação entre estação e medição é de um para muitos. Cada medição pertence a uma estação existente. A qualidade é registrada por métrica, com estados `ok`, `suspect`, `invalid` e `error`. O índice principal é composto por `station_id` e `measured_at`, e os timestamps são armazenados com `TIMESTAMPTZ` conforme a política de manter UTC no armazenamento e converter somente na apresentação.
-
-O modelo inicial não define faixas físicas, fator de conversão da chuva, calibração do MQ-135 ou coordenadas reais. Essas lacunas são intencionais e devem continuar registradas como pendências até que existam decisões e evidências adequadas.
+O DER inicial contém `stations`, `measurements` e `measurement_quality`. A migration representa o modelo versionado, mas sua existência não equivale a execução validada contra PostgreSQL.
 
 ## 5. Hardware e firmware
 
-A arquitetura projeta ESP32 DevKit V1, MicroPython, Wi-Fi, DHT22, BMP280/BME280, MQ-135, LDR, pluviômetro, DS3231, TCA9548A e dois OLEDs SH1106. O firmware versionado contém interfaces e serviços estruturais, estados, renderizadores e tarefas, mas não contém uma evidência de montagem, pinagem validada ou execução no dispositivo físico.
-
-A distinção atual é:
-
-| Frente | O que existe | O que continua bloqueado |
+| Frente | Baseline/estado | Limite atual |
 |---|---|---|
-| Sensores | Contrato, arquitetura e serviço estrutural | Leituras físicas, datasheets aplicados, calibração e faixas finais |
-| Displays | Renderers e estados testados com doubles | I2C, canais do TCA9548A, endereços, brilho e operação física |
-| Tempo | Conversão de tupla para estado de relógio | NTP real, DS3231 real e recuperação offline no ESP32 |
-| Conectividade | Estrutura de serviço e arquitetura Wi-Fi/MQTT | Broker, publicação, reconexão e teste de disponibilidade |
-| Pinagem | Relações arquiteturais descritas | GPIO definitivo, conflitos ADC2/Wi-Fi, montagem e validação |
-| Pluviometria | Campo `rain_mm` no contrato | Modelo do pluviômetro, fator de conversão e calibração |
-| Qualidade do ar | Campo `air_quality_raw` e estados | Calibração e interpretação do MQ-135 |
+| Temperatura/umidade | DHT22 | driver e leitura física pendentes |
+| Pressão | BMP280 | driver/endereço/leitura física pendentes |
+| Qualidade do ar | MQ-135 raw | sem ppm até calibração |
+| Luminosidade | LDR relativa | circuito/conversão física pendentes |
+| Chuva | módulo experimental | sem `rain_mm` até método validado |
+| Display | uma OLED I²C | endereço e operação física pendentes |
+| Tempo | NTP | sem RTC dedicado; comportamento offline deve ser testado |
+| Conectividade | Wi-Fi/MQTT | integração real pendente |
+| Pinagem | interfaces documentadas | GPIO definitivo após módulos reais |
 
-Portanto, o texto acadêmico deve usar “projetado” ou “previsto” para a composição física e “validado em software” para os testes com doubles. Não deve usar “estação montada”, “medição validada” ou “calibração realizada”.
+O firmware mantém abstrações de sensores, tempo, API externa e uma interface local única. Testes com doubles são evidência de software, não de montagem.
 
 ## 6. Consequências para a N1
 
-A N1 já possui uma arquitetura coerente e um modelo de dados inicial implementado no repositório. A validação disponível é estrutural e de software. A integração física, a operação degradada real, a comunicação MQTT, a persistência em PostgreSQL, o dashboard e os testes de campo permanecem como pendências ou bloqueios conforme a matriz de rastreabilidade.
+A N1 pode demonstrar arquitetura, contrato, modelo, protótipo de software, testes e CI. Não pode declarar estação montada, precisão, calibração, funcionamento elétrico, chuva em milímetros ou teste de campo enquanto essas evidências não existirem.
 
-A ausência de evidência física não impede a apresentação do projeto como protótipo de software e arquitetura. Ela impede apenas conclusões sobre exatidão dos sensores, confiabilidade da estação, autonomia, representatividade espacial e funcionamento da montagem no ambiente real.
+## 7. Frente de hardware e decisão arquitetural
 
-## 7. Artefatos preparatórios da frente de hardware
+`hardware/bom.md`, `hardware/pinout.md`, `hardware/diagrams/interconexoes.md` e `hardware/plano-testes.md` registram a preparação de bancada. O ADR-002 encerrou a divergência de baseline: DHT22 + BMP280 são as fontes previstas de temperatura/umidade e pressão; o BME280 adicional foi removido.
 
-Como recuperação documental das tarefas de Luan até a Sprint 4 N1, a branch de trabalho acrescenta `hardware/bom.md`, `hardware/pinout.md`, `hardware/diagrams/interconexoes.md` e `hardware/plano-testes.md`. Esses artefatos consolidam componentes previstos, interfaces conceituais, TBDs, critérios e testes futuros. Eles não representam BOM disponível, pinagem definitiva, montagem, leitura real, calibração ou validação física.
-
-A coerência entre hardware, firmware e contrato está registrada em `docs/arquitetura/coerencia-hardware-firmware-contrato.md`. A divergência entre BME280 e DHT22 + BMP280 está registrada como gate de decisão conjunta em `docs/arquitetura/decisao-pendente-sensores.md`; nenhum componente foi excluído ou escolhido unilateralmente.
-
-O estado desta frente deve permanecer separado em gate documental/preparatório e gate físico. O primeiro pode ser revisado pelos POs com base nos artefatos versionados. O segundo permanece pendente de hardware e sem evidência física.
+O gate documental pode avançar. O gate físico permanece pendente da aquisição e chegada dos componentes.
 
 ## 8. Referências internas
 
-[1]: ../../arquitetura/arquitetura-sistema.md "Arquitetura do Projeto — Estação Meteorológica Inteligente"
-[2]: ../../contratos/contratos-integracao.md "Contratos de integração"
-[3]: ../../contratos/telemetria-v1.0.json "Contrato de telemetria v1.0"
-[4]: ../../arquitetura/adr/ADR-001-baseline-tecnica.md "ADR-001 — Baseline técnica do sistema"
-[5]: ../../requisitos/matriz-rastreabilidade-n1.md "Matriz de rastreabilidade da N1"
-[6]: ../../../backend/app/main.py "Ponto de entrada do backend FastAPI"
-[7]: ../../../database/diagrams/der-inicial.md "DER técnico inicial"
-[8]: ../../../firmware/tests/test_structure.py "Testes estruturais do firmware"
+- `docs/arquitetura/arquitetura-sistema.md`
+- `docs/arquitetura/adr/ADR-002-adequacao-arquitetura-fisica-orcamento.md`
+- `docs/arquitetura/coerencia-hardware-firmware-contrato.md`
+- `hardware/bom.md`
+- `hardware/pinout.md`
+- `hardware/plano-testes.md`
+- `firmware/tests/test_structure.py`
+- `firmware/tests/test_tasks.py`
