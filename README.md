@@ -21,7 +21,7 @@ A Estação Meteorológica Inteligente com ESP32 é um projeto acadêmico voltad
 
 A solução foi projetada para integrar sensores ao ESP32, transmitir telemetria via MQTT, processar e validar os dados em um backend Python, armazenar o histórico em PostgreSQL e disponibilizar as informações por API REST e dashboard web.
 
-Além da interface web, a arquitetura prevê duas telas OLED locais para informações meteorológicas e relógio/calendário.
+Além da interface web, a baseline física prevê uma OLED I²C 128x64 como interface local. A sincronização temporal usa NTP como referência principal, e a API meteorológica externa permanece apenas como fonte complementar.
 
 ## Arquitetura
 
@@ -45,9 +45,9 @@ A arquitetura completa está documentada em [`docs/arquitetura/arquitetura-siste
 | Persistência | PostgreSQL | Modelo e migration disponíveis |
 | API | REST | Parcialmente implementada |
 | Dashboard | HTML, CSS e JavaScript | Projetado |
-| Displays locais | 2× OLED SH1106 | Projetado |
-| Sensores auxiliares | BME280 + DS3231 | Projetado |
-| Multiplexador I²C | TCA9548A | Projetado |
+| Sensores físicos | DHT22 + BMP280 + MQ-135 + LDR + chuva experimental | Baseline aprovada; validação física pendente |
+| Display local | 1× OLED I²C 128x64 | Baseline aprovada; validação física pendente |
+| Referência temporal | NTP | Projetado; validação no ESP32 pendente |
 
 ## Telemetria
 
@@ -86,8 +86,9 @@ Ainda dependem das próximas etapas ou de hardware:
 - endpoints REST de consulta;
 - dashboard funcional;
 - drivers e pinagem definitivos;
-- montagem e calibração;
-- sensores e displays reais;
+- confirmação dos modelos, níveis elétricos e endereços dos módulos adquiridos;
+- montagem e calibração/caracterização aplicável;
+- validação física dos sensores e da OLED;
 - integração ponta a ponta;
 - testes de bancada e de campo.
 
@@ -98,6 +99,7 @@ A evidência atual comprova comportamento e organização de software. Não repr
 - [Relatório acadêmico da N1](docs/academico/n1/relatorio-n1.md)
 - [Insumos técnicos consolidados](docs/academico/n1/insumos-tecnicos-consolidacao.md)
 - [Arquitetura do sistema](docs/arquitetura/arquitetura-sistema.md)
+- [ADR-002 — adequação da arquitetura física](docs/arquitetura/adr/ADR-002-adequacao-arquitetura-fisica-orcamento.md)
 - [Contrato de telemetria v1.0](docs/contratos/telemetria-v1.0.json)
 - [Guia de contribuição](CONTRIBUTING.md)
 
