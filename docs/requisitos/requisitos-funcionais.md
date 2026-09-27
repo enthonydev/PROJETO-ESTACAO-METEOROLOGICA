@@ -15,11 +15,11 @@ Este documento atende à task J-S1-03 da Sprint 1. Os requisitos funcionais desc
 | ID | Requisito | Prioridade | Critério de aceite inicial |
 |---|---|---:|---|
 | RF-01 | O sistema deve identificar a estação por um `station_id` configurável em cada amostra de telemetria. | P0 | Uma mensagem válida contém `station_id` e o backend não associa silenciosamente uma estação desconhecida. |
-| RF-02 | O firmware deve adquirir temperatura e umidade pelos sensores definidos para a configuração aprovada. | P0 | A amostra contém temperatura e umidade ou informa erro de leitura sem inventar valores. |
-| RF-03 | O firmware deve adquirir pressão atmosférica. | P0 | A amostra contém pressão ou informa erro de leitura com seu estado de qualidade. |
-| RF-04 | O sistema deve adquirir um indicador de qualidade do ar por meio do subsistema aprovado. | P0 | A amostra registra o valor bruto e seu estado de qualidade; conversão para concentração só ocorre após calibração aprovada. |
-| RF-05 | O sistema deve adquirir luminosidade como medida relativa ou unidade definida em documentação aprovada. | P0 | A unidade e o método de conversão estão documentados antes da apresentação do valor. |
-| RF-06 | O sistema deve adquirir precipitação/pluviometria e registrar o resultado conforme o modelo do pluviômetro validado. | P0 | O cálculo de `rain_mm` somente é considerado concluído após definição do equipamento e do fator de conversão. |
+| RF-02 | O firmware deve adquirir temperatura e umidade pelo DHT22 da configuração aprovada. | P0 | A amostra contém temperatura e umidade ou informa erro de leitura sem inventar valores. |
+| RF-03 | O firmware deve adquirir pressão atmosférica pelo BMP280 da configuração aprovada. | P0 | A amostra contém pressão ou informa erro de leitura com seu estado de qualidade. |
+| RF-04 | O sistema deve adquirir uma leitura bruta/experimental do MQ-135 como indicador de qualidade do ar. | P0 | A amostra registra o valor bruto e seu estado de qualidade; não se declara ppm sem calibração aprovada. |
+| RF-05 | O sistema deve adquirir luminosidade relativa pelo LDR. | P0 | A leitura é apresentada como relativa; lux somente pode ser usado após calibração e documentação aprovadas. |
+| RF-06 | O sistema deve adquirir a resposta do módulo de chuva como detecção/avaliação experimental. | P0 | `rain_mm` permanece ausente ou inválido até existir método e fator de conversão validados. |
 | RF-07 | O firmware deve registrar timestamp e identificação da estação em cada amostra. | P0 | A amostra possui timestamp em formato ISO-8601 e `station_id`; timestamp inválido é rejeitado pelo backend. |
 | RF-08 | O firmware deve validar leituras antes da transmissão e marcar a qualidade de cada métrica. | P0 | Falhas, valores suspeitos ou inválidos são identificados sem substituição silenciosa por zero. |
 | RF-09 | O firmware deve transmitir telemetria por Wi-Fi usando MQTT como caminho principal. | P0 | Uma mensagem válida é publicada em `estacao/<station_id>/telemetry` quando a conectividade está disponível. |
@@ -31,11 +31,11 @@ Este documento atende à task J-S1-03 da Sprint 1. Os requisitos funcionais desc
 | RF-15 | O dashboard deve permitir consulta de histórico por período. | P0 | O usuário consegue selecionar ou informar um período e visualizar os dados retornados pela API. |
 | RF-16 | O dashboard deve representar a localização da estação quando as coordenadas forem definidas. | P0 | A localização exibida corresponde às coordenadas aprovadas e não a valores inventados. |
 | RF-17 | O dashboard deve exibir estados de carregamento, erro e ausência de dados. | P0 | Falhas e dados ausentes são comunicados de modo compreensível, sem usar zero como substituto silencioso. |
-| RF-18 | O display meteorológico deve apresentar estado processado que combine dados externos aprovados e medições locais do BME280. | P1 | O renderer recebe estado preparado e não consulta diretamente sensores ou API. |
-| RF-19 | O display de relógio/calendário deve apresentar hora, data e dia da semana. | P1 | A interface exibe hora, minutos, dia, mês, ano e dia da semana a partir do serviço de tempo. |
-| RF-20 | O serviço de tempo deve usar NTP para correção periódica e DS3231 como referência local durante a indisponibilidade de internet. | P1 | O fluxo online/offline e a correção do RTC são documentados e testados. |
-| RF-21 | O sistema deve controlar os dois displays pelo TCA9548A em canais independentes. | P1 | O canal 0 corresponde ao display meteorológico e o canal 1 ao display de relógio/calendário. |
-| RF-22 | Uma falha em sensor, display, API meteorológica ou TCA9548A não deve derrubar desnecessariamente as demais funções. | P0 | O componente afetado registra falha e as funções independentes continuam operando quando possível. |
+| RF-18 | A única OLED I²C deve apresentar um estado local composto, com medições locais, data/hora e informação externa complementar quando disponível. | P1 | O renderer recebe estado preparado e não consulta diretamente sensores ou API. |
+| RF-19 | O serviço de tempo deve fornecer data e hora para a OLED local. | P1 | A interface exibe a referência temporal disponível a partir do serviço de tempo. |
+| RF-20 | O serviço de tempo deve usar NTP como fonte principal de sincronização. | P1 | A ausência de NTP é sinalizada; sem RTC dedicado, não se promete horário correto durante períodos offline prolongados. |
+| RF-21 | O sistema deve controlar uma única OLED I²C 128x64, sem TCA9548A. | P1 | O estado local composto é entregue à única interface local aprovada. |
+| RF-22 | Uma falha em sensor, OLED, API meteorológica ou conectividade não deve derrubar desnecessariamente aquisição e telemetria. | P0 | O componente afetado registra falha e as funções independentes continuam operando quando possível. |
 | RF-23 | O sistema deve registrar falhas relevantes de sensor, conectividade, publicação, ingestão e dependências críticas. | P0 | Os logs permitem identificar o tipo de falha sem expor credenciais. |
 
 ## 4. Contratos relacionados
@@ -49,3 +49,4 @@ Os seguintes critérios não podem ser considerados fechados sem validação adi
 ## 6. Referências
 
 [1]: ../arquitetura/arquitetura-sistema.md "Arquitetura do Projeto — Estação Meteorológica Inteligente"
+[2]: ../arquitetura/adr/ADR-002-adequacao-arquitetura-fisica-orcamento.md "ADR-002 — Adequação da arquitetura física por restrição orçamentária"

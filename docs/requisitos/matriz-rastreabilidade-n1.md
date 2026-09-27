@@ -2,7 +2,7 @@
 
 ## 1. Objetivo e estado
 
-Este documento atende à task J-S3-01 da Sprint 3. A matriz relaciona requisitos aos artefatos, testes e evidências efetivamente disponíveis na `main` após a integração técnica da Sprint 3.
+Este documento atende à task J-S3-01 da Sprint 3. A matriz relaciona requisitos aos artefatos, testes e evidências efetivamente disponíveis na `main`, considerando a baseline física aceita no ADR-002.
 
 A matriz diferencia implementação, teste executado em software, simulação, projeto e validação física. Nenhum resultado desta versão é apresentado como validação física. Não há pinagem validada, calibração, teste de bancada ou evidência física integrada ao repositório.
 
@@ -23,11 +23,11 @@ A matriz diferencia implementação, teste executado em software, simulação, p
 | ID | Requisito resumido | Artefato na main | Teste/evidência existente | Estado real |
 |---|---|---|---|---|
 | RF-01 | Identificar estação por `station_id`. | Contrato v1.0; `backend/app/schemas/telemetry.py` | Fixture válida e teste de payload válido | Validado em software no backend; não é validação física |
-| RF-02 | Adquirir temperatura e umidade. | `firmware/src/services/sensor_service.py`; arquitetura | `firmware/tests/test_structure.py` usa driver fake para temperatura e falha de umidade | Validado em software apenas para isolamento genérico; aquisição física bloqueada |
-| RF-03 | Adquirir pressão atmosférica. | Requisito e arquitetura; driver físico não implementado | Nenhum teste de sensor de pressão | Projetado; bloqueado para validação física |
-| RF-04 | Adquirir indicador de qualidade do ar. | Contrato com `air_quality_raw`; fundamentação sobre calibração | Nenhum teste de MQ-135 ou calibração | Projetado; interpretação/calibração bloqueadas |
-| RF-05 | Adquirir luminosidade. | Contrato com `luminosity_pct`; arquitetura | Nenhum teste de LDR ou unidade | Projetado; hardware e unidade final pendentes |
-| RF-06 | Adquirir precipitação. | Contrato com `rain_mm`; arquitetura | Nenhum teste de pluviômetro | Projetado; modelo e conversão bloqueados |
+| RF-02 | Adquirir temperatura e umidade pelo DHT22. | `firmware/src/services/sensor_service.py`; arquitetura ADR-002 | `firmware/tests/test_structure.py` usa driver fake para temperatura e falha de umidade | Validado em software apenas para isolamento genérico; aquisição física bloqueada |
+| RF-03 | Adquirir pressão atmosférica pelo BMP280. | Requisito e arquitetura ADR-002; driver físico não implementado | Nenhum teste de sensor de pressão | Projetado; bloqueado para validação física |
+| RF-04 | Adquirir leitura bruta/experimental do MQ-135. | Contrato com `air_quality_raw`; ADR-002 e fundamentação | Nenhum teste de MQ-135 ou calibração | Projetado; interpretação/calibração bloqueadas; não é ppm |
+| RF-05 | Adquirir luminosidade relativa pelo LDR. | Contrato com `luminosity_pct`; arquitetura ADR-002 | Nenhum teste de LDR ou unidade | Projetado; hardware e conversão relativa pendentes; não é lux |
+| RF-06 | Adquirir resposta experimental do módulo de chuva. | Contrato com `rain_mm`; ADR-002 e arquitetura | Nenhum teste do módulo de chuva | Projetado; método/fator e conversão quantitativa bloqueados |
 | RF-07 | Registrar timestamp e estação. | Contrato; `TelemetryPayload` | Fixture válida/parcial e validação de schema | Validado em software no backend; origem física do timestamp pendente |
 | RF-08 | Validar leituras e qualidade no firmware. | `SensorService`; estados `ok` e `error` | Teste de isolamento de falha de driver | Validado em software para caso estrutural; faixas físicas não definidas |
 | RF-09 | Publicar telemetria por Wi-Fi/MQTT. | Contrato e arquitetura; conectividade skeleton | Nenhum teste de publicação MQTT | Projetado; broker e firmware de publicação pendentes |
@@ -39,11 +39,11 @@ A matriz diferencia implementação, teste executado em software, simulação, p
 | RF-15 | Consultar histórico por período. | Endpoint previsto na arquitetura | Nenhum endpoint/teste integrado | Pendente |
 | RF-16 | Representar localização aprovada. | Campos de localização no contrato e DER | Coordenadas reais inexistentes | Projetado; coordenadas e validação física bloqueadas |
 | RF-17 | Exibir loading, erro e ausência de dados. | Requisito; frontend ainda sem implementação | Nenhum teste de interface | Pendente |
-| RF-18 | Exibir estado meteorológico local e externo. | `WeatherDisplay` e `WeatherState` | Teste de renderer com estado preparado | Validado em software para renderer; API, sensores e display físico bloqueados |
-| RF-19 | Exibir relógio e calendário. | `ClockDisplay` e `ClockState` | Teste de renderer com estado resolvido | Validado em software para renderer; OLED e RTC físicos bloqueados |
-| RF-20 | Sincronizar NTP e manter DS3231 offline. | `TimeService.to_clock_state`; arquitetura | Teste de conversão de tupla, sem NTP/RTC real | Validado em software apenas para conversão; sincronização física bloqueada |
-| RF-21 | Controlar displays por canais do TCA9548A. | Arquitetura; driver do multiplexador não implementado | Nenhum teste I2C | Projetado; pinout e hardware bloqueados |
-| RF-22 | Isolar falhas parciais. | `SensorService` | Teste com `FailingDriver` | Validado em software para sensor fake; recuperação física pendente |
+| RF-18 | Exibir estado local composto na única OLED. | `firmware/src/displays/local_display.py`; `LocalDisplay` e `LocalDisplayTask` | `test_local_display_receives_composed_state` e `test_single_local_display_receives_composed_state` | Validado em software com estado sintético; OLED física bloqueada |
+| RF-19 | Exibir data e hora na OLED a partir do serviço de tempo. | `TimeService` e interface local | `test_time_service_converts_source_tuple_without_display_dependency` | Validado em software para conversão; NTP e OLED física pendentes |
+| RF-20 | Usar NTP como fonte temporal principal, sem RTC dedicado. | Arquitetura ADR-002 e serviço de tempo | Teste de conversão, sem NTP real | Projetado; sincronização real e limitação offline bloqueadas para validação física |
+| RF-21 | Controlar uma única OLED I²C 128x64. | Arquitetura ADR-002 e `local_display.py` | Testes com display fake | Validado em software para renderer; endereço, GPIO e operação física pendentes |
+| RF-22 | Isolar falhas de sensor, OLED, API externa e conectividade sem bloquear aquisição/telemetria. | `SensorService`, tasks e arquitetura | Teste com `FailingDriver`; falha da OLED física ainda não testada | Validado em software parcialmente; recuperação física pendente |
 | RF-23 | Registrar falhas relevantes. | Estados e exceções no backend/firmware skeleton | Inspeção de estados; nenhum ensaio operacional | Parcialmente implementado; observabilidade integrada pendente |
 
 ## 4. Requisitos não funcionais
@@ -75,7 +75,7 @@ A matriz diferencia implementação, teste executado em software, simulação, p
 
 ### 5.0 Artefatos preparatórios da frente de hardware
 
-A frente de Luan acrescenta `hardware/bom.md`, `hardware/pinout.md`, `hardware/diagrams/interconexoes.md` e `hardware/plano-testes.md`, além de `docs/arquitetura/coerencia-hardware-firmware-contrato.md` e `docs/arquitetura/decisao-pendente-sensores.md`. Esses artefatos são documentação de projeto, critérios e preparação de testes. Eles não comprovam disponibilidade de componentes, pinagem, montagem, leitura real, calibração ou validação física. A divergência entre BME280 e DHT22 + BMP280 permanece como decisão conjunta pendente dos POs.
+A frente de Luan acrescenta `hardware/bom.md`, `hardware/pinout.md`, `hardware/diagrams/interconexoes.md` e `hardware/plano-testes.md`, além de `docs/arquitetura/coerencia-hardware-firmware-contrato.md` e `docs/arquitetura/decisao-pendente-sensores.md`. Esses artefatos são documentação de projeto, critérios e preparação de testes. Eles não comprovam disponibilidade de componentes, pinagem, montagem, leitura real, calibração ou validação física. O ADR-002 encerrou a divergência de baseline: DHT22 e BMP280 são os sensores aprovados para temperatura/umidade e pressão; BME280 adicional, DS3231, segunda OLED e TCA9548A foram removidos.
 
 ### 5.1 Backend
 
@@ -83,7 +83,7 @@ A `main` contém um skeleton FastAPI com `GET /health` e `POST /api/v1/telemetry
 
 ### 5.2 Firmware
 
-A `main` contém serviços, estados, renderers e tarefas estruturais. Os testes do firmware usam drivers e displays fake para verificar isolamento de falha de sensor, recebimento de estado processado pelos displays, conversão de estado temporal, delegação da tarefa de sensores, combinação de serviços de clima e relógio e entrega de estados às tarefas de display. Esses testes são simulações controladas e validações em software; não há hardware físico.
+A `main` contém serviços, estados, tasks e uma interface local única. Os testes do firmware usam drivers e display fake para verificar isolamento de falha de sensor, recebimento de estado local composto, conversão de estado temporal, delegação da task de sensores, combinação de serviços complementares e entrega de estado à OLED lógica. Esses testes são simulações controladas e validações em software; não há hardware físico.
 
 ### 5.3 Banco de dados
 
@@ -106,3 +106,4 @@ A auditoria `docs/testes/auditoria-coerencia-s3.md`, integrada na mesma `main`, 
 [5]: ../academico/n1/metodologia-desenvolvimento.md "Metodologia de desenvolvimento da N1"
 [6]: ../academico/n1/prototipo-e-testes.md "Protótipo e casos de teste da N1"
 [7]: ../testes/auditoria-coerencia-s3.md "Auditoria de coerência técnica — Sprint 3"
+[8]: ../arquitetura/adr/ADR-002-adequacao-arquitetura-fisica-orcamento.md "ADR-002 — Adequação da arquitetura física por restrição orçamentária"

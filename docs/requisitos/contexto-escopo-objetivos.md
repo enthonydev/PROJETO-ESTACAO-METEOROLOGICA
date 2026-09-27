@@ -16,7 +16,7 @@ A arquitetura baseline define o seguinte fluxo:
 Sensores → ESP32/MicroPython → Wi-Fi → MQTT → Backend Python → PostgreSQL → API REST → Dashboard Web
 ```
 
-O dispositivo também possui duas interfaces locais. A primeira apresenta informações meteorológicas externas e medições locais do BME280. A segunda apresenta data e hora, usando NTP para correção periódica e DS3231 como referência local durante a indisponibilidade de internet. Essas telas complementam o dashboard web e não o substituem.
+O dispositivo possui uma única OLED I²C para apresentar um estado local composto por medições do DHT22 e do BMP280, data/hora e informação meteorológica externa complementar quando disponível. NTP é a fonte temporal principal. Sem internet e sem RTC dedicado, o horário pode ficar limitado à referência do runtime enquanto o dispositivo permanecer energizado. A interface local complementa o dashboard web e não o substitui.
 
 ## 3. Problema
 
@@ -44,7 +44,7 @@ Projetar e validar uma estação meteorológica urbana baseada em ESP32 que cole
 6. Modelar o armazenamento histórico em banco relacional.
 7. Disponibilizar dados atuais, históricos e agregações por API REST.
 8. Desenvolver dashboard web responsivo, acessível e separado do banco de dados.
-9. Implementar e validar as duas telas OLED locais, incluindo operação degradada e referência temporal pelo DS3231.
+9. Implementar a única OLED local, incluindo estado composto, operação degradada e referência temporal prioritariamente por NTP.
 10. Registrar testes, evidências, limitações e resultados de modo reproduzível para N1 e N2.
 
 ## 7. Escopo do MVP
@@ -62,7 +62,7 @@ Não fazem parte do MVP obrigatório: previsão meteorológica por aprendizado d
 As seguintes decisões permanecem pendentes e não devem ser resolvidas por suposição:
 
 - pinagem definitiva do ESP32;
-- modelo exato do pluviômetro e fator de conversão para milímetros;
+- modelo exato do módulo de chuva e método/fator de conversão quantitativa;
 - procedimento de calibração e interpretação do MQ-135;
 - infraestrutura final de hospedagem e broker;
 - coordenadas físicas da estação;
@@ -73,3 +73,4 @@ As seguintes decisões permanecem pendentes e não devem ser resolvidas por supo
 ## 10. Referências
 
 [1]: ../arquitetura/arquitetura-sistema.md "Arquitetura do Projeto — Estação Meteorológica Inteligente"
+[2]: ../arquitetura/adr/ADR-002-adequacao-arquitetura-fisica-orcamento.md "ADR-002 — Adequação da arquitetura física por restrição orçamentária"

@@ -10,7 +10,7 @@
 
 ## Resumo
 
-Este relatório apresenta a primeira versão consolidada da N1 de uma Estação Meteorológica Inteligente baseada em ESP32. O projeto propõe um fluxo completo de aquisição, telemetria, persistência e visualização: sensores, firmware em MicroPython, Wi-Fi, MQTT, backend Python, PostgreSQL, API REST e dashboard web. A arquitetura também prevê duas telas OLED locais, sincronização temporal por NTP e referência local por DS3231.
+Este relatório apresenta a primeira versão consolidada da N1 de uma Estação Meteorológica Inteligente baseada em ESP32. O projeto propõe um fluxo completo de aquisição, telemetria, persistência e visualização: sensores, firmware em MicroPython, Wi-Fi, MQTT, backend Python, PostgreSQL, API REST e dashboard web. A arquitetura também prevê uma única OLED local, sincronização temporal prioritariamente por NTP e uma limitação operacional durante períodos offline, pois não há RTC dedicado.
 
 A entrega disponível demonstra uma base documental e de software. O repositório contém requisitos funcionais e não funcionais, casos de uso, contrato de telemetria v1.0, arquitetura, DER, migration SQL, skeleton de firmware, backend FastAPI, fixtures e testes automatizados. Na validação executada, dez testes de backend e sete testes estruturais de firmware passaram. O contrato JSON também foi validado.
 
@@ -26,7 +26,7 @@ A solução proposta coleta dados ambientais, transmite telemetria, armazena his
 Sensores → ESP32/MicroPython → Wi-Fi → MQTT → Backend Python → PostgreSQL → API REST → Dashboard Web
 ```
 
-O dispositivo também prevê duas interfaces locais. Uma apresenta informações meteorológicas externas e medições locais do BME280. A outra apresenta data, hora e calendário, com correção periódica por NTP e referência local por DS3231 quando a internet estiver indisponível. Essas interfaces complementam o dashboard web.
+O dispositivo prevê uma única OLED I²C para apresentar um estado local composto por medições do DHT22 e do BMP280, data/hora e informação meteorológica externa complementar quando disponível. NTP é a fonte temporal principal. Sem internet e sem RTC dedicado, o horário pode ficar limitado à referência do runtime enquanto o dispositivo permanecer energizado. A interface local complementa o dashboard web.
 
 O problema de engenharia consiste em demonstrar, de forma integrada e rastreável, como uma leitura ambiental pode sair dos sensores, ser validada, ser transmitida, chegar ao backend, ser persistida e ser apresentada ao usuário. Sem contrato comum e critérios de evidência, hardware, firmware, backend, banco, frontend e documentação podem evoluir de forma incompatível.
 
@@ -40,7 +40,7 @@ Projetar e validar uma estação meteorológica urbana baseada em ESP32 que cole
 
 ### 2.2 Objetivos específicos
 
-Os objetivos específicos são definir requisitos, stakeholders, casos de uso e critérios de aceite; integrar sensores ao ESP32; implementar aquisição, validação, tratamento de falhas e transmissão; preservar um contrato de telemetria versionado; implementar ingestão, validação, persistência e consulta no backend; modelar o histórico em banco relacional; disponibilizar API e dashboard; implementar as telas OLED; e registrar testes, evidências, limitações e resultados de forma reproduzível [1].
+Os objetivos específicos são definir requisitos, stakeholders, casos de uso e critérios de aceite; integrar sensores ao ESP32; implementar aquisição, validação, tratamento de falhas e transmissão; preservar um contrato de telemetria versionado; implementar ingestão, validação, persistência e consulta no backend; modelar o histórico em banco relacional; disponibilizar API e dashboard; implementar a interface local única; e registrar testes, evidências, limitações e resultados de forma reproduzível [1].
 
 A N1 não declara que todos esses objetivos foram concluídos. Ela registra o estado verificável de cada objetivo na matriz de rastreabilidade e na seção de resultados deste relatório [8].
 
@@ -94,10 +94,10 @@ Os requisitos funcionais e não funcionais completos estão nos documentos de re
 
 | Grupo | Conteúdo consolidado | Estado na N1 |
 |---|---|---|
-| RF-01 a RF-08 | Identificação da estação, aquisição das métricas, timestamp, qualidade e tratamento de leitura inválida | Contrato e validação de schema implementados; aquisição física e calibração pendentes |
+| RF-01 a RF-08 | Identificação da estação, aquisição pelo DHT22/BMP280, leituras raw/relativas/experimentais, timestamp, qualidade e tratamento de leitura inválida | Contrato e validação de schema implementados; aquisição física, calibração e conversões quantitativas pendentes |
 | RF-09 a RF-13 | MQTT, reconexão, validação backend, persistência, healthcheck, consultas e resumo | Validação FastAPI implementada; MQTT, persistência runtime e consultas REST pendentes |
 | RF-14 a RF-17 | Métricas atuais, histórico, localização e estados do dashboard | Projetados; frontend e coordenadas físicas pendentes |
-| RF-18 a RF-23 | Displays, tempo, TCA9548A, isolamento de falhas e registro de falhas | Renderers, estados e tasks validados em software; integração física e observabilidade completa pendentes |
+| RF-18 a RF-23 | Estado local composto, uma OLED, NTP, isolamento de falhas e registro de falhas | Interface, estados e tasks validados em software; NTP real, OLED física e observabilidade completa pendentes |
 | RNF-01 a RNF-07 | Separação de camadas, ciclos independentes, operação degradada, stack, persistência, tempo e índice | Estrutura e modelo implementados; execução física e banco runtime pendentes |
 | RNF-08 a RNF-15 | Separação do dashboard, acessibilidade, validação, segurança, logs, schema e testes | Validação documental e de software parcial; frontend, logs completos e camadas físicas pendentes |
 | RNF-16 a RNF-20 | Governança Git, autoria, ADR, rastreabilidade e demonstração reproduzível | Aplicados documentalmente; demonstração física ainda pendente |
@@ -112,8 +112,8 @@ O contrato v1.0 exige `schema_version`, `station_id`, `timestamp`, `location`, `
 | UC-02 — Publicar telemetria | Firmware serializa e publica no tópico MQTT | Projetado; broker e publicação pendentes |
 | UC-03 — Validar e ingerir telemetria | Backend recebe, valida, classifica e encaminha para persistência | Validação FastAPI em software; ingestão MQTT e persistência pendentes |
 | UC-04 — Consultar estado e histórico | Dashboard consulta API, que acessa backend e banco | Endpoints de consulta e dashboard pendentes |
-| UC-05 — Exibir meteorologia local | Estado externo e medição local são combinados e renderizados | Renderer testado com estado sintético; display e sensores físicos bloqueados |
-| UC-06 — Manter relógio e calendário | NTP corrige e DS3231 sustenta referência local | Conversão temporal testada; NTP, RTC e OLED físicos bloqueados |
+| UC-05 — Exibir estado local composto | Estado externo, medições do DHT22/BMP280 e horário disponível são combinados e renderizados na única OLED | Interface testada com estado sintético; OLED e sensores físicos bloqueados |
+| UC-06 — Sincronizar e exibir referência temporal | NTP fornece a referência principal; sem RTC dedicado, o offline prolongado é uma limitação | Conversão temporal testada; NTP real e OLED física bloqueados |
 | UC-07 — Registrar falha e recuperar | Sistema registra falha e mantém funções independentes quando possível | Isolamento de driver testado; recuperação física e logs completos pendentes |
 | UC-08 — Revisar entrega acadêmica | PO relaciona artefato, requisito, teste, evidência e limitação | Aplicado por branches, PRs, matriz e auditorias |
 
@@ -121,7 +121,7 @@ Os fluxos completos e os requisitos relacionados estão em `docs/requisitos/caso
 
 ## 8. Arquitetura
 
-A arquitetura separa aquisição, processamento, conectividade, apresentação, backend, persistência e dashboard. No firmware, modelos representam estados; serviços obtêm ou processam dados; tasks coordenam atualizações; displays renderizam estados recebidos. Os renderers não consultam diretamente sensores, API ou NTP.
+A arquitetura separa aquisição, processamento, conectividade, apresentação, backend, persistência e dashboard. No firmware, modelos representam estados; serviços obtêm ou processam dados; tasks coordenam atualizações; a única OLED renderiza o estado recebido. O renderer não consulta diretamente sensores, API ou NTP.
 
 O backend implementado contém `GET /health` e `POST /api/v1/telemetry/validate`. A implementação valida o payload e retorna HTTP 422 para entrada inválida. A própria aplicação informa que a validação não persiste dados e que a ingestão MQTT será adicionada posteriormente.
 
@@ -137,7 +137,7 @@ O modelo é projetado e implementado como artefato SQL versionado no repositóri
 
 ## 10. Protótipo e testes
 
-O protótipo disponível é um skeleton de software e dados. Ele contém FastAPI, schema v1.0, fixtures válida/parcial/inválida, serviços e estados de firmware, renderizadores, tasks, DER, migration e validador de contrato.
+O protótipo disponível é um skeleton de software e dados. Ele contém FastAPI, schema v1.0, fixtures válida/parcial/inválida, serviços, estados, tasks e interface local única de firmware, DER, migration e validador de contrato.
 
 A cobertura atual é:
 

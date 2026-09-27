@@ -28,9 +28,9 @@ Este protótipo ainda não é uma estação física funcional. Não há evidênc
 | T-S3-03 | Payload parcial preserva valor nulo e marca qualidade como `error`. | `backend/tests/test_api.py::test_partial_payload_preserves_null_and_quality_error` | Executado em software com fixture |
 | T-S3-04 | Payload inválido é rejeitado com HTTP 422. | `backend/tests/test_api.py::test_invalid_payload_is_rejected` | Executado em software com fixture |
 | T-S3-05 | Falha de um driver não elimina a leitura válida de outro sensor. | `firmware/tests/test_structure.py::test_sensor_service_isolates_driver_failure` | Simulado com `FailingDriver`; não é teste físico |
-| T-S3-06 | Renderer meteorológico recebe estado processado e envia view model ao display. | `firmware/tests/test_structure.py::test_weather_display_receives_processed_state` | Simulado com display fake |
-| T-S3-07 | Renderer de relógio recebe estado temporal resolvido. | `firmware/tests/test_structure.py::test_clock_display_receives_resolved_time` | Simulado com display fake |
-| T-S3-08 | Serviço converte tupla temporal sem colocar lógica NTP no display. | `firmware/tests/test_structure.py::test_time_service_converts_source_tuple_without_ntp_logic_in_display` | Validado em software; não testa NTP ou DS3231 |
+| T-S3-06 | Interface local recebe estado composto com medições locais, relógio e dados externos complementares. | `firmware/tests/test_structure.py::test_local_display_receives_composed_state` | Simulado com display fake |
+| T-S3-07 | Serviço de tempo converte a tupla de origem sem depender da interface local. | `firmware/tests/test_structure.py::test_time_service_converts_source_tuple_without_display_dependency` | Validado em software; não testa NTP real |
+| T-S3-08 | Task entrega o estado composto à única interface local. | `firmware/tests/test_tasks.py::test_single_local_display_receives_composed_state` | Simulado com display fake |
 | T-S3-09 | Contrato e fixtures são JSON válidos e compatíveis com as regras do repositório. | `scripts/validate_contract.py` e workflow de CI | Executado em software |
 | T-S3-10 | Fixture válida produz `TelemetryPayload` com timestamp timezone-aware. | `backend/tests/test_contract.py::test_valid_fixture_matches_contract_model` | Executado em software com fixture |
 | T-S3-11 | Fixture parcial preserva medição ausente. | `backend/tests/test_contract.py::test_partial_fixture_preserves_absent_measurement` | Executado em software com fixture |
@@ -49,9 +49,9 @@ Os seguintes testes permanecem planejados ou bloqueados e não devem ser descrit
 | Publicação e recebimento MQTT | Broker e integração de firmware ainda não comprovados |
 | Persistência e consulta PostgreSQL | Não há evidência de execução do banco nesta Sprint |
 | Reconexão Wi-Fi e operação offline | Depende de ESP32 e rede reais |
-| NTP e fallback DS3231 | Depende de componentes e montagem físicos |
-| Leitura de DHT22/BMP280/BME280/MQ-135/LDR/pluviômetro | Depende de sensores conectados e drivers validados |
-| Teste de canais do TCA9548A e displays OLED | Depende de pinagem, endereços e hardware reais |
+| NTP e limitação offline sem RTC dedicado | Depende de conectividade, runtime e montagem físicos |
+| Leitura de DHT22/BMP280/MQ-135/LDR/módulo de chuva | Depende de sensores conectados e drivers validados |
+| Teste da única OLED I²C | Depende de pinagem, endereço e hardware real |
 | Calibração e comparação com referência | Não há instrumento de referência nem protocolo executado |
 | Dashboard, acessibilidade e mapa | Frontend ainda não implementado |
 | Teste ponta a ponta | As camadas não estão integradas em execução real |
@@ -59,7 +59,7 @@ Os seguintes testes permanecem planejados ou bloqueados e não devem ser descrit
 
 ## 5. Auditoria integrada
 
-A auditoria `docs/testes/auditoria-coerencia-s3.md` foi integrada à `main` junto com os novos testes. Ela confirma que a validação FastAPI, o contrato v1.0 e os serviços, estados e tasks de firmware possuem evidência em software. Também confirma que não há consumidor MQTT, conexão PostgreSQL, endpoints de consulta, dashboard, drivers concretos, pinagem ou validação física.
+A auditoria `docs/testes/auditoria-coerencia-s3.md` foi integrada à `main` junto com os novos testes. Ela confirma que a validação FastAPI, o contrato v1.0 e os serviços, estados, tasks e interface local de firmware possuem evidência em software. Também confirma que não há consumidor MQTT, conexão PostgreSQL, endpoints de consulta, dashboard, drivers concretos, pinagem ou validação física.
 
 ## 6. Procedimento de reprodução do software
 

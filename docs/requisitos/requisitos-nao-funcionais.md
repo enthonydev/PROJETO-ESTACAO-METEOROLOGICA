@@ -10,7 +10,7 @@ Este documento atende à task J-S1-04 da Sprint 1. Os requisitos não funcionais
 |---|---|---:|---|
 | RNF-01 | O sistema deve manter separação entre drivers, serviços, tarefas, modelos, API, schemas, serviços de negócio, repositórios e apresentação. | P0 | A estrutura do código permite localizar cada responsabilidade sem acoplamento direto entre display e sensor/API. |
 | RNF-02 | O firmware deve executar ciclos independentes para aquisição, relógio, consulta meteorológica, sincronização temporal, renderização e publicação. | P0 | Uma falha ou atraso de uma função não bloqueia indefinidamente as demais; a estratégia definitiva deve ser validada no ESP32. |
-| RNF-03 | O sistema deve operar de forma degradada quando Wi-Fi, API externa, sensor, display ou TCA9548A estiver indisponível. | P0 | O componente afetado apresenta estado de falha e as funções independentes continuam operando quando possível. |
+| RNF-03 | O sistema deve operar de forma degradada quando Wi-Fi, API externa, sensor ou OLED estiver indisponível. | P0 | O componente afetado apresenta estado de falha e aquisição e telemetria continuam operando quando possível. |
 | RNF-04 | O backend deve ser implementado com Python e FastAPI como baseline. | P0 | A aplicação expõe o healthcheck e os endpoints baseline por meio do framework aprovado. |
 | RNF-05 | O armazenamento de produção deve usar PostgreSQL; SQLite é permitido apenas para desenvolvimento ou testes quando preservar a semântica do modelo. | P0 | O modelo relacional, as chaves estrangeiras e os índices permanecem compatíveis entre os ambientes. |
 | RNF-06 | O timestamp deve seguir uma política única, preferencialmente UTC no armazenamento e conversão na apresentação. | P0 | A política está documentada e é aplicada de modo consistente no firmware, backend, banco e dashboard. |
@@ -33,7 +33,7 @@ Este documento atende à task J-S1-04 da Sprint 1. Os requisitos não funcionais
 
 O MQTT é o caminho principal de telemetria. A API REST serve o dashboard e os serviços de consulta, mas não substitui a coleta MQTT na produção. Um fallback HTTP só pode existir se for documentado e não criar dois fluxos concorrentes de produção.
 
-O backend é a autoridade de integridade dos dados, embora o firmware também deva validar leituras antes da publicação. O dashboard não acessa o banco diretamente. Os displays recebem estados preparados e não executam aquisição ou sincronização por conta própria.
+O backend é a autoridade de integridade dos dados, embora o firmware também deva validar leituras antes da publicação. O dashboard não acessa o banco diretamente. A única OLED recebe estado preparado e não executa aquisição ou sincronização por conta própria.
 
 ## 4. Pendências de qualidade
 
