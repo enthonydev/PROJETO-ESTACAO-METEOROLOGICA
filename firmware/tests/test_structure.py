@@ -1,8 +1,6 @@
 """Testes estruturais do skeleton de firmware, sem hardware físico."""
 
-from displays.clock_display import ClockDisplay
-from displays.weather_display import WeatherDisplay
-from models.state import ClockState, WeatherState
+from displays.local_display import LocalDisplay
 from services.sensor_service import SensorService
 from services.time_service import TimeService
 
@@ -37,32 +35,20 @@ def test_sensor_service_isolates_driver_failure():
     assert snapshot.quality == {"temperature": "ok", "humidity": "error"}
 
 
-def test_weather_display_receives_processed_state():
+def test_local_display_receives_composed_state():
     display = Display()
-    state = WeatherState(external={"condition": "clear"}, local={"temperature_c": 22.5})
+    state = {
+        "local": {"temperature_c": 22.5},
+        "clock": {"year": 2026, "month": 9, "day": 25, "hour": 0, "minute": 10},
+        "external": {"condition": "clear"},
+    }
 
-    WeatherDisplay(display).render(state)
+    LocalDisplay(display).render(state)
 
-    assert display.views == [
-        {
-            "external": {"condition": "clear"},
-            "local": {"temperature_c": 22.5},
-            "stale": False,
-        }
-    ]
+    assert display.views == [state]
 
 
-def test_clock_display_receives_resolved_time():
-    display = Display()
-    state = ClockState(2026, 9, 25, 4, 0, 10)
-
-    ClockDisplay(display).render(state)
-
-    assert display.views[0]["year"] == 2026
-    assert display.views[0]["minute"] == 10
-
-
-def test_time_service_converts_source_tuple_without_ntp_logic_in_display():
+def test_time_service_converts_source_tuple_without_display_dependency():
     state = TimeService.to_clock_state((2026, 9, 25, 0, 10, 0, 4, 0))
 
     assert state.year == 2026
