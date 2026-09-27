@@ -1,60 +1,37 @@
 # Mapa conceitual de interconexões
 
-**Classificação:** DIAGRAMA / MAPA CONCEITUAL  
-**Não representa montagem validada, pinout definitivo ou validação elétrica.**
+**Classificação:** BASELINE APROVADA / CONEXÕES FÍSICAS A VALIDAR  
+**Decisão arquitetural:** ADR-002.
 
 ```text
-                         ┌──────────────────────┐
-                         │ ESP32 DevKit V1      │
-                         │ MicroPython / Wi-Fi  │
-                         └──────────┬───────────┘
-                                    │
-                              I²C / TBD
-                                    │
-                         ┌──────────▼───────────┐
-                         │ TCA9548A              │
-                         │ endereço: TBD         │
-                         └──────┬─────────┬──────┘
-                                │ CH0     │ CH1
-                         ┌──────▼───┐ ┌──▼────────┐
-                         │ OLED #1  │ │ OLED #2   │
-                         │ Meteo    │ │ Relógio   │
-                         │ SH1106   │ │ SH1106    │
-                         └──────────┘ └───────────┘
-
-                         I²C / TBD (a confirmar)
-                              ┌──────┴──────┐
-                         ┌────▼─────┐ ┌────▼─────┐
-                         │ BME280   │ │ DS3231   │
-                         │ local    │ │ RTC      │
-                         └──────────┘ └──────────┘
-
-       GPIO/ADC / TBD
-       ┌──────────────┬──────────────┬──────────────┐
-       ▼              ▼              ▼              ▼
-    DHT22          BMP280         MQ-135          LDR       Pluviômetro
-   (TBD)           (TBD)          ADC/TBD        ADC/TBD    pulso/TBD
+ DHT22 ───────── GPIO ───────┐
+ BMP280 ───────── I²C ───────┤
+ MQ-135 ───────── ADC ───────┤
+ LDR ──────────── ADC ───────┼──> ESP32 DevKit V1
+ Sensor de chuva ─ ADC/GPIO ─┤          │
+ OLED 128x64 ───── I²C ──────┘          ├── Wi-Fi ── MQTT ── Backend
+                                       ├── NTP
+                                       └── API meteorológica externa
+                                           (complementar)
 ```
 
-## Interconexões sustentadas pela arquitetura
+## Responsabilidades
 
-- O ESP32 é o controlador do firmware e da conectividade Wi-Fi.
-- O TCA9548A é o multiplexador conceitual dos dois OLEDs iguais.
-- CH0 é destinado à tela meteorológica; CH1, à tela de relógio/calendário.
-- BME280 fornece, conceitualmente, temperatura, umidade e pressão para a visualização local.
-- DS3231 fornece, conceitualmente, referência temporal local quando a internet não estiver disponível.
-- DHT22, BMP280, MQ-135, LDR e pluviômetro aparecem na baseline/requisitos, mas seus modelos e conexões exatas continuam pendentes.
+- DHT22: temperatura e umidade locais.
+- BMP280: pressão atmosférica local.
+- MQ-135: resposta bruta relacionada à qualidade do ar.
+- LDR: luminosidade relativa.
+- módulo de chuva: detecção/avaliação experimental; não representa pluviometria calibrada em mm.
+- OLED: única interface embarcada local.
+- NTP: referência temporal quando houver conectividade.
+- API externa: informação complementar, sem substituir aquisição local.
 
-## O que não está definido neste documento
+## Removidos da arquitetura física
 
-- GPIOs e pinout.
-- Endereços I²C efetivos.
-- Tensões e níveis lógicos.
-- Resistores de pull-up.
-- Alimentação comum ou separada.
-- Modelo exato dos módulos.
-- Fator de conversão do pluviômetro.
-- Calibração/interpretação do MQ-135.
-- Decisão entre coexistência ou simplificação de BME280, DHT22 e BMP280.
+BME280 adicional, DS3231, TCA9548A e segunda OLED.
 
-**Status físico:** SEM EVIDÊNCIA FÍSICA. A montagem, o circuito e o funcionamento deste mapa ainda não foram executados.
+## Ainda não definido
+
+GPIOs, tensões, níveis lógicos, endereços I²C, pull-ups, condicionamento do MQ-135, divisor do LDR e características elétricas do módulo de chuva dependem dos componentes reais e de validação de bancada.
+
+**Status físico:** sem evidência física até a montagem.
