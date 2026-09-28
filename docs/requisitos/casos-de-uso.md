@@ -14,9 +14,9 @@ Os fluxos abaixo descrevem o comportamento esperado da baseline. Detalhes de pin
 - **Backend:** valida, processa e persiste telemetria.
 - **Banco de dados:** armazena estações, medições e qualidade.
 - **Usuário público:** consulta o dashboard.
-- **API meteorológica externa:** fornece dados complementares para o display meteorológico.
+- **API meteorológica externa:** fornece dados complementares para o estado local, sem substituir os sensores físicos.
 - **Serviço NTP:** fornece referência externa para correção temporal.
-- **RTC DS3231:** fornece referência temporal local durante indisponibilidade de internet.
+- **OLED I²C local:** apresenta o estado local composto.
 - **Responsável técnico/PO:** revisa artefatos, critérios, evidências e decisões de escopo.
 
 ## 3. UC-01 — Adquirir leitura ambiental
@@ -119,58 +119,57 @@ Os fluxos abaixo descrevem o comportamento esperado da baseline. Detalhes de pin
 
 **Requisitos relacionados:** RF-13, RF-14, RF-15, RF-16, RF-17, RNF-08, RNF-09.
 
-## 7. UC-05 — Exibir meteorologia local
+## 7. UC-05 — Exibir estado local composto
 
-**Objetivo:** mostrar no OLED meteorológico o estado processado pela estação.
+**Objetivo:** mostrar na única OLED I²C o estado local composto pela estação.
 
-**Atores principais:** Firmware da estação, Display meteorológico, API meteorológica externa, BME280.
+**Atores principais:** Firmware da estação, OLED I²C local, API meteorológica externa e sensores locais DHT22/BMP280.
 
-**Pré-condições:** Display, TCA9548A e fontes de dados disponíveis conforme o ambiente de execução.
+**Pré-condições:** OLED e fontes de dados disponíveis conforme o ambiente de execução.
 
 **Fluxo principal:**
 
-1. O serviço de sensores atualiza as medições locais do BME280.
+1. O serviço de sensores atualiza as medições locais do DHT22 e do BMP280.
 2. O serviço meteorológico consulta a API externa em periodicidade própria.
-3. O firmware combina os dados aprovados em um estado de apresentação.
-4. O firmware seleciona o canal 0 do TCA9548A.
-5. O renderer exibe o estado no OLED meteorológico.
+3. O serviço de tempo fornece a referência temporal disponível, priorizando NTP.
+4. O firmware combina medições locais, data/hora e dados externos disponíveis em um estado local composto.
+5. O renderer exibe o estado na única OLED I²C.
 
 **Fluxos alternativos:**
 
 - Se a API externa falhar, o estado externo válido anterior é mantido e pode ser marcado como desatualizado.
-- Se a internet falhar, as medições locais continuam sendo exibidas quando o BME280 estiver disponível.
+- Se a internet falhar, as medições locais continuam sendo exibidas quando os sensores estiverem disponíveis.
+- Se a OLED falhar, aquisição e telemetria continuam quando possível.
 - O renderer não consulta diretamente API ou sensor.
 
-**Pós-condições:** A tela exibe o estado disponível sem interromper telemetria ou a outra tela.
+**Pós-condições:** A OLED exibe o estado disponível sem interromper aquisição ou telemetria.
 
 **Requisitos relacionados:** RF-18, RF-22, RNF-01, RNF-02, RNF-03.
 
-## 8. UC-06 — Manter relógio e calendário
+## 8. UC-06 — Sincronizar e exibir referência temporal
 
-**Objetivo:** manter e exibir data e hora mesmo durante indisponibilidade de internet.
+**Objetivo:** sincronizar por NTP e disponibilizar a referência temporal para o estado local.
 
-**Atores principais:** Firmware da estação, Serviço NTP, RTC DS3231, Display de relógio.
+**Atores principais:** Firmware da estação, Serviço NTP e OLED I²C local.
 
-**Pré-condições:** DS3231 e display configurados; NTP disponível apenas quando houver internet.
+**Pré-condições:** OLED configurada; NTP disponível quando houver conectividade.
 
 **Fluxo principal:**
 
-1. O serviço de tempo lê a referência local do DS3231.
-2. Quando houver conexão, o serviço consulta NTP em periodicidade controlada.
-3. Após sincronização válida, o serviço pode corrigir o RTC.
-4. O serviço entrega hora, data e dia da semana ao renderer.
-5. O firmware seleciona o canal 1 do TCA9548A.
-6. O renderer exibe o calendário e o relógio.
+1. O serviço de tempo consulta NTP quando houver conectividade.
+2. Após sincronização válida, o serviço atualiza a referência temporal do runtime.
+3. O serviço entrega data e hora ao estado local composto.
+4. O renderer exibe a referência temporal na OLED.
 
 **Fluxos alternativos:**
 
-- Sem internet, o DS3231 sustenta a referência local.
-- Se a sincronização NTP falhar, o relógio continua com a referência local e a falha é registrada.
+- Sem internet, a referência temporal pode ficar limitada ao relógio do runtime enquanto o dispositivo permanecer energizado; não há RTC dedicado.
+- Se a sincronização NTP falhar, a ausência de uma referência confiável é sinalizada e a falha é registrada.
 - O renderer não executa NTP diretamente.
 
-**Pós-condições:** A tela de relógio continua operando de forma independente da API meteorológica.
+**Pós-condições:** O estado local recebe a referência temporal disponível sem bloquear aquisição ou telemetria.
 
-**Requisitos relacionados:** RF-19, RF-20, RF-21, RF-22, RNF-02, RNF-03.
+**Requisitos relacionados:** RF-18, RF-19, RF-20, RF-21, RF-22, RNF-02, RNF-03.
 
 ## 9. UC-07 — Registrar falha e recuperar operação
 
@@ -221,11 +220,12 @@ Os fluxos abaixo descrevem o comportamento esperado da baseline. Detalhes de pin
 | UC-02 | RF-07, RF-09, RF-10, RF-23 | Fixture/payload, log de publicação e teste de reconexão |
 | UC-03 | RF-01, RF-07, RF-08, RF-11, RF-12, RF-23 | Testes de schema, estação desconhecida, timestamp e persistência |
 | UC-04 | RF-13 a RF-17 | Testes de API e screenshots/evidências do dashboard, quando implementado |
-| UC-05 | RF-18, RF-22, RNF-01 a RNF-03 | Teste online/offline e evidência dos dois estados |
-| UC-06 | RF-19 a RF-21, RNF-02, RNF-03 | Teste NTP/RTC, indisponibilidade de internet e evidência do display |
+| UC-05 | RF-18, RF-22, RNF-01 a RNF-03 | Teste do estado composto, falha da OLED e evidência da interface local |
+| UC-06 | RF-18 a RF-21, RNF-02, RNF-03 | Teste de conversão temporal, NTP e limitação offline sem RTC dedicado |
 | UC-07 | RF-10, RF-22, RF-23, RNF-03, RNF-12 a RNF-15 | Logs, casos de recuperação e relatório de falha |
 | UC-08 | RNF-14 a RNF-20 | Registro de revisão, checklist e relatório de Gate |
 
 ## 12. Referências
 
 [1]: ../arquitetura/arquitetura-sistema.md "Arquitetura do Projeto — Estação Meteorológica Inteligente"
+[2]: ../arquitetura/adr/ADR-002-adequacao-arquitetura-fisica-orcamento.md "ADR-002 — Adequação da arquitetura física por restrição orçamentária"
