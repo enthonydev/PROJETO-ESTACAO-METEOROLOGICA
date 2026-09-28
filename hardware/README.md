@@ -20,8 +20,8 @@
 - [`evidencias/`](evidencias/): reservado para evidências futuras, sem evidência física disponível nesta versão.
 - [`wokwi/`](wokwi/): reservado para simulação Wokwi; nenhum projeto Wokwi foi declarado como executado nesta versão.
 
-## Decisão pendente
+## Baseline aprovada
 
-A divergência entre **BME280** e **DHT22 + BMP280** permanece registrada como decisão conjunta pendente de Luan, Enthony e James em [`docs/arquitetura/decisao-pendente-sensores.md`](../docs/arquitetura/decisao-pendente-sensores.md). Nenhum componente foi excluído ou escolhido unilateralmente.
+O [`ADR-002`](../docs/arquitetura/adr/ADR-002-adequacao-arquitetura-fisica-orcamento.md) encerrou a decisão de baseline física: DHT22 para temperatura/umidade, BMP280 para pressão, MQ-135 bruto/experimental, LDR relativo, módulo de chuva experimental, uma OLED I²C 128x64 e ESP32 DevKit V1. BME280 adicional, DS3231, segunda OLED e TCA9548A foram removidos da baseline. O registro da decisão e suas limitações permanece em [`docs/arquitetura/decisao-pendente-sensores.md`](../docs/arquitetura/decisao-pendente-sensores.md).
 
 A documentação desta pasta não deve ser usada para afirmar montagem, pinagem validada, leitura real, calibração ou teste físico.
