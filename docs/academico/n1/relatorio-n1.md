@@ -12,7 +12,7 @@
 
 Este relatório apresenta a primeira versão consolidada da N1 de uma Estação Meteorológica Inteligente baseada em ESP32. O projeto propõe um fluxo completo de aquisição, telemetria, persistência e visualização: sensores, firmware em MicroPython, Wi-Fi, MQTT, backend Python, PostgreSQL, API REST e dashboard web. A arquitetura também prevê uma única OLED local, sincronização temporal prioritariamente por NTP e uma limitação operacional durante períodos offline, pois não há RTC dedicado.
 
-A entrega disponível demonstra uma base documental e de software. O repositório contém requisitos funcionais e não funcionais, casos de uso, contrato de telemetria v1.0, arquitetura, DER, migration SQL, skeleton de firmware, backend FastAPI, fixtures e testes automatizados. Na validação executada, dez testes de backend e sete testes estruturais de firmware passaram. O contrato JSON também foi validado.
+A entrega disponível demonstra uma base documental e de software. O repositório contém requisitos funcionais e não funcionais, casos de uso, contrato de telemetria v1.0, arquitetura, DER, migration SQL, skeleton de firmware, backend FastAPI, fixtures e testes automatizados. Na validação executada, dez testes de backend e seis testes estruturais de firmware passaram. O contrato JSON também foi validado.
 
 Os resultados não demonstram ainda ingestão MQTT, persistência em PostgreSQL executável, dashboard funcional, montagem de sensores, pinagem, calibração, leitura física, operação offline no ESP32 ou teste de campo. Assim, a N1 comprova a coerência da especificação, do modelo e do protótipo de software, mas mantém como pendentes ou bloqueadas as conclusões que dependem de infraestrutura e hardware.
 
@@ -52,7 +52,7 @@ O MVP deve coletar temperatura, umidade, pressão, indicador de qualidade do ar,
 
 Não fazem parte do MVP obrigatório previsão por aprendizado de máquina, rede mesh, aplicativo mobile nativo, painel solar e bateria como requisito obrigatório, caixa IP65 definitiva e alertas multicanal de produção. Esses itens podem ser trabalhos futuros.
 
-Permanecem pendentes a pinagem definitiva, o modelo e fator de conversão do pluviômetro, a calibração do MQ-135, a infraestrutura final de broker e hospedagem, as coordenadas físicas, as faixas finais de validação e a decisão sobre sensores com funções sobrepostas [1] [2].
+Permanecem pendentes a pinagem definitiva, o método e eventual fator de conversão quantitativa da chuva, a calibração do MQ-135, a infraestrutura final de broker e hospedagem, as coordenadas físicas e as faixas finais de validação [1] [2].
 
 ## 4. Fundamentação teórica
 
@@ -144,7 +144,7 @@ A cobertura atual é:
 | Camada | Resultado disponível | Classificação |
 |---|---|---|
 | Backend/API | 10 testes aprovados para healthcheck, payloads, campos extras, versão, timestamp e identificador | Validado em software |
-| Firmware estrutural | 7 testes aprovados para drivers fake, renderizadores, tempo e tasks | Simulado e validado em software |
+| Firmware estrutural | 6 testes aprovados para drivers fake, interface local, tempo e tasks | Simulado e validado em software |
 | Contrato | JSON, fixtures e regras v1.0 aprovados pelo validador e pelo CI | Validado em software |
 | Banco | DER e migration presentes | Implementado como modelo; execução runtime pendente |
 | Auditoria | Comparação entre arquitetura, contrato, requisitos, modelo e código | Validada por inspeção documental |
@@ -152,7 +152,7 @@ A cobertura atual é:
 
 A auditoria técnica da Sprint 3 confirma que o contrato, os fixtures, a validação FastAPI e os serviços, estados e tasks de firmware possuem evidência de software. Ela também confirma que MQTT, PostgreSQL runtime, endpoints de consulta, dashboard, drivers concretos, pinagem, sensores, displays e testes de campo permanecem pendentes ou bloqueados [10].
 
-Os testes planejados para MQTT, reconexão, persistência, NTP, DS3231, sensores, TCA9548A, calibração, dashboard, integração ponta a ponta e campo não são apresentados como executados.
+Os testes planejados para MQTT, reconexão, persistência, NTP real, sensores físicos, OLED I²C, calibração/caracterização aplicável, dashboard, integração ponta a ponta e campo não são apresentados como executados.
 
 ## 11. Cronograma
 
