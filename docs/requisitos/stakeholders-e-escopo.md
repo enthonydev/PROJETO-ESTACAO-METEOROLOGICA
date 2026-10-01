@@ -9,13 +9,12 @@ Este documento atende à task J-S1-02 da Sprint 1. Ele identifica as partes inte
 | Stakeholder | Interesse no projeto | Participação conhecida | Ponto que requer confirmação |
 |---|---|---|---|
 | James | Coerência do produto, documentação, integração e entregas acadêmicas | PO de Produto, Documentação e Integração | Critérios e prioridades dentro da baseline |
-| Enthony | Desenvolvimento e integração de uma ou mais frentes técnicas | PO do projeto, com responsabilidade específica ainda não detalhada no guia | Frentes sob sua condução e artefatos que fornecerá |
-| Luan | Desenvolvimento e integração de uma ou mais frentes técnicas | PO do projeto, com responsabilidade específica ainda não detalhada no guia | Frentes sob sua condução e artefatos que fornecerá |
+| Enthony | Software, arquitetura e integração técnica | PO de Software e Arquitetura | Validação das decisões técnicas que cruzam firmware, backend, contrato e integração |
+| Luan | Hardware, sensores e validação física | PO de Hardware, Sensores e Validação Física | Validação elétrica, montagem, caracterização e testes físicos previstos para N2 |
+| Luiz Manoel | Participação na equipe do projeto | Integrante da equipe | Atribuições específicas não formalizadas nos guias operacionais |
 | Professor da disciplina | Avaliação acadêmica e definição dos critérios de N1/N2 | Define o roteiro, os requisitos acadêmicos e os critérios de entrega | Calendário e rubrica final de N1/N2, se houver material adicional |
 | Usuário público do dashboard | Consulta das condições ambientais e do histórico disponível | Consome a API por meio do dashboard web | Perfis de uso e necessidades específicas ainda não detalhados |
-| Responsáveis por hardware/firmware | Validação física, aquisição, conectividade e operação embarcada | Devem validar decisões elétricas, pinagem, sensores e firmware | Identidade e divisão formal de tarefas precisam ser confirmadas |
-
-A tabela não presume uma divisão de trabalho entre Enthony e Luan. Essa divisão deve ser informada antes de tasks que dependam de seus artefatos.
+| Responsáveis por hardware/firmware | Validação física, aquisição, conectividade e operação embarcada | Enthony responde pela integração técnica e Luan pela frente física, com revisão cruzada quando a decisão atravessa as duas áreas | Modelos reais, níveis elétricos, pinagem definitiva e evidências físicas dependem da etapa de bancada |
 
 ## 3. Responsabilidades de governança
 
@@ -41,7 +40,7 @@ O produto não inclui, no MVP, previsão por aprendizado de máquina, rede mesh,
 
 ### 5.1 Hardware e firmware
 
-O hardware fornece sinais de sensores, displays, relógio e interfaces elétricas. O firmware realiza aquisição, validação, conectividade, serialização, publicação e renderização local. A pinagem final, o modelo do pluviômetro, a calibração do MQ-135 e os limites elétricos dependem de validação física.
+O hardware fornece sinais dos sensores, da interface local e das interfaces elétricas. O firmware realiza aquisição, validação, conectividade, serialização, publicação e renderização local. A pinagem final, as características do módulo de chuva, a caracterização do MQ-135 e os limites elétricos dependem de validação física.
 
 ### 5.2 Firmware e backend
 
@@ -63,9 +62,9 @@ A documentação deve relacionar requisitos, arquitetura, implementação, teste
 
 As decisões abaixo dependem de outros responsáveis ou de validação adicional:
 
-- requisitos e fronteiras de hardware dependem de validação de Enthony e/ou Luan;
+- requisitos que cruzem software e hardware dependem de revisão conjunta de Enthony e Luan;
 - pinagem depende de validação elétrica e dos componentes reais;
-- modelo e conversão do pluviômetro dependem do hardware disponível;
+- qualquer método de conversão quantitativa da chuva depende do módulo real e de validação experimental;
 - interpretação do MQ-135 depende de calibração defensável;
 - contrato de telemetria depende de alinhamento entre firmware e backend;
 - cronograma final depende do calendário e da rubrica do professor;
