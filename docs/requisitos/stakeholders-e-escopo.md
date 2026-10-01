@@ -33,7 +33,7 @@ O produto inclui o caminho completo entre aquisição e visualização:
 Sensores → ESP32 → Wi-Fi/MQTT → Backend → PostgreSQL → API REST → Dashboard
 ```
 
-Também inclui as duas telas OLED locais, o DS3231, o TCA9548A, a sincronização NTP e a integração complementar com uma API meteorológica externa.
+Também inclui uma OLED I²C local, a sincronização NTP e a integração complementar com uma API meteorológica externa. A baseline não inclui segunda OLED, DS3231 ou TCA9548A, conforme o ADR-002.
 
 O produto não inclui, no MVP, previsão por aprendizado de máquina, rede mesh, aplicativo mobile nativo, sistema de energia solar como requisito obrigatório, caixa IP65 definitiva ou alertas multicanal de produção.
 

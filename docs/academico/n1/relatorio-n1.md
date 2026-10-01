@@ -3,7 +3,7 @@
 
 **Curso:** Ciência da Computação — Projeto e Desenvolvimento II (68F3)
 **Produto:** Estação Meteorológica Inteligente com ESP32
-**Versão documental:** Sprint 4 — consolidação acadêmica da N1
+**Versão documental:** Sprint 5 — auditoria e fechamento da N1
 **Estado:** primeira versão consolidada, com resultados de software e projeto técnico; sem validação física dos componentes.
 
 > **Nota de escopo:** este relatório registra somente fatos sustentados por requisitos, documentos, código, testes automatizados, fixtures, auditorias e referências verificáveis presentes no repositório. A documentação, a implementação de software e a simulação não são apresentadas como validação física.
@@ -197,7 +197,7 @@ A N1 consolidada apresenta uma especificação rastreável, arquitetura coerente
 
 A N1 não demonstra ainda a estação física. Não há autorização para declarar validação física de sensores, displays, pinagem, calibração, conectividade, operação offline ou medições ambientais. Essas conclusões dependem de evidências de bancada e de campo.
 
-Na revisão da frente de Luan, foram preparados artefatos de BOM, pinout preliminar, mapa conceitual de interconexões, plano de testes, matriz de coerência hardware–firmware–contrato e análise da decisão pendente entre BME280 e DHT22 + BMP280. Esses documentos recuperam trabalho preparatório possível sem peças, mas não alteram o estado físico: montagem, leituras, alimentação, endereços, calibração, operação offline no ESP32 e testes de campo continuam **PENDENTES DE HARDWARE**.
+Na revisão da frente de Luan, foram preparados artefatos de BOM, pinout preliminar, mapa conceitual de interconexões, plano de testes e matriz de coerência hardware–firmware–contrato. O ADR-002 encerrou a decisão de baseline em DHT22 + BMP280, MQ-135 bruto/experimental, LDR relativo, módulo de chuva experimental, uma OLED I²C e NTP. Esses documentos registram o projeto e o plano de validação; montagem, leituras, alimentação, endereços, calibração, operação offline no ESP32 e testes de campo permanecem previstos para etapa posterior/N2, sem bloquear a entrega acadêmica da N1.
 
 Recomenda-se que as próximas atividades mantenham a matriz atualizada e priorizem a implementação incremental das camadas ausentes. Cada avanço deve incluir teste, log ou evidência correspondente. A calibração do MQ-135, o fator do pluviômetro, as coordenadas, a pinagem e a infraestrutura do broker devem ser decididos e documentados antes de qualquer afirmação de conclusão.
 

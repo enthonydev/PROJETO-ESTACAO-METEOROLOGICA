@@ -10,22 +10,22 @@ A consolidação acadêmica deve manter essa distinção. MQTT real, PostgreSQL 
 
 | Insumo | Estado atual | Evidência disponível | Limite da afirmação |
 |---|---|---|---|
-| Arquitetura do sistema | Projetado e documentado | `docs/arquitetura/arquitetura-sistema.md` e ADR-001 | A arquitetura não comprova integração executada. |
+| Arquitetura do sistema | Projetado e documentado | `docs/arquitetura/arquitetura-sistema.md` e ADR-002 | A arquitetura não comprova integração executada. |
 | Contrato de telemetria v1.0 | Implementado e validado em software | Schema JSON, exemplos oficiais e `scripts/validate_contract.py` | Não comprova publicação MQTT ou leitura física. |
 | Validação de payload no backend | Implementado e validado em software | `GET /health`, `POST /api/v1/telemetry/validate` e testes FastAPI | Não há ingestão MQTT, persistência ou endpoints de consulta. |
 | Fixtures de telemetria | Simulado e validado em software | Payloads válido, parcial e inválido em `backend/tests/fixtures/` | Os dados são sintéticos e não são medições de sensores. |
 | Skeleton estrutural de firmware | Implementado e validado em software | Serviços, estados, tasks, interfaces, renderizadores e testes | Não há execução no ESP32 nem driver físico. |
 | Interfaces de drivers | Implementado como abstração | `firmware/src/drivers/interfaces.py` | GPIO, pinagem e periféricos concretos permanecem bloqueados. |
-| Renderizadores de display | Implementado e simulado em software | Testes com display fake e estado processado | Não comprova OLED, SH1106, TCA9548A ou operação elétrica. |
-| Serviço de sensores | Implementado e simulado em software | Teste com driver válido e driver que falha | Não comprova DHT22, BMP280/BME280, MQ-135, LDR ou pluviômetro. |
-| Serviço de tempo | Implementado e validado em software | Conversão de estado temporal e testes estruturais | Não comprova NTP real, DS3231 ou operação offline no ESP32. |
+| Renderizadores de display | Implementado e simulado em software | Testes com display fake e estado processado | Não comprova a OLED física ou sua operação elétrica. |
+| Serviço de sensores | Implementado e simulado em software | Teste com driver válido e driver que falha | Não comprova DHT22, BMP280, MQ-135, LDR ou módulo de chuva. |
+| Serviço de tempo | Implementado e validado em software | Conversão de estado temporal e testes estruturais | Não comprova NTP real ou operação offline no ESP32; não há RTC dedicado na baseline. |
 | Modelo relacional e DER | Projetado e implementado como artefato SQL | Migration, DER e restrições versionadas | Não houve execução contra PostgreSQL. |
 | Persistência | Pendente | Não há conexão ou repositório executável | Não deve ser apresentada como implementada. |
 | API REST de consulta | Pendente | Endpoints estão previstos na arquitetura | Somente healthcheck e validação de payload existem. |
 | CI | Implementado e validado por execução local | Workflow executa contrato, backend, firmware e compilação | O CI não produz evidência física. |
 | Auditoria técnica | Implementado e validado por inspeção | `docs/testes/auditoria-coerencia-s3.md` | A auditoria registra limites; não substitui testes ausentes. |
 | Dashboard | Pendente | Não há implementação frontend integrada | Não há telas ou consultas demonstráveis. |
-| Hardware e montagem | Bloqueado | Não há pinout, montagem ou logs de bancada versionados | Não há validação física, calibração ou medição real. |
+| Hardware e montagem | Projetado/documentado; validação física futura | BOM, pinout conceitual, interconexões e plano de testes | Não há validação física, calibração ou medição real; item previsto para N2. |
 
 ## 3. Coerência entre os artefatos
 
@@ -41,7 +41,7 @@ O firmware estrutural respeita a separação segundo a qual serviços obtêm ou 
 
 As evidências reproduzíveis são os testes automatizados do backend e do firmware, a validação do contrato, a compilação Python, a inspeção do SQL, o workflow de CI e a auditoria de coerência. Elas sustentam afirmações sobre o comportamento dos módulos em software.
 
-Não existem evidências integradas de broker MQTT, banco PostgreSQL em execução, dashboard, placa ESP32, sensores, displays, pinagem, calibração, montagem ou teste de campo. Esses itens devem aparecer na N1 como **pendentes** ou **bloqueados**, conforme a dependência específica.
+Não existem evidências integradas de broker MQTT, banco PostgreSQL em execução, dashboard, placa ESP32, sensores, displays, pinagem, calibração, montagem ou teste de campo. Na N1, esses itens devem aparecer como **projetados**, **pendentes** ou como validações futuras de **N2**, conforme a dependência específica. A ausência de hardware não é bloqueador acadêmico da N1.
 
 ## 5. Orientação de redação para a N1
 

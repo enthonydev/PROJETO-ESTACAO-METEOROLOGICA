@@ -13,7 +13,7 @@ Esta auditoria acompanha o relatório consolidado `relatorio-n1.md` e verifica c
 | Requisitos RF/RNF | Aprovado | O relatório sintetiza os requisitos e aponta a matriz para a relação completa. |
 | Casos de uso | Aprovado | Os oito casos de uso existentes são resumidos sem alterar seus estados. |
 | Arquitetura e dados | Aprovado com pendências | O fluxo, o DER e a migration estão descritos como baseline e artefato SQL; MQTT, PostgreSQL runtime e dashboard permanecem pendentes. |
-| Protótipo e testes | Aprovado | O relatório registra 10 testes de backend e 7 de firmware, além do validador de contrato, todos como software/simulação. |
+| Protótipo e testes | Aprovado | O relatório registra 10 testes de backend e 6 de firmware, além do validador de contrato, todos como software/simulação. |
 | Resultados e análise | Aprovado | As seções são separadas e não atribuem validação física ao software. |
 | Fundamentação e referências | Aprovado | As citações usam referências numeradas; fontes teóricas são delimitadas e não substituem ensaios próprios. |
 | Padrão acadêmico/ABNT aplicável | Parcialmente atendido | Há título, seções, citações, referências, tabelas e apêndices indicados; capa e formatação final dependem do empacotamento da entrega. |

@@ -47,7 +47,7 @@ Esta seção deve relacionar Smart Cities, monitoramento ambiental, IoT, ESP32, 
 
 Esta seção deve apresentar a arquitetura de hardware e software, o fluxo de dados, as responsabilidades dos componentes, o contrato de telemetria, as escolhas tecnológicas e as decisões arquiteturais. Devem ser usados os artefatos versionados em `docs/arquitetura/`, `docs/contratos/` e `docs/arquitetura/adr/`.
 
-Decisões ainda não aprovadas devem ser identificadas como propostas. A seção não deve transformar a ADR-001, enquanto estiver com status proposto, em decisão definitivamente aprovada.
+Decisões ainda não aprovadas devem ser identificadas como propostas. A baseline física aceita deve ser apresentada conforme a ADR-002; decisões futuras de pinagem, calibração e validação física devem permanecer como planejamento ou pendência, sem serem tratadas como resultados da N1.
 
 ### 2.8 Modelagem de dados
 
