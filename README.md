@@ -9,7 +9,7 @@
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-Persistência-4169E1?style=flat-square&logo=postgresql&logoColor=white)
 ![MQTT](https://img.shields.io/badge/MQTT-Telemetria-660066?style=flat-square&logo=mqtt&logoColor=white)
 
-N1 · Sprints 1–4 consolidadas
+N1 · Sprints 1–5 concluídas
 
 </div>
 
@@ -45,9 +45,9 @@ A arquitetura completa está documentada em [`docs/arquitetura/arquitetura-siste
 | Persistência | PostgreSQL | Modelo e migration disponíveis |
 | API | REST | Parcialmente implementada |
 | Dashboard | HTML, CSS e JavaScript | Projetado |
-| Sensores físicos | DHT22 + BMP280 + MQ-135 + LDR + chuva experimental | Baseline aprovada; validação física pendente |
-| Display local | 1× OLED I²C 128x64 | Baseline aprovada; validação física pendente |
-| Referência temporal | NTP | Projetado; validação no ESP32 pendente |
+| Sensores físicos | DHT22 + BMP280 + MQ-135 + LDR + chuva experimental | Baseline aprovada; validação física prevista para N2 |
+| Display local | 1× OLED I²C 128x64 | Baseline aprovada; validação física prevista para N2 |
+| Referência temporal | NTP | Projetado; validação no ESP32 prevista para N2 |
 
 ## Telemetria
 
@@ -65,7 +65,9 @@ O contrato completo está em [`docs/contratos/telemetria-v1.0.json`](docs/contra
 
 ## Estado atual
 
-As Sprints 1 a 4 foram consolidadas na `main`.
+A N1 foi concluída após cinco sprints de especificação, projeto técnico, implementação mínima, consolidação acadêmica e auditoria final.
+
+Na Sprint 5, a equipe revisou a coerência entre requisitos, arquitetura, contrato de telemetria, firmware, backend, modelagem de dados, testes e documentação. A auditoria não identificou bloqueadores acadêmicos para a entrega da N1.
 
 Já estão disponíveis no repositório:
 
@@ -77,9 +79,12 @@ Já estão disponíveis no repositório:
 - testes estruturais de firmware com dependências simuladas;
 - DER e migration inicial para PostgreSQL;
 - CI para validação do contrato, testes e compilação Python;
-- relatório acadêmico consolidado da N1 e auditorias de coerência.
+- relatório acadêmico consolidado da N1, insumos técnicos e auditorias de coerência;
+- auditoria final da Sprint 5 da frente de software, arquitetura e integração técnica.
 
-Ainda dependem das próximas etapas ou de hardware:
+As evidências da N1 comprovam o estado documental e o comportamento validado em software. Elas não representam validação física da estação.
+
+Permanecem para a N2 e etapas seguintes:
 
 - ingestão MQTT real;
 - persistência PostgreSQL em runtime;
@@ -87,20 +92,28 @@ Ainda dependem das próximas etapas ou de hardware:
 - dashboard funcional;
 - drivers e pinagem definitivos;
 - confirmação dos modelos, níveis elétricos e endereços dos módulos adquiridos;
-- montagem e calibração/caracterização aplicável;
+- montagem e calibração ou caracterização aplicável;
 - validação física dos sensores e da OLED;
 - integração ponta a ponta;
-- testes de bancada e de campo.
+- testes de bancada, estabilidade e campo;
+- execução dos testes físicos HW-T01 a HW-T19.
 
-A evidência atual comprova comportamento e organização de software. Não representa validação física da estação.
+## N1
+
+A primeira entrega acadêmica consolida problema, objetivos, requisitos, casos de uso, arquitetura, metodologia, modelagem de dados, protótipo de software, testes, resultados disponíveis, limitações e planejamento das validações físicas.
+
+A N1 foi estruturada para não apresentar como concluído aquilo que ainda depende de hardware ou infraestrutura. Montagem, calibração, medições reais, integração física e testes de campo fazem parte da continuidade do projeto na N2.
 
 ## Documentação
 
 - [Relatório acadêmico da N1](docs/academico/n1/relatorio-n1.md)
+- [Auditoria da Sprint 5 — frente técnica](docs/academico/n1/auditoria-sprint-5-enthony.md)
+- [Auditoria consolidada da N1](docs/academico/n1/auditoria-consolidacao-n1.md)
 - [Insumos técnicos consolidados](docs/academico/n1/insumos-tecnicos-consolidacao.md)
 - [Arquitetura do sistema](docs/arquitetura/arquitetura-sistema.md)
 - [ADR-002 — adequação da arquitetura física](docs/arquitetura/adr/ADR-002-adequacao-arquitetura-fisica-orcamento.md)
 - [Contrato de telemetria v1.0](docs/contratos/telemetria-v1.0.json)
+- [Plano de testes de hardware](hardware/plano-testes.md)
 - [Guia de contribuição](CONTRIBUTING.md)
 
 ## Desenvolvimento
@@ -115,6 +128,6 @@ O projeto diferencia itens projetados, implementados, simulados, validados em so
 
 <div align="center">
 
-Projeto e Desenvolvimento II · Ciência da Computação
+Projeto e Desenvolvimento II · Ciência da Computação · CC2P04
 
 </div>

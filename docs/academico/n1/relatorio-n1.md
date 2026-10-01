@@ -3,7 +3,7 @@
 
 **Curso:** Ciência da Computação — Projeto e Desenvolvimento II (68F3)
 **Produto:** Estação Meteorológica Inteligente com ESP32
-**Versão documental:** Sprint 4 — consolidação acadêmica da N1
+**Versão documental:** Sprint 5 — auditoria e fechamento da N1
 **Estado:** primeira versão consolidada, com resultados de software e projeto técnico; sem validação física dos componentes.
 
 > **Nota de escopo:** este relatório registra somente fatos sustentados por requisitos, documentos, código, testes automatizados, fixtures, auditorias e referências verificáveis presentes no repositório. A documentação, a implementação de software e a simulação não são apresentadas como validação física.
@@ -14,7 +14,7 @@ Este relatório apresenta a primeira versão consolidada da N1 de uma Estação 
 
 A entrega disponível demonstra uma base documental e de software. O repositório contém requisitos funcionais e não funcionais, casos de uso, contrato de telemetria v1.0, arquitetura, DER, migration SQL, skeleton de firmware, backend FastAPI, fixtures e testes automatizados. Na validação executada, dez testes de backend e seis testes estruturais de firmware passaram. O contrato JSON também foi validado.
 
-Os resultados não demonstram ainda ingestão MQTT, persistência em PostgreSQL executável, dashboard funcional, montagem de sensores, pinagem, calibração, leitura física, operação offline no ESP32 ou teste de campo. Assim, a N1 comprova a coerência da especificação, do modelo e do protótipo de software, mas mantém como pendentes ou bloqueadas as conclusões que dependem de infraestrutura e hardware.
+Os resultados não demonstram ainda ingestão MQTT, persistência em PostgreSQL executável, dashboard funcional, montagem de sensores, pinagem, calibração, leitura física, operação offline no ESP32 ou teste de campo. Assim, a N1 comprova a coerência da especificação, do modelo e do protótipo de software, mas mantém para etapas posteriores as conclusões que dependem de infraestrutura e hardware.
 
 ## 1. Contexto, problema e justificativa
 
@@ -72,7 +72,7 @@ A especificação MQTT 5.0 sustenta o caminho de telemetria por publicação e a
 
 A literatura de sensores de baixo custo registra riscos de deriva, interferência, montagem, exposição e diferença entre laboratório e campo. Ela recomenda calibração nas condições de implantação, avaliação contínua e comparação com instrumentos de referência quando aplicável [19]. A EPA também recomenda explicitar objetivos de qualidade, configuração, coleta, manutenção e avaliação [18].
 
-Esses princípios sustentam a permanência do MQ-135 como indicador ou valor bruto até haver calibração defensável. Também sustentam a pendência do fator de conversão do pluviômetro e da definição das coordenadas e do sítio. Nenhuma fonte teórica valida fisicamente este protótipo.
+Esses princípios sustentam a permanência do MQ-135 como indicador ou valor bruto até haver calibração defensável. Também sustentam a necessidade de validar um método de conversão para chuva quantitativa e de definir as coordenadas e o sítio. Nenhuma fonte teórica valida fisicamente este protótipo.
 
 ### 4.4 Backend, banco e dashboard
 
@@ -189,7 +189,7 @@ Os testes de firmware demonstram separação de responsabilidades e comportament
 
 O DER e a migration são coerentes com as entidades do contrato e com a necessidade de armazenar qualidade por métrica. Como o banco não foi executado nesta etapa, ainda não é possível concluir que consultas, transações, índices e constraints funcionem no ambiente PostgreSQL de destino.
 
-A diferença entre o fluxo arquitetural previsto e o software implementado é uma lacuna de implementação, não uma alteração da arquitetura. O próximo avanço técnico deve priorizar ingestão MQTT, persistência runtime, endpoints de consulta e frontend, sem remover os bloqueios de hardware por suposição.
+A diferença entre o fluxo arquitetural previsto e o software implementado é uma lacuna de implementação, não uma alteração da arquitetura. O próximo avanço técnico deve priorizar ingestão MQTT, persistência runtime, endpoints de consulta e frontend, sem antecipar validações físicas por suposição.
 
 ## 14. Conclusões e recomendações
 
@@ -197,9 +197,9 @@ A N1 consolidada apresenta uma especificação rastreável, arquitetura coerente
 
 A N1 não demonstra ainda a estação física. Não há autorização para declarar validação física de sensores, displays, pinagem, calibração, conectividade, operação offline ou medições ambientais. Essas conclusões dependem de evidências de bancada e de campo.
 
-Na revisão da frente de Luan, foram preparados artefatos de BOM, pinout preliminar, mapa conceitual de interconexões, plano de testes, matriz de coerência hardware–firmware–contrato e análise da decisão pendente entre BME280 e DHT22 + BMP280. Esses documentos recuperam trabalho preparatório possível sem peças, mas não alteram o estado físico: montagem, leituras, alimentação, endereços, calibração, operação offline no ESP32 e testes de campo continuam **PENDENTES DE HARDWARE**.
+Na revisão da frente de Luan, foram preparados artefatos de BOM, pinout preliminar, mapa conceitual de interconexões, plano de testes e matriz de coerência hardware–firmware–contrato. O ADR-002 encerrou a decisão de baseline em DHT22 + BMP280, MQ-135 bruto/experimental, LDR relativo, módulo de chuva experimental, uma OLED I²C e NTP. Esses documentos registram o projeto e o plano de validação; montagem, leituras, alimentação, endereços, calibração, operação offline no ESP32 e testes de campo permanecem previstos para etapa posterior/N2, sem bloquear a entrega acadêmica da N1.
 
-Recomenda-se que as próximas atividades mantenham a matriz atualizada e priorizem a implementação incremental das camadas ausentes. Cada avanço deve incluir teste, log ou evidência correspondente. A calibração do MQ-135, o fator do pluviômetro, as coordenadas, a pinagem e a infraestrutura do broker devem ser decididos e documentados antes de qualquer afirmação de conclusão.
+Recomenda-se que as próximas atividades mantenham a matriz atualizada e priorizem a implementação incremental das camadas ausentes. Cada avanço deve incluir teste, log ou evidência correspondente. A calibração ou caracterização do MQ-135, o método de medição quantitativa de chuva, as coordenadas, a pinagem e a infraestrutura do broker devem ser decididos e documentados antes de qualquer afirmação de conclusão.
 
 ## 15. Auditoria de coerência acadêmica
 
@@ -216,7 +216,7 @@ A auditoria da consolidação, revisada após a integração de `docs/academico/
 | Figuras e tabelas | Aprovada para a primeira versão | O relatório usa tabelas de síntese e diagramas textuais já versionados; não inventa imagens de hardware ou resultados gráficos. |
 | Siglas | Aprovada | ESP32, MQTT, API, REST, NTP, RTC, OLED, DER, RF, RNF e MVP são explicadas no texto ou nos documentos de origem. |
 | Separação entre resultados e análise | Aprovada | Resultados disponíveis e interpretação estão em seções distintas. |
-| Afirmações sem evidência | Aprovada com ressalvas | As afirmações físicas e de desempenho são marcadas como projetadas, pendentes ou bloqueadas; a fundamentação teórica não é usada como validação do protótipo. |
+| Afirmações sem evidência | Aprovada com ressalvas | As afirmações físicas e de desempenho são marcadas como projetadas, pendentes ou previstas para validação futura; a fundamentação teórica não é usada como validação do protótipo. |
 | Validação física | Não disponível | Nenhum componente ou medição é declarado fisicamente validado. |
 
 ## 16. Apêndices indicados

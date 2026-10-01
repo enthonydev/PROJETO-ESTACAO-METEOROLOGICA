@@ -2,7 +2,7 @@
 
 ## Escopo e método
 
-Esta auditoria compara a implementação existente com a arquitetura aprovada, o contrato de telemetria v1.0, o modelo de dados e os requisitos funcionais. O objetivo é distinguir claramente o que está implementado e validado em software do que permanece apenas projetado ou bloqueado por hardware, infraestrutura ou integração ainda não desenvolvida.
+Esta auditoria compara a implementação existente com a arquitetura aprovada, o contrato de telemetria v1.0, o modelo de dados e os requisitos funcionais. O objetivo é distinguir claramente o que está implementado e validado em software do que permanece apenas projetado, pendente ou dependente de hardware, infraestrutura ou integração ainda não desenvolvida. Nesta revisão, uma dependência física não é tratada como bloqueador acadêmico da N1; ela é registrada como validação futura ou item de N2.
 
 ## Estado por componente
 
@@ -16,9 +16,9 @@ Esta auditoria compara a implementação existente com a arquitetura aprovada, o
 | API REST de consultas | Projetado; pendente | Os endpoints de consulta estão na arquitetura, mas ainda não foram implementados. |
 | Serviços e estados de firmware | Implementado; validado em software | Serviços, modelos, tasks e renderizadores são exercitados sem hardware físico. |
 | Interfaces de drivers | Implementado como abstração | Os contratos de driver existem; não há drivers concretos nem GPIO. |
-| Displays SH1106/TCA9548A | Bloqueado | A renderização recebe estado processado, mas integração elétrica e validação física dependem do hardware. |
-| BME280, DS3231 e sensores | Bloqueado | Não há pinagem, drivers concretos, calibração ou medições físicas disponíveis. |
-| Wi-Fi/MQTT no ESP32 | Projetado; bloqueado fisicamente | A arquitetura e a interface de conectividade existem; a execução embarcada depende de hardware e infraestrutura. |
+| OLED única | Dependente de validação física futura | A renderização recebe estado processado, mas integração elétrica e operação física dependem do hardware. |
+| DHT22, BMP280, MQ-135, LDR e módulo de chuva | Dependente de validação física futura | Não há pinagem final, drivers concretos, calibração ou medições físicas disponíveis. |
+| Wi-Fi/MQTT no ESP32 | Projetado; validação física futura | A arquitetura e a interface de conectividade existem; a execução embarcada depende de hardware e infraestrutura. |
 | Dashboard | Pendente | Não está implementado nesta branch/tarefa. |
 
 ## Coerência com a arquitetura
@@ -42,11 +42,11 @@ O modelo relacional projetado contém `stations`, `measurements` e `measurement_
 | Requisito | Estado nesta Sprint | Observação |
 |---|---|---|
 | RF-01, RF-07, RF-08, RF-11 | Implementado; validado em software | Identificação, timestamp, qualidade e validação de schema são cobertos pelo modelo e pelos testes. |
-| RF-02 a RF-06 | Projetado; bloqueado para validação física | O contrato aceita as métricas, mas aquisição, conversão e calibração dependem dos componentes reais. |
-| RF-09 e RF-10 | Projetado; pendente/bloqueado | MQTT e reconexão ainda não foram implementados nem testados em ESP32. |
+| RF-02 a RF-06 | Projetado; validação física futura | O contrato aceita as métricas, mas aquisição, conversão e calibração dependem dos componentes reais. |
+| RF-09 e RF-10 | Projetado; pendente para integração | MQTT e reconexão ainda não foram implementados nem testados em ESP32. |
 | RF-12 | Projetado | Migration e modelo existem; persistência executável ainda não. |
 | RF-13 | Parcialmente implementado | Somente `GET /health` e validação de payload existem; consultas REST estão pendentes. |
-| RF-18 a RF-22 | Estrutura parcial validada em software; validação física bloqueada | Há estados, tasks e renderizadores desacoplados, sem prova de funcionamento em displays ou sensores reais. |
+| RF-18 a RF-22 | Estrutura parcial validada em software; validação física futura | Há estados, tasks e renderizadores desacoplados, sem prova de funcionamento em displays ou sensores reais. |
 | RF-23 | Parcialmente implementado | Falhas de drivers são isoladas no serviço de sensores; logging operacional completo ainda está pendente. |
 
 ## Conclusão
