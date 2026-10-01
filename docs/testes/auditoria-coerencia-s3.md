@@ -18,7 +18,7 @@ Esta auditoria compara a implementação existente com a arquitetura aprovada, o
 | Interfaces de drivers | Implementado como abstração | Os contratos de driver existem; não há drivers concretos nem GPIO. |
 | OLED única | Dependente de validação física futura | A renderização recebe estado processado, mas integração elétrica e operação física dependem do hardware. |
 | DHT22, BMP280, MQ-135, LDR e módulo de chuva | Dependente de validação física futura | Não há pinagem final, drivers concretos, calibração ou medições físicas disponíveis. |
-| Wi-Fi/MQTT no ESP32 | Projetado; bloqueado fisicamente | A arquitetura e a interface de conectividade existem; a execução embarcada depende de hardware e infraestrutura. |
+| Wi-Fi/MQTT no ESP32 | Projetado; validação física futura | A arquitetura e a interface de conectividade existem; a execução embarcada depende de hardware e infraestrutura. |
 | Dashboard | Pendente | Não está implementado nesta branch/tarefa. |
 
 ## Coerência com a arquitetura
@@ -42,11 +42,11 @@ O modelo relacional projetado contém `stations`, `measurements` e `measurement_
 | Requisito | Estado nesta Sprint | Observação |
 |---|---|---|
 | RF-01, RF-07, RF-08, RF-11 | Implementado; validado em software | Identificação, timestamp, qualidade e validação de schema são cobertos pelo modelo e pelos testes. |
-| RF-02 a RF-06 | Projetado; bloqueado para validação física | O contrato aceita as métricas, mas aquisição, conversão e calibração dependem dos componentes reais. |
-| RF-09 e RF-10 | Projetado; pendente/bloqueado | MQTT e reconexão ainda não foram implementados nem testados em ESP32. |
+| RF-02 a RF-06 | Projetado; validação física futura | O contrato aceita as métricas, mas aquisição, conversão e calibração dependem dos componentes reais. |
+| RF-09 e RF-10 | Projetado; pendente para integração | MQTT e reconexão ainda não foram implementados nem testados em ESP32. |
 | RF-12 | Projetado | Migration e modelo existem; persistência executável ainda não. |
 | RF-13 | Parcialmente implementado | Somente `GET /health` e validação de payload existem; consultas REST estão pendentes. |
-| RF-18 a RF-22 | Estrutura parcial validada em software; validação física bloqueada | Há estados, tasks e renderizadores desacoplados, sem prova de funcionamento em displays ou sensores reais. |
+| RF-18 a RF-22 | Estrutura parcial validada em software; validação física futura | Há estados, tasks e renderizadores desacoplados, sem prova de funcionamento em displays ou sensores reais. |
 | RF-23 | Parcialmente implementado | Falhas de drivers são isoladas no serviço de sensores; logging operacional completo ainda está pendente. |
 
 ## Conclusão
