@@ -4,7 +4,7 @@
 
 | Task | Status | Branch | Arquivos | Testes/evidências | Dependências liberadas | Bloqueios | PR/commit | Revisão solicitada ao PO |
 |---|---|---|---|---|---|---|---|---|
-| E-S5-01 | **READY FOR N1** | `audit/sprint-5-fechamento-n1` | Relatório, escopo, insumos, auditorias e matriz documental corrigidos nesta branch | Backend 10/10, firmware 6/6, contrato OK, compilação OK, `git diff --check` OK, firmware sem dependências removidas | Arquitetura, contrato v1.0, backend de validação, firmware estrutural, modelo SQL, testes de software e documentação técnica | Nenhum bloqueador acadêmico da frente. Validações físicas e integrações ainda não implementadas seguem como backlog/N2 | Commit e PR serão informados após o push | Sim |
+| E-S5-01 | **READY FOR N1** | `audit/sprint-5-fechamento-n1` | Relatório, escopo, insumos, auditorias e matriz documental corrigidos nesta branch | Backend 10/10, firmware 6/6, contrato OK, compilação OK, `git diff --check` OK, firmware sem dependências removidas | Arquitetura, contrato v1.0, backend de validação, firmware estrutural, modelo SQL, testes de software e documentação técnica | Nenhum bloqueador acadêmico da frente. Validações físicas e integrações ainda não implementadas seguem como backlog/N2 | Commit `9e5140c9f25758f4995e7c02a7d85af7a926745a`; PR #24 | Sim |
 
 ## 1. Resumo executivo
 
