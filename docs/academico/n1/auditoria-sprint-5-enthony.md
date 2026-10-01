@@ -56,8 +56,9 @@ Os seguintes itens permanecem reais, mas não bloqueiam a N1:
 - `docs/academico/n1/auditoria-consolidacao-n1.md`
 - `docs/academico/n1/estrutura-documento-n1.md`
 - `docs/academico/n1/auditoria-sprint-5-enthony.md`
+- `README.md`
 
-O `README.md` foi auditado e não precisa de atualização nesta Sprint. Ele já descreve a baseline do ADR-002, o estado parcial do software e as pendências futuras sem declarar validação física.
+O `README.md` foi revisado novamente após o fechamento da N1 e atualizado neste mesmo PR para registrar as Sprints 1–5 como concluídas, a ausência de bloqueadores acadêmicos e a separação entre evidências de software e validações físicas previstas para a N2.
 
 ## 6. Testes e evidências
 
