@@ -17,14 +17,19 @@
       <div class="topbar-meta">
         <div class="station-meta">
           <span id="stationName">Estação 01</span>
-          <span class="dot" aria-hidden="true"></span>
-          <span id="connectionLabel">Online</span>
+          <span id="connectionDot" class="dot" aria-hidden="true"></span>
+          <span id="connectionLabel">Carregando</span>
         </div>
         <time id="currentTime" datetime=""></time>
       </div>
     </header>
 
-    <main>
+    <div id="systemNotice" class="system-notice" role="status" aria-live="polite">
+      <span id="noticeText">Preparando painel...</span>
+      <button id="retryButton" class="text-button" type="button" hidden>Tentar novamente</button>
+    </div>
+
+    <main id="dashboard" aria-busy="true">
       <section class="hero-grid" aria-labelledby="current-title">
         <div class="section-heading hero-heading">
           <div>
@@ -37,7 +42,7 @@
         <article class="primary-reading">
           <span class="metric-label">Temperatura</span>
           <div class="metric-value-row">
-            <strong id="temperatureValue">--</strong>
+            <strong id="temperatureValue" class="data-value">--</strong>
             <span class="metric-unit">°C</span>
           </div>
           <p id="temperatureNote" class="metric-note">Aguardando leitura</p>
@@ -46,7 +51,7 @@
         <article class="secondary-reading">
           <span class="metric-label">Umidade</span>
           <div class="metric-value-row">
-            <strong id="humidityValue">--</strong>
+            <strong id="humidityValue" class="data-value">--</strong>
             <span class="metric-unit">%</span>
           </div>
           <p class="metric-note">Umidade relativa</p>
@@ -55,7 +60,7 @@
         <article class="secondary-reading">
           <span class="metric-label">Pressão</span>
           <div class="metric-value-row">
-            <strong id="pressureValue">--</strong>
+            <strong id="pressureValue" class="data-value">--</strong>
             <span class="metric-unit">hPa</span>
           </div>
           <p class="metric-note">Pressão atmosférica</p>
@@ -70,9 +75,9 @@
               <h2>Temperatura</h2>
             </div>
             <div class="range-switch" role="group" aria-label="Período do histórico">
-              <button class="range-btn active" data-range="24h">24h</button>
-              <button class="range-btn" data-range="7d">7 dias</button>
-              <button class="range-btn" data-range="30d">30 dias</button>
+              <button class="range-btn active" data-range="24h" type="button">24h</button>
+              <button class="range-btn" data-range="7d" type="button">7 dias</button>
+              <button class="range-btn" data-range="30d" type="button">30 dias</button>
             </div>
           </div>
 
@@ -84,6 +89,10 @@
 
           <div class="chart-wrap">
             <svg id="temperatureChart" viewBox="0 0 760 280" role="img" aria-label="Gráfico de temperatura"></svg>
+            <div id="chartEmpty" class="empty-state" hidden>
+              <strong>Sem histórico disponível</strong>
+              <span>Quando houver medições para este período, elas aparecerão aqui.</span>
+            </div>
           </div>
         </article>
 
@@ -99,21 +108,21 @@
             <div>
               <dt>Qualidade do ar</dt>
               <dd>
-                <span id="airQualityValue">--</span>
+                <span id="airQualityValue" class="data-value">--</span>
                 <small>raw</small>
               </dd>
             </div>
             <div>
               <dt>Luminosidade</dt>
               <dd>
-                <span id="luminosityValue">--</span>
+                <span id="luminosityValue" class="data-value">--</span>
                 <small>% relativa</small>
               </dd>
             </div>
             <div>
               <dt>Chuva</dt>
               <dd>
-                <span id="rainValue">--</span>
+                <span id="rainValue" class="data-value">--</span>
                 <small id="rainUnit">experimental</small>
               </dd>
             </div>
@@ -121,7 +130,7 @@
 
           <div class="quality-block">
             <span class="metric-label">Qualidade das leituras</span>
-            <div id="qualityList" class="quality-list"></div>
+            <div id="qualityList" class="quality-list" aria-live="polite"></div>
           </div>
         </aside>
       </section>
