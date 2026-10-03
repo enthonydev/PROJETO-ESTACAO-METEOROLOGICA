@@ -56,7 +56,7 @@ Sem `DATABASE_URL`, o serviço usa `InMemoryMeasurementRepository` com históric
 
 A organização separa API, serviço e repositório para permitir substituir essa implementação posteriormente sem alterar o contrato consumido pelo dashboard.
 
-Para permitir integração completa de software antes do MQTT, `POST /api/v1/telemetry` valida e persiste uma mensagem no repositório ativo. Esse endpoint é de apoio ao desenvolvimento e não substitui MQTT como transporte principal.
+Para permitir integração completa de software antes do MQTT, `POST /api/v1/telemetry` pode validar e persistir uma mensagem no repositório ativo. Esse endpoint é de apoio ao desenvolvimento, fica desabilitado por padrão e só responde quando `ENABLE_HTTP_INGESTION=true`. Ele não substitui MQTT como transporte principal.
 
 Fluxo atual de desenvolvimento:
 
@@ -112,7 +112,7 @@ Com o banco ativo, é possível enviar payloads de teste por `POST /api/v1/telem
 
 ## MQTT
 
-O consumidor MQTT já está implementado como worker separado do servidor HTTP.
+O consumidor MQTT já está implementado como worker separado do servidor HTTP. Como processos separados não compartilham o repositório em memória, o worker exige `DATABASE_URL` para usar PostgreSQL como armazenamento compartilhado.
 
 Configurações disponíveis:
 

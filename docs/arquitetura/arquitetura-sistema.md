@@ -95,6 +95,10 @@ O módulo de chuva atual não é pluviômetro calibrado. Portanto `rain_mm` não
 
 Baseline preservada: Python/FastAPI, PostgreSQL e API REST v1. O backend valida schema, persiste medições, fornece consultas/agregações e registra falhas.
 
+O consumidor MQTT é executado como processo separado do servidor HTTP. Em execução integrada, ambos devem compartilhar persistência PostgreSQL; o repositório em memória é apenas para desenvolvimento/testes dentro de um mesmo processo e não representa armazenamento compartilhado.
+
+O endpoint HTTP de ingestão é exclusivamente auxiliar para desenvolvimento, permanece desabilitado por padrão e não constitui segundo caminho de produção.
+
 Endpoints baseline:
 - `GET /health`
 - `GET /api/v1/stations`

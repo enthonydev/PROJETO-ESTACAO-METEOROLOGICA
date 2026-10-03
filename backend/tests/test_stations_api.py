@@ -76,7 +76,19 @@ def test_dashboard_is_served_by_backend() -> None:
     assert "Painel ambiental" in response.text
 
 
-def test_http_ingestion_updates_query_repository() -> None:
+def test_http_ingestion_is_disabled_by_default() -> None:
+    response = client.post("/api/v1/telemetry", json={})
+    assert response.status_code == 404
+
+
+def test_http_ingestion_updates_query_repository(monkeypatch) -> None:
+    from types import SimpleNamespace
+
+    monkeypatch.setattr(
+        "app.api.telemetry.settings",
+        SimpleNamespace(enable_http_ingestion=True),
+    )
+
     payload = {
         "schema_version": "1.0",
         "station_id": "estacao-teste",

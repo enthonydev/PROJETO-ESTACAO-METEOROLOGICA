@@ -38,6 +38,12 @@ def on_message(client, userdata, message):
 def main() -> None:
     logging.basicConfig(level=settings.log_level)
 
+    if not settings.database_url:
+        raise RuntimeError(
+            "DATABASE_URL é obrigatória para o worker MQTT separado. "
+            "O repositório em memória não é compartilhado com o processo da API."
+        )
+
     client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2)
     client.on_connect = on_connect
     client.on_message = on_message

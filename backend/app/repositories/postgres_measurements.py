@@ -8,8 +8,6 @@ from psycopg import connect
 from psycopg.rows import dict_row
 
 from app.repositories.measurements import (
-    METRICS,
-    RANGE_DELTA,
     MeasurementNotFoundError,
     StationNotFoundError,
 )
