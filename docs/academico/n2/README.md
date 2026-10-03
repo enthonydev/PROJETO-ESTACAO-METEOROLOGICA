@@ -7,3 +7,5 @@ Os documentos da N1 permanecem preservados como fotografia histórica do estado 
 ## Documentos atuais
 
 - `auditoria-software-pre-hardware.md`: auditoria técnica do estado da N2 após a integração de dashboard, API REST, PostgreSQL e consumidor MQTT.
+
+- `fechamento-software-pre-hardware.md`: registro do gate final broker MQTT → PostgreSQL → API REST executável sem hardware.
