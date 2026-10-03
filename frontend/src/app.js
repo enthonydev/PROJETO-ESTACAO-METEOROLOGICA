@@ -1,14 +1,25 @@
 const API_BASE = "";
 const USE_MOCK_DATA = true;
+const AUTO_REFRESH_MS = 60_000;
+
+const metricConfig = {
+  temperature_c: { label: "Temperatura", unit: "°C", decimals: 1 },
+  humidity_pct: { label: "Umidade", unit: "%", decimals: 0 },
+  pressure_hpa: { label: "Pressão", unit: "hPa", decimals: 0 },
+  air_quality_raw: { label: "Qualidade do ar", unit: "raw", decimals: 0 },
+  luminosity_pct: { label: "Luminosidade", unit: "% relativa", decimals: 0 }
+};
 
 const state = {
   range: "24h",
+  metric: "temperature_c",
   station: "estacao-01",
   latest: null,
-  history: []
+  history: [],
+  lastSuccessfulRefresh: null
 };
 
-const mockLatest = {
+const baseMockLatest = {
   schema_version: "1.0",
   station_id: "estacao-01",
   timestamp: new Date().toISOString(),
@@ -31,10 +42,28 @@ const mockLatest = {
   }
 };
 
-const historySets = {
-  "24h": [22.8,22.4,22.1,21.9,21.8,22.2,23.1,24.4,25.6,26.4,27.1,27.5,27.2,26.8,26.3,25.9,25.5,25.2,24.9,24.7,24.5,24.4,24.6,24.8],
-  "7d": [23.6,24.1,23.9,25.0,24.5,24.7,24.8],
-  "30d": [23.1,23.4,23.8,24.0,24.3,24.2,24.5,24.8,25.1,24.7,24.5,24.9,25.2,25.4,25.0,24.6,24.3,24.1,24.4,24.8,25.1,25.3,25.0,24.7,24.5,24.4,24.6,24.7,24.8,24.8]
+const mockHistory = {
+  "24h": {
+    temperature_c: [22.8,22.4,22.1,21.9,21.8,22.2,23.1,24.4,25.6,26.4,27.1,27.5,27.2,26.8,26.3,25.9,25.5,25.2,24.9,24.7,24.5,24.4,24.6,24.8],
+    humidity_pct: [71,73,74,75,76,74,71,68,64,60,57,55,54,55,57,59,61,62,63,64,65,65,64,63],
+    pressure_hpa: [1014,1014,1014,1013,1013,1013,1013,1012,1012,1012,1011,1011,1011,1011,1012,1012,1012,1012,1012,1013,1013,1013,1012,1012],
+    air_quality_raw: [168,170,171,169,166,165,170,176,180,184,190,194,197,192,188,185,182,180,179,181,183,185,184,184],
+    luminosity_pct: [2,1,1,1,2,8,20,38,56,69,78,84,87,83,77,68,55,41,28,17,9,5,3,2]
+  },
+  "7d": {
+    temperature_c: [23.6,24.1,23.9,25.0,24.5,24.7,24.8],
+    humidity_pct: [67,65,69,61,64,63,63],
+    pressure_hpa: [1013,1011,1014,1012,1010,1013,1012],
+    air_quality_raw: [178,181,176,190,187,182,184],
+    luminosity_pct: [66,71,62,75,68,70,72]
+  },
+  "30d": {
+    temperature_c: [23.1,23.4,23.8,24.0,24.3,24.2,24.5,24.8,25.1,24.7,24.5,24.9,25.2,25.4,25.0,24.6,24.3,24.1,24.4,24.8,25.1,25.3,25.0,24.7,24.5,24.4,24.6,24.7,24.8,24.8],
+    humidity_pct: [70,69,68,67,65,64,63,62,61,63,64,62,60,59,61,63,65,66,64,62,60,59,61,63,65,64,63,62,63,63],
+    pressure_hpa: [1014,1013,1014,1012,1013,1012,1011,1012,1011,1010,1011,1012,1012,1011,1012,1013,1014,1013,1012,1011,1010,1011,1012,1013,1012,1012,1013,1013,1012,1012],
+    air_quality_raw: [169,172,175,174,178,180,183,185,188,186,184,182,179,181,185,189,191,187,183,180,178,181,184,186,188,187,185,183,184,184],
+    luminosity_pct: [62,64,67,65,69,70,72,74,76,71,68,73,75,78,74,70,66,64,67,71,73,76,72,69,68,70,71,73,72,72]
+  }
 };
 
 const requiredMeasurementKeys = [
@@ -46,9 +75,11 @@ const requiredMeasurementKeys = [
   "rain_mm"
 ];
 
+const demoMode = new URLSearchParams(window.location.search).get("demo");
+
 function setText(id, value) {
-  const el = document.getElementById(id);
-  if (el) el.textContent = value;
+  const element = document.getElementById(id);
+  if (element) element.textContent = value;
 }
 
 function formatDateTime(value) {
@@ -68,48 +99,42 @@ function metricLabel(value) {
   return value === null || value === undefined ? "--" : String(value);
 }
 
+function formatMetric(value, metric) {
+  if (!Number.isFinite(value)) return "--";
+  const config = metricConfig[metric];
+  return `${value.toFixed(config.decimals)} ${config.unit}`;
+}
+
 function setBusy(isBusy) {
   document.getElementById("dashboard").setAttribute("aria-busy", String(isBusy));
-  document.querySelectorAll(".range-btn").forEach(button => {
+
+  document.querySelectorAll(".range-btn, .metric-btn, #exportButton, #refreshButton").forEach(button => {
     button.disabled = isBusy;
   });
 }
 
 function setConnectionState(kind, label) {
-  const dot = document.getElementById("connectionDot");
-  dot.dataset.state = kind;
+  document.getElementById("connectionDot").dataset.state = kind;
   setText("connectionLabel", label);
 }
 
 function setNotice(message, stateName = "neutral", canRetry = false) {
   const notice = document.getElementById("systemNotice");
   const retry = document.getElementById("retryButton");
+
   notice.dataset.state = stateName;
   setText("noticeText", message);
   retry.hidden = !canRetry;
 }
 
 function validateTelemetry(payload) {
-  if (!payload || typeof payload !== "object") {
-    throw new Error("Resposta de telemetria ausente.");
-  }
-
-  if (payload.schema_version !== "1.0") {
-    throw new Error("Versão de telemetria incompatível.");
-  }
-
-  if (!payload.station_id || typeof payload.station_id !== "string") {
-    throw new Error("Identificação da estação ausente.");
-  }
-
-  if (!payload.measurements || !payload.quality) {
-    throw new Error("Telemetria incompleta.");
-  }
+  if (!payload || typeof payload !== "object") throw new Error("Resposta de telemetria ausente.");
+  if (payload.schema_version !== "1.0") throw new Error("Versão de telemetria incompatível.");
+  if (!payload.station_id || typeof payload.station_id !== "string") throw new Error("Identificação da estação ausente.");
+  if (!payload.measurements || !payload.quality) throw new Error("Telemetria incompleta.");
 
   const missingKey = requiredMeasurementKeys.find(key => !(key in payload.measurements));
-  if (missingKey) {
-    throw new Error(`Métrica ausente no payload: ${missingKey}`);
-  }
+  if (missingKey) throw new Error(`Métrica ausente no payload: ${missingKey}`);
 
   return payload;
 }
@@ -124,27 +149,55 @@ function deriveDataState(quality) {
   return "Indefinido";
 }
 
+function renderFreshness(timestamp) {
+  const date = new Date(timestamp);
+
+  if (Number.isNaN(date.getTime())) {
+    setText("freshnessLabel", "Atualidade: indisponível");
+    return;
+  }
+
+  const ageMinutes = Math.max(0, Math.floor((Date.now() - date.getTime()) / 60_000));
+
+  if (ageMinutes < 2) setText("freshnessLabel", "Atualidade: agora");
+  else if (ageMinutes < 10) setText("freshnessLabel", `Atualidade: ${ageMinutes} min`);
+  else if (ageMinutes < 60) setText("freshnessLabel", `Atualidade: atrasada (${ageMinutes} min)`);
+  else setText("freshnessLabel", "Atualidade: leitura antiga");
+}
+
+function renderLocation(location) {
+  const lat = location?.latitude;
+  const lon = location?.longitude;
+
+  if (!Number.isFinite(lat) || !Number.isFinite(lon)) {
+    setText("statusLocation", "Não informada");
+    return;
+  }
+
+  setText("statusLocation", `${lat.toFixed(4)}, ${lon.toFixed(4)}`);
+}
+
 function renderLatest(rawPayload) {
   const payload = validateTelemetry(rawPayload);
   state.latest = payload;
 
-  const m = payload.measurements;
+  const measurements = payload.measurements;
   const stationLabel = payload.station_id
     .replaceAll("-", " ")
     .replace(/\b\w/g, char => char.toUpperCase());
 
   setText("stationName", stationLabel);
-  setText("temperatureValue", metricLabel(m.temperature_c));
-  setText("humidityValue", metricLabel(m.humidity_pct));
-  setText("pressureValue", metricLabel(m.pressure_hpa));
-  setText("airQualityValue", metricLabel(m.air_quality_raw));
-  setText("luminosityValue", metricLabel(m.luminosity_pct));
+  setText("temperatureValue", metricLabel(measurements.temperature_c));
+  setText("humidityValue", metricLabel(measurements.humidity_pct));
+  setText("pressureValue", metricLabel(measurements.pressure_hpa));
+  setText("airQualityValue", metricLabel(measurements.air_quality_raw));
+  setText("luminosityValue", metricLabel(measurements.luminosity_pct));
 
-  if (m.rain_mm === null || payload.quality.rain !== "ok") {
+  if (measurements.rain_mm === null || payload.quality.rain !== "ok") {
     setText("rainValue", "Sem dado");
     setText("rainUnit", "sensor experimental");
   } else {
-    setText("rainValue", metricLabel(m.rain_mm));
+    setText("rainValue", metricLabel(measurements.rain_mm));
     setText("rainUnit", "mm");
   }
 
@@ -153,11 +206,14 @@ function renderLatest(rawPayload) {
   setText("statusData", deriveDataState(payload.quality));
   setText("statusSource", USE_MOCK_DATA ? "Simulação" : "API REST");
   setText("statusUpdated", formatDateTime(payload.timestamp));
+  setText("statusSchema", payload.schema_version);
   setText(
     "temperatureNote",
     USE_MOCK_DATA ? "Leitura simulada para desenvolvimento da interface" : "Leitura recebida da estação"
   );
 
+  renderFreshness(payload.timestamp);
+  renderLocation(payload.location);
   renderQuality(payload.quality);
 }
 
@@ -192,11 +248,21 @@ function renderQuality(quality) {
 
 function showChartEmpty(show) {
   document.getElementById("chartEmpty").hidden = !show;
-  document.getElementById("temperatureChart").hidden = show;
+  document.getElementById("historyChart").hidden = show;
 }
 
-function renderChart(values, range) {
+function xAxisLabels(range) {
+  if (range === "24h") return ["00h", "06h", "12h", "18h", "Agora"];
+  if (range === "7d") return ["7d", "5d", "3d", "1d", "Hoje"];
+  return ["30d", "21d", "14d", "7d", "Hoje"];
+}
+
+function renderChart(values, range, metric) {
   const cleanValues = values.filter(Number.isFinite);
+  const config = metricConfig[metric];
+
+  setText("historyTitle", config.label);
+  setText("chartDescription", `Histórico de ${config.label.toLowerCase()} no período de ${range}.`);
 
   if (cleanValues.length < 2) {
     showChartEmpty(true);
@@ -208,21 +274,21 @@ function renderChart(values, range) {
 
   showChartEmpty(false);
 
-  const svg = document.getElementById("temperatureChart");
+  const svg = document.getElementById("historyChart");
   const width = 760;
   const height = 280;
-  const pad = { top: 20, right: 16, bottom: 32, left: 38 };
+  const pad = { top: 20, right: 16, bottom: 32, left: 48 };
 
   const min = Math.min(...cleanValues);
   const max = Math.max(...cleanValues);
   const avg = cleanValues.reduce((sum, value) => sum + value, 0) / cleanValues.length;
-  const spread = Math.max(max - min, 2);
+  const spread = Math.max(max - min, metric === "pressure_hpa" ? 4 : 2);
   const yMin = min - spread * 0.25;
   const yMax = max + spread * 0.25;
 
-  setText("chartMin", `${min.toFixed(1)}°`);
-  setText("chartAvg", `${avg.toFixed(1)}°`);
-  setText("chartMax", `${max.toFixed(1)}°`);
+  setText("chartMin", formatMetric(min, metric));
+  setText("chartAvg", formatMetric(avg, metric));
+  setText("chartMax", formatMetric(max, metric));
 
   const x = index => pad.left + (index / Math.max(cleanValues.length - 1, 1)) * (width - pad.left - pad.right);
   const y = value => pad.top + ((yMax - value) / (yMax - yMin)) * (height - pad.top - pad.bottom);
@@ -231,21 +297,18 @@ function renderChart(values, range) {
   const areaPoints = `${pad.left},${height - pad.bottom} ${linePoints} ${width - pad.right},${height - pad.bottom}`;
 
   const yTicks = Array.from({ length: 4 }, (_, index) => yMin + ((yMax - yMin) / 3) * index);
-  const labels = range === "24h"
-    ? ["00h", "06h", "12h", "18h", "Agora"]
-    : range === "7d"
-      ? ["7d", "5d", "3d", "1d", "Hoje"]
-      : ["30d", "21d", "14d", "7d", "Hoje"];
+  const labels = xAxisLabels(range);
 
   const grid = yTicks.map(tick => {
     const yy = y(tick);
+    const tickLabel = metric === "pressure_hpa" ? tick.toFixed(0) : tick.toFixed(config.decimals);
     return `
       <line class="chart-grid" x1="${pad.left}" x2="${width - pad.right}" y1="${yy}" y2="${yy}" />
-      <text class="chart-label" x="0" y="${yy + 4}">${tick.toFixed(0)}°</text>
+      <text class="chart-label" x="0" y="${yy + 4}">${tickLabel}</text>
     `;
   }).join("");
 
-  const xLabels = labels.map((label, index) => {
+  const labelsSvg = labels.map((label, index) => {
     const xx = pad.left + (index / (labels.length - 1)) * (width - pad.left - pad.right);
     const anchor = index === 0 ? "start" : index === labels.length - 1 ? "end" : "middle";
     return `<text class="chart-label" text-anchor="${anchor}" x="${xx}" y="${height - 6}">${label}</text>`;
@@ -255,13 +318,36 @@ function renderChart(values, range) {
     ${grid}
     <polygon class="chart-area" points="${areaPoints}" />
     <polyline class="chart-line" points="${linePoints}" />
-    ${xLabels}
+    ${labelsSvg}
   `;
 }
 
+function buildMockLatest() {
+  const payload = structuredClone(baseMockLatest);
+  payload.timestamp = new Date().toISOString();
+
+  if (demoMode === "partial") {
+    payload.measurements.air_quality_raw = null;
+    payload.quality.air_quality = "error";
+  }
+
+  if (demoMode === "invalid") {
+    payload.schema_version = "2.0";
+  }
+
+  return payload;
+}
+
+function getMockHistory(range, metric) {
+  if (demoMode === "empty") return [];
+  return mockHistory[range]?.[metric] ?? [];
+}
+
 async function loadLatest() {
+  if (demoMode === "error") throw new Error("Falha simulada da API para teste da interface.");
+
   if (USE_MOCK_DATA) {
-    renderLatest(mockLatest);
+    renderLatest(buildMockLatest());
     return;
   }
 
@@ -269,17 +355,16 @@ async function loadLatest() {
     headers: { Accept: "application/json" }
   });
 
-  if (!response.ok) {
-    throw new Error(`Falha ao carregar leitura atual (HTTP ${response.status}).`);
-  }
-
+  if (!response.ok) throw new Error(`Falha ao carregar leitura atual (HTTP ${response.status}).`);
   renderLatest(await response.json());
 }
 
-async function loadHistory(range) {
+async function loadHistory(range, metric) {
+  if (demoMode === "error") throw new Error("Falha simulada da API para teste da interface.");
+
   if (USE_MOCK_DATA) {
-    state.history = historySets[range] ?? [];
-    renderChart(state.history, range);
+    state.history = getMockHistory(range, metric);
+    renderChart(state.history, range, metric);
     return;
   }
 
@@ -288,17 +373,46 @@ async function loadHistory(range) {
     { headers: { Accept: "application/json" } }
   );
 
-  if (!response.ok) {
-    throw new Error(`Falha ao carregar histórico (HTTP ${response.status}).`);
-  }
+  if (!response.ok) throw new Error(`Falha ao carregar histórico (HTTP ${response.status}).`);
 
   const data = await response.json();
   const items = Array.isArray(data) ? data : data.items ?? [];
+
   state.history = items
-    .map(item => item?.temperature_c ?? item?.measurements?.temperature_c)
+    .map(item => item?.[metric] ?? item?.measurements?.[metric])
     .filter(Number.isFinite);
 
-  renderChart(state.history, range);
+  renderChart(state.history, range, metric);
+}
+
+function buildCsv() {
+  const config = metricConfig[state.metric];
+  const rows = [
+    ["periodo", "metrica", "unidade", "indice", "valor"],
+    ...state.history.map((value, index) => [state.range, state.metric, config.unit, index + 1, value])
+  ];
+
+  return rows
+    .map(row => row.map(value => `"${String(value).replaceAll('"', '""')}"`).join(","))
+    .join("\n");
+}
+
+function exportCsv() {
+  if (!state.history.length) {
+    setNotice("Não há histórico para exportar neste período.", "neutral", false);
+    return;
+  }
+
+  const blob = new Blob([buildCsv()], { type: "text/csv;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const anchor = document.createElement("a");
+
+  anchor.href = url;
+  anchor.download = `${state.station}-${state.metric}-${state.range}.csv`;
+  document.body.appendChild(anchor);
+  anchor.click();
+  anchor.remove();
+  URL.revokeObjectURL(url);
 }
 
 function renderClock() {
@@ -312,9 +426,9 @@ function renderClock() {
     second: "2-digit"
   }).format(now);
 
-  const el = document.getElementById("currentTime");
-  el.textContent = label;
-  el.dateTime = now.toISOString();
+  const element = document.getElementById("currentTime");
+  element.textContent = label;
+  element.dateTime = now.toISOString();
 }
 
 function renderOfflineState() {
@@ -340,7 +454,12 @@ async function refreshDashboard() {
   setNotice("Atualizando leituras...", "loading", false);
 
   try {
-    await Promise.all([loadLatest(), loadHistory(state.range)]);
+    await Promise.all([
+      loadLatest(),
+      loadHistory(state.range, state.metric)
+    ]);
+
+    state.lastSuccessfulRefresh = new Date();
 
     if (USE_MOCK_DATA) {
       setConnectionState("warning", "Simulação");
@@ -360,24 +479,43 @@ async function refreshDashboard() {
   }
 }
 
+async function changeHistory() {
+  setBusy(true);
+
+  try {
+    await loadHistory(state.range, state.metric);
+  } catch (error) {
+    handleError(error);
+  } finally {
+    setBusy(false);
+  }
+}
+
 document.querySelectorAll(".range-btn").forEach(button => {
   button.addEventListener("click", async () => {
     document.querySelectorAll(".range-btn").forEach(item => item.classList.remove("active"));
     button.classList.add("active");
     state.range = button.dataset.range;
+    await changeHistory();
+  });
+});
 
-    setBusy(true);
-    try {
-      await loadHistory(state.range);
-    } catch (error) {
-      handleError(error);
-    } finally {
-      setBusy(false);
-    }
+document.querySelectorAll(".metric-btn").forEach(button => {
+  button.addEventListener("click", async () => {
+    document.querySelectorAll(".metric-btn").forEach(item => {
+      const active = item === button;
+      item.classList.toggle("active", active);
+      item.setAttribute("aria-pressed", String(active));
+    });
+
+    state.metric = button.dataset.metric;
+    await changeHistory();
   });
 });
 
 document.getElementById("retryButton").addEventListener("click", refreshDashboard);
+document.getElementById("refreshButton").addEventListener("click", refreshDashboard);
+document.getElementById("exportButton").addEventListener("click", exportCsv);
 
 window.addEventListener("offline", renderOfflineState);
 window.addEventListener("online", () => {
@@ -386,4 +524,8 @@ window.addEventListener("online", () => {
 
 renderClock();
 setInterval(renderClock, 1000);
+setInterval(() => {
+  if (!document.hidden) refreshDashboard();
+}, AUTO_REFRESH_MS);
+
 refreshDashboard();

@@ -44,7 +44,7 @@ A arquitetura completa está documentada em [`docs/arquitetura/arquitetura-siste
 | Backend | Python + FastAPI | Implementado parcialmente |
 | Persistência | PostgreSQL | Modelo e migration disponíveis |
 | API | REST | Parcialmente implementada |
-| Dashboard | HTML, CSS e JavaScript | Projetado |
+| Dashboard | HTML, CSS e JavaScript | Implementado em modo de demonstração; integração REST pendente |
 | Sensores físicos | DHT22 + BMP280 + MQ-135 + LDR + chuva experimental | Baseline aprovada; validação física prevista para N2 |
 | Display local | 1× OLED I²C 128x64 | Baseline aprovada; validação física prevista para N2 |
 | Referência temporal | NTP | Projetado; validação no ESP32 prevista para N2 |
@@ -80,7 +80,8 @@ Já estão disponíveis no repositório:
 - DER e migration inicial para PostgreSQL;
 - CI para validação do contrato, testes e compilação Python;
 - relatório acadêmico consolidado da N1, insumos técnicos e auditorias de coerência;
-- auditoria final da Sprint 5 da frente de software, arquitetura e integração técnica.
+- auditoria final da Sprint 5 da frente de software, arquitetura e integração técnica;
+- dashboard web responsivo com histórico multi-métrica, estados operacionais, exportação CSV, cenários de demonstração e testes estáticos no CI.
 
 As evidências da N1 comprovam o estado documental e o comportamento validado em software. Elas não representam validação física da estação.
 
@@ -89,7 +90,7 @@ Permanecem para a N2 e etapas seguintes:
 - ingestão MQTT real;
 - persistência PostgreSQL em runtime;
 - endpoints REST de consulta;
-- dashboard funcional;
+- integração do dashboard com os endpoints REST reais;
 - drivers e pinagem definitivos;
 - confirmação dos modelos, níveis elétricos e endereços dos módulos adquiridos;
 - montagem e calibração ou caracterização aplicável;
@@ -114,6 +115,7 @@ A N1 foi estruturada para não apresentar como concluído aquilo que ainda depen
 - [ADR-002 — adequação da arquitetura física](docs/arquitetura/adr/ADR-002-adequacao-arquitetura-fisica-orcamento.md)
 - [Contrato de telemetria v1.0](docs/contratos/telemetria-v1.0.json)
 - [Plano de testes de hardware](hardware/plano-testes.md)
+- [Frontend e execução local](frontend/README.md)
 - [Guia de contribuição](CONTRIBUTING.md)
 
 ## Desenvolvimento
