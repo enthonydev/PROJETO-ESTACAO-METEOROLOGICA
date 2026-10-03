@@ -26,7 +26,10 @@
 
     <div id="systemNotice" class="system-notice" role="status" aria-live="polite">
       <span id="noticeText">Preparando painel...</span>
-      <button id="retryButton" class="text-button" type="button" hidden>Tentar novamente</button>
+      <div class="notice-actions">
+        <button id="refreshButton" class="text-button" type="button">Atualizar</button>
+        <button id="retryButton" class="text-button" type="button" hidden>Tentar novamente</button>
+      </div>
     </div>
 
     <main id="dashboard" aria-busy="true">
@@ -36,7 +39,10 @@
             <p class="section-kicker">Leitura atual</p>
             <h2 id="current-title">Condições registradas</h2>
           </div>
-          <p id="lastUpdate" class="muted">Última atualização: --</p>
+          <div class="reading-meta">
+            <p id="lastUpdate" class="muted">Última atualização: --</p>
+            <p id="freshnessLabel" class="muted">Atualidade: --</p>
+          </div>
         </div>
 
         <article class="primary-reading">
@@ -69,11 +75,25 @@
 
       <section class="content-grid">
         <article class="panel chart-panel">
-          <div class="panel-header">
+          <div class="panel-header chart-header">
             <div>
               <p class="section-kicker">Histórico</p>
-              <h2>Temperatura</h2>
+              <h2 id="historyTitle">Temperatura</h2>
             </div>
+            <div class="chart-actions">
+              <button id="exportButton" class="secondary-action" type="button">Exportar CSV</button>
+            </div>
+          </div>
+
+          <div class="metric-switch" role="group" aria-label="Métrica do histórico">
+            <button class="metric-btn active" data-metric="temperature_c" type="button" aria-pressed="true">Temperatura</button>
+            <button class="metric-btn" data-metric="humidity_pct" type="button" aria-pressed="false">Umidade</button>
+            <button class="metric-btn" data-metric="pressure_hpa" type="button" aria-pressed="false">Pressão</button>
+            <button class="metric-btn" data-metric="air_quality_raw" type="button" aria-pressed="false">Qualidade do ar</button>
+            <button class="metric-btn" data-metric="luminosity_pct" type="button" aria-pressed="false">Luminosidade</button>
+          </div>
+
+          <div class="range-row">
             <div class="range-switch" role="group" aria-label="Período do histórico">
               <button class="range-btn active" data-range="24h" type="button">24h</button>
               <button class="range-btn" data-range="7d" type="button">7 dias</button>
@@ -88,7 +108,8 @@
           </div>
 
           <div class="chart-wrap">
-            <svg id="temperatureChart" viewBox="0 0 760 280" role="img" aria-label="Gráfico de temperatura"></svg>
+            <svg id="historyChart" viewBox="0 0 760 280" role="img" aria-labelledby="historyTitle chartDescription"></svg>
+            <p id="chartDescription" class="sr-only">Histórico da métrica selecionada.</p>
             <div id="chartEmpty" class="empty-state" hidden>
               <strong>Sem histórico disponível</strong>
               <span>Quando houver medições para este período, elas aparecerão aqui.</span>
@@ -156,6 +177,14 @@
           <div>
             <span>Atualização</span>
             <strong id="statusUpdated">--</strong>
+          </div>
+          <div>
+            <span>Localização</span>
+            <strong id="statusLocation">Não informada</strong>
+          </div>
+          <div>
+            <span>Schema</span>
+            <strong id="statusSchema">--</strong>
           </div>
         </div>
       </section>
