@@ -4,7 +4,7 @@ Dashboard web da Estação Meteorológica Inteligente com ESP32.
 
 ## Estado atual
 
-A interface pode ser desenvolvida e validada sem hardware. A versão atual opera em modo de demonstração com dados simulados enquanto os endpoints de consulta do backend não estão disponíveis.
+A interface pode ser desenvolvida e validada sem hardware. Quando é servida pelo FastAPI, ela consome automaticamente os endpoints REST do backend. Ao abrir o arquivo HTML diretamente, continua disponível um modo de demonstração com dados simulados.
 
 Já estão implementados:
 
@@ -86,21 +86,13 @@ Os parâmetros abaixo permitem testar estados da interface sem alterar o código
 
 ## Integração com a API
 
-Em `src/app.js`:
+Em `src/app.js`, o modo de dados é decidido automaticamente:
 
 ```js
-const USE_MOCK_DATA = true;
+const USE_MOCK_DATA = window.location.protocol === "file:";
 ```
 
-mantém o dashboard em demonstração.
-
-Quando os endpoints REST forem implementados, altere para:
-
-```js
-const USE_MOCK_DATA = false;
-```
-
-e configure `API_BASE` quando necessário.
+Ao abrir `index.html` diretamente, a interface usa dados simulados. Ao acessar `/dashboard/` pelo FastAPI, ela usa a API REST na mesma origem. `API_BASE` pode ser configurado no futuro caso frontend e backend sejam publicados em origens diferentes.
 
 A interface está preparada para consumir:
 
