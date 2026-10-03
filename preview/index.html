@@ -67,6 +67,22 @@ nav button.on{color:#fff;border-bottom-color:rgba(255,255,255,.72)}
 .section-head h2{margin:0;font-size:1.05rem;font-weight:620;letter-spacing:-.025em}
 .section-head p{margin:0;color:var(--faint);font-size:.76rem}
 
+.days{
+  display:grid;grid-template-columns:repeat(7,1fr);border-top:1px solid var(--line);border-bottom:1px solid var(--line);
+  margin-bottom:28px;overflow-x:auto
+}
+.day-btn{
+  min-width:92px;border:0;border-right:1px solid var(--softline);background:transparent;color:var(--fg);
+  font:inherit;padding:16px 10px;cursor:pointer;text-align:center;transition:background .18s ease,transform .18s ease
+}
+.day-btn:last-child{border-right:0}
+.day-btn:hover{background:rgba(255,255,255,.045)}
+.day-btn.on{background:rgba(255,255,255,.09)}
+.day-btn .day-name{display:block;font-size:.72rem;color:var(--muted);margin-bottom:7px}
+.day-btn .day-icon{display:block;font-size:1.3rem;margin-bottom:6px}
+.day-btn .day-temp{font-size:.9rem;font-weight:600}
+.day-btn .day-min{font-size:.68rem;color:var(--faint);margin-left:4px}
+
 .hourly{
   display:grid;grid-template-columns:repeat(8,1fr);gap:0;border-top:1px solid var(--line);border-bottom:1px solid var(--line)
 }
@@ -122,6 +138,7 @@ svg{display:block;width:100%;height:auto;touch-action:none}
 
 @media(max-width:820px){
   .content,.system-grid{grid-template-columns:1fr;gap:28px}
+  .days{grid-template-columns:repeat(7,92px)}
   .hourly{grid-template-columns:repeat(8,82px);overflow-x:auto}
 }
 @media(max-width:620px){
@@ -148,23 +165,17 @@ svg{display:block;width:100%;height:auto;touch-action:none}
 <section class="hero" id="hero">
   <div class="place">Estação 01</div>
   <div class="meta" id="meta">sexta-feira, 14:00 · atualizado agora</div>
-  <div class="temp">25°</div>
+  <div class="temp" id="heroTemp">25°</div>
   <div class="condition" id="condition">Céu aberto</div>
-  <div class="hilo">Máx. 27° · Mín. 22°</div>
+  <div class="hilo" id="heroHilo">Máx. 27° · Mín. 22°</div>
 </section>
 
 <section class="section">
-  <div class="section-head"><h2>Próximas horas</h2><p>dados de demonstração</p></div>
-  <div class="hourly">
-    <div class="hour now"><div class="time">Agora</div><div class="icon">☀️</div><div class="deg">25°</div></div>
-    <div class="hour"><div class="time">15h</div><div class="icon">☀️</div><div class="deg">26°</div></div>
-    <div class="hour"><div class="time">16h</div><div class="icon">🌤️</div><div class="deg">27°</div></div>
-    <div class="hour"><div class="time">17h</div><div class="icon">🌤️</div><div class="deg">26°</div></div>
-    <div class="hour"><div class="time">18h</div><div class="icon">🌥️</div><div class="deg">25°</div></div>
-    <div class="hour"><div class="time">19h</div><div class="icon">🌥️</div><div class="deg">24°</div></div>
-    <div class="hour"><div class="time">20h</div><div class="icon">☁️</div><div class="deg">23°</div></div>
-    <div class="hour"><div class="time">21h</div><div class="icon">☁️</div><div class="deg">23°</div></div>
-  </div>
+  <div class="section-head"><h2>Previsão demonstrativa</h2><p>selecione um dia · dados simulados</p></div>
+  <div class="days" id="days"></div>
+
+  <div class="section-head"><h2 id="hourlyTitle">Próximas horas</h2><p id="hourlyCaption">sexta-feira · simulação</p></div>
+  <div class="hourly" id="hourly"></div>
 </section>
 
 <section class="section content" id="history">
@@ -177,11 +188,11 @@ svg{display:block;width:100%;height:auto;touch-action:none}
   <aside>
     <div class="section-head"><h2>Condições</h2><p>agora</p></div>
     <div class="side-list">
-      <div class="row"><div class="label">Umidade</div><div class="value">63%<span class="sub">relativa</span></div></div>
-      <div class="row"><div class="label">Pressão</div><div class="value">1012<span class="sub">hPa</span></div></div>
-      <div class="row"><div class="label">Qualidade do ar</div><div class="value">184<span class="sub">raw</span></div></div>
-      <div class="row"><div class="label">Luminosidade</div><div class="value">72%<span class="sub">relativa</span></div></div>
-      <div class="row"><div class="label">Chuva</div><div class="value">—<span class="sub">sensor experimental</span></div></div>
+      <div class="row"><div class="label">Umidade</div><div class="value" id="humidityValue">63%<span class="sub">relativa</span></div></div>
+      <div class="row"><div class="label">Pressão</div><div class="value" id="pressureValue">1012<span class="sub">hPa</span></div></div>
+      <div class="row"><div class="label">Qualidade do ar</div><div class="value" id="airValue">184<span class="sub">raw</span></div></div>
+      <div class="row"><div class="label">Luminosidade</div><div class="value" id="lightValue">72%<span class="sub">relativa</span></div></div>
+      <div class="row"><div class="label">Chuva</div><div class="value" id="rainValue">—<span class="sub">sensor experimental</span></div></div>
     </div>
   </aside>
 </section>
@@ -210,43 +221,213 @@ svg{display:block;width:100%;height:auto;touch-action:none}
 
 <script>
 const R=document.documentElement;
-addEventListener("pointermove",e=>{R.style.setProperty("--mx",(e.clientX/innerWidth-.5).toFixed(3));R.style.setProperty("--my",(e.clientY/innerHeight-.5).toFixed(3))});
+addEventListener("pointermove",e=>{
+  R.style.setProperty("--mx",(e.clientX/innerWidth-.5).toFixed(3));
+  R.style.setProperty("--my",(e.clientY/innerHeight-.5).toFixed(3));
+});
+
 const stars=document.getElementById("stars");
-for(let i=0;i<60;i++){let s=document.createElement("i");s.className="star";s.style.left=Math.random()*100+"%";s.style.top=Math.random()*55+"%";stars.appendChild(s)}
-document.querySelectorAll("nav button").forEach(b=>b.onclick=()=>{document.querySelectorAll("nav button").forEach(x=>x.classList.remove("on"));b.classList.add("on");document.getElementById(b.dataset.to).scrollIntoView({behavior:"smooth"})});
+for(let i=0;i<60;i++){
+  const s=document.createElement("i");
+  s.className="star";
+  s.style.left=Math.random()*100+"%";
+  s.style.top=Math.random()*55+"%";
+  stars.appendChild(s);
+}
 
-const D={
-temperature_c:["Temperatura","°C",1,[22.8,22.4,22.1,21.9,21.8,22.2,23.1,24.4,25.6,26.4,27.1,27.5,27.2,26.8,26.3,25.9,25.5,25.2,24.9,24.7,24.5,24.4,24.6,24.8]],
-humidity_pct:["Umidade","%",0,[71,73,74,75,76,74,71,68,64,60,57,55,54,55,57,59,61,62,63,64,65,65,64,63]],
-pressure_hpa:["Pressão"," hPa",0,[1014,1014,1014,1013,1013,1013,1013,1012,1012,1012,1011,1011,1011,1011,1012,1012,1012,1012,1012,1013,1013,1013,1012,1012]],
-air_quality_raw:["Qualidade do ar"," raw",0,[168,170,171,169,166,165,170,176,180,184,190,194,197,192,188,185,182,180,179,181,183,185,184,184]],
-luminosity_pct:["Luminosidade","%",0,[2,1,1,1,2,8,20,38,56,69,78,84,87,83,77,68,55,41,28,17,9,5,3,2]]
+document.querySelectorAll("nav button").forEach(b=>b.onclick=()=>{
+  document.querySelectorAll("nav button").forEach(x=>x.classList.remove("on"));
+  b.classList.add("on");
+  document.getElementById(b.dataset.to).scrollIntoView({behavior:"smooth"});
+});
+
+const BASE={
+  temperature_c:["Temperatura","°C",1,[22.8,22.4,22.1,21.9,21.8,22.2,23.1,24.4,25.6,26.4,27.1,27.5,27.2,26.8,26.3,25.9,25.5,25.2,24.9,24.7,24.5,24.4,24.6,24.8]],
+  humidity_pct:["Umidade","%",0,[71,73,74,75,76,74,71,68,64,60,57,55,54,55,57,59,61,62,63,64,65,65,64,63]],
+  pressure_hpa:["Pressão"," hPa",0,[1014,1014,1014,1013,1013,1013,1013,1012,1012,1012,1011,1011,1011,1011,1012,1012,1012,1012,1012,1013,1013,1013,1012,1012]],
+  air_quality_raw:["Qualidade do ar"," raw",0,[168,170,171,169,166,165,170,176,180,184,190,194,197,192,188,185,182,180,179,181,183,185,184,184]],
+  luminosity_pct:["Luminosidade","%",0,[2,1,1,1,2,8,20,38,56,69,78,84,87,83,77,68,55,41,28,17,9,5,3,2]]
 };
-let active="temperature_c",pts=[];
-function renderTabs(){let c=document.getElementById("tabs");c.innerHTML="";Object.entries(D).forEach(([k,v])=>{let b=document.createElement("button");b.textContent=v[0];if(k===active)b.className="on";b.onclick=()=>{active=k;renderTabs();renderChart()};c.appendChild(b)})}
-function renderChart(){
-  let [name,u,dec,v]=D[active],W=760,H=260,p={l:26,r:10,t:14,b:30},mn=Math.min(...v),mx=Math.max(...v),sp=Math.max(mx-mn,2),lo=mn-sp*.25,hi=mx+sp*.25;
-  let x=i=>p.l+i*(W-p.l-p.r)/(v.length-1),y=n=>p.t+(hi-n)*(H-p.t-p.b)/(hi-lo);
-  pts=v.map((n,i)=>({x:x(i),y:y(n),v:n,i}));
-  let line=pts.map(q=>q.x+","+q.y).join(" "),grid="";
-  for(let i=0;i<4;i++){let yy=p.t+i*(H-p.t-p.b)/3;grid+=`<line x1="${p.l}" y1="${yy}" x2="${W-p.r}" y2="${yy}" stroke="rgba(255,255,255,.10)"/>`}
-  let labs=["0h","6h","12h","18h","agora"].map((z,i)=>`<text x="${p.l+i*(W-p.l-p.r)/4}" y="${H-6}" fill="rgba(255,255,255,.42)" font-size="10" text-anchor="${i===0?"start":i===4?"end":"middle"}">${z}</text>`).join("");
-  chart.innerHTML=grid+`<polyline points="${line}" fill="none" stroke="rgba(255,255,255,.9)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/><line id="cross" y1="${p.t}" y2="${H-p.b}" stroke="rgba(255,255,255,.35)" opacity="0"/><circle id="focus" r="4.5" fill="#fff" opacity="0"/>`+labs;
-  chartValue.textContent=v.at(-1).toFixed(dec)+u;chartStats.textContent=`mín. ${mn.toFixed(dec)}${u} · máx. ${mx.toFixed(dec)}${u}`;
-}
-function move(e){
-  let r=chart.getBoundingClientRect(),cx=e.touches?e.touches[0].clientX:e.clientX,cy=e.touches?e.touches[0].clientY:e.clientY,sx=(cx-r.left)*760/r.width,q=pts.reduce((a,b)=>Math.abs(b.x-sx)<Math.abs(a.x-sx)?b:a),d=D[active];
-  cross.setAttribute("x1",q.x);cross.setAttribute("x2",q.x);cross.setAttribute("opacity","1");focus.setAttribute("cx",q.x);focus.setAttribute("cy",q.y);focus.setAttribute("opacity","1");
-  tip.textContent=String(q.i).padStart(2,"0")+"h · "+q.v.toFixed(d[2])+d[1];tip.style.left=cx+"px";tip.style.top=cy+"px";tip.classList.add("show")
-}
-function leave(){tip.classList.remove("show");cross?.setAttribute("opacity","0");focus?.setAttribute("opacity","0")}
-chart.addEventListener("mousemove",move);chart.addEventListener("mouseleave",leave);chart.addEventListener("touchmove",e=>{e.preventDefault();move(e)},{passive:false});chart.addEventListener("touchend",leave);
 
-function setTheme(n){document.body.className=n;condition.textContent=n==="cloudy"?"Nublado":n==="sunset"?"Fim de tarde":n==="night"?"Céu limpo":n==="rain"?"Chuva":"Céu aberto"}
-function auto(){let h=new Date().getHours();setTheme(h>=5&&h<8?"sunset":h>=8&&h<17?"":h>=17&&h<19?"sunset":"night")}
-document.querySelectorAll("#switch button").forEach(b=>b.onclick=()=>{document.querySelectorAll("#switch button").forEach(x=>x.classList.remove("on"));b.classList.add("on");b.dataset.w==="auto"?auto():setTheme(b.dataset.w)});
-function clock(){let n=new Date();meta.textContent=new Intl.DateTimeFormat("pt-BR",{weekday:"long",hour:"2-digit",minute:"2-digit"}).format(n)+" · atualizado agora";let m=n.getHours()*60+n.getMinutes();marker.style.left="calc("+Math.max(3,Math.min(95,m/1440*100))+"% - 6px)"}
-renderTabs();renderChart();auto();clock();setInterval(clock,30000);
+const DAYS=[
+  {name:"Hoje",full:"sexta-feira",icon:"☀️",condition:"Céu aberto",theme:"",now:25,max:27,min:22,humidity:63,pressure:1012,air:184,light:72,rain:null,shift:0,hours:[["Agora","☀️",25],["15h","☀️",26],["16h","🌤️",27],["17h","🌤️",26],["18h","🌥️",25],["19h","🌥️",24],["20h","☁️",23],["21h","☁️",23]]},
+  {name:"Sáb",full:"sábado",icon:"🌤️",condition:"Parcialmente nublado",theme:"cloudy",now:24,max:26,min:20,humidity:67,pressure:1011,air:176,light:61,rain:null,shift:-1.4,hours:[["08h","🌤️",21],["10h","🌤️",23],["12h","☀️",25],["14h","☀️",26],["16h","🌤️",25],["18h","🌥️",23],["20h","☁️",22],["22h","☁️",21]]},
+  {name:"Dom",full:"domingo",icon:"🌧️",condition:"Chuva",theme:"rain",now:21,max:23,min:18,humidity:82,pressure:1008,air:158,light:34,rain:"detectada",shift:-3.2,hours:[["08h","☁️",19],["10h","🌧️",20],["12h","🌧️",21],["14h","🌧️",23],["16h","🌦️",22],["18h","☁️",21],["20h","☁️",20],["22h","☁️",19]]},
+  {name:"Seg",full:"segunda-feira",icon:"☁️",condition:"Nublado",theme:"cloudy",now:22,max:24,min:19,humidity:75,pressure:1010,air:169,light:44,rain:null,shift:-2.2,hours:[["08h","☁️",19],["10h","☁️",20],["12h","☁️",22],["14h","🌥️",24],["16h","🌥️",23],["18h","☁️",22],["20h","☁️",21],["22h","☁️",20]]},
+  {name:"Ter",full:"terça-feira",icon:"☀️",condition:"Céu aberto",theme:"",now:27,max:29,min:21,humidity:56,pressure:1013,air:191,light:83,rain:null,shift:1.8,hours:[["08h","☀️",22],["10h","☀️",24],["12h","☀️",27],["14h","☀️",29],["16h","☀️",28],["18h","🌤️",26],["20h","🌤️",24],["22h","🌙",22]]},
+  {name:"Qua",full:"quarta-feira",icon:"🌦️",condition:"Pancadas de chuva",theme:"rain",now:23,max:25,min:20,humidity:79,pressure:1009,air:162,light:48,rain:"detectada",shift:-1.1,hours:[["08h","🌥️",20],["10h","🌦️",21],["12h","🌦️",23],["14h","🌧️",25],["16h","🌦️",24],["18h","☁️",23],["20h","☁️",22],["22h","☁️",21]]},
+  {name:"Qui",full:"quinta-feira",icon:"🌤️",condition:"Sol entre nuvens",theme:"cloudy",now:26,max:28,min:21,humidity:62,pressure:1012,air:181,light:69,rain:null,shift:.8,hours:[["08h","🌤️",21],["10h","🌤️",23],["12h","☀️",26],["14h","☀️",28],["16h","🌤️",27],["18h","🌥️",25],["20h","☁️",23],["22h","☁️",22]]}
+];
+
+let selectedDay=0;
+let active="temperature_c";
+let pts=[];
+let D={};
+
+function scaledDataset(base,dayIndex){
+  const day=DAYS[dayIndex];
+  const tempShift=day.shift;
+  const humShift=day.humidity-DAYS[0].humidity;
+  const pressureShift=day.pressure-DAYS[0].pressure;
+  const airShift=day.air-DAYS[0].air;
+  const lightScale=Math.max(.35,day.light/DAYS[0].light);
+
+  return {
+    temperature_c:[base.temperature_c[0],base.temperature_c[1],base.temperature_c[2],base.temperature_c[3].map(v=>+(v+tempShift).toFixed(1))],
+    humidity_pct:[base.humidity_pct[0],base.humidity_pct[1],base.humidity_pct[2],base.humidity_pct[3].map(v=>Math.max(0,Math.min(100,Math.round(v+humShift))))],
+    pressure_hpa:[base.pressure_hpa[0],base.pressure_hpa[1],base.pressure_hpa[2],base.pressure_hpa[3].map(v=>Math.round(v+pressureShift))],
+    air_quality_raw:[base.air_quality_raw[0],base.air_quality_raw[1],base.air_quality_raw[2],base.air_quality_raw[3].map(v=>Math.max(0,Math.round(v+airShift)))],
+    luminosity_pct:[base.luminosity_pct[0],base.luminosity_pct[1],base.luminosity_pct[2],base.luminosity_pct[3].map(v=>Math.max(0,Math.min(100,Math.round(v*lightScale))))],
+  };
+}
+
+function renderDays(){
+  const el=document.getElementById("days");
+  el.innerHTML="";
+  DAYS.forEach((d,i)=>{
+    const b=document.createElement("button");
+    b.className="day-btn"+(i===selectedDay?" on":"");
+    b.type="button";
+    b.innerHTML='<span class="day-name">'+d.name+'</span><span class="day-icon">'+d.icon+'</span><span class="day-temp">'+d.max+'°</span><span class="day-min">'+d.min+'°</span>';
+    b.onclick=()=>selectDay(i);
+    el.appendChild(b);
+  });
+}
+
+function renderHours(){
+  const day=DAYS[selectedDay];
+  const el=document.getElementById("hourly");
+  el.innerHTML="";
+  day.hours.forEach((h,i)=>{
+    const div=document.createElement("div");
+    div.className="hour"+(i===0?" now":"");
+    div.innerHTML='<div class="time">'+h[0]+'</div><div class="icon">'+h[1]+'</div><div class="deg">'+h[2]+'°</div>';
+    el.appendChild(div);
+  });
+  document.getElementById("hourlyTitle").textContent=selectedDay===0?"Próximas horas":"Ao longo do dia";
+  document.getElementById("hourlyCaption").textContent=day.full+" · simulação";
+}
+
+function renderConditions(){
+  const d=DAYS[selectedDay];
+  document.getElementById("humidityValue").innerHTML=d.humidity+'%<span class="sub">relativa</span>';
+  document.getElementById("pressureValue").innerHTML=d.pressure+'<span class="sub">hPa</span>';
+  document.getElementById("airValue").innerHTML=d.air+'<span class="sub">raw</span>';
+  document.getElementById("lightValue").innerHTML=d.light+'%<span class="sub">relativa</span>';
+  document.getElementById("rainValue").innerHTML=(d.rain?d.rain:"—")+'<span class="sub">sensor experimental</span>';
+}
+
+function updateHero(){
+  const d=DAYS[selectedDay];
+  document.getElementById("heroTemp").textContent=d.now+"°";
+  document.getElementById("condition").textContent=d.condition;
+  document.getElementById("heroHilo").textContent="Máx. "+d.max+"° · Mín. "+d.min+"°";
+  if(selectedDay===0){ clock(); }
+  else{
+    document.getElementById("meta").textContent=d.full+" · demonstração simulada";
+  }
+}
+
+function selectDay(i){
+  selectedDay=i;
+  D=scaledDataset(BASE,selectedDay);
+  renderDays();
+  renderHours();
+  renderConditions();
+  updateHero();
+  renderTabs();
+  renderChart();
+  setTheme(DAYS[selectedDay].theme,true);
+}
+
+function renderTabs(){
+  const c=document.getElementById("tabs");
+  c.innerHTML="";
+  Object.entries(D).forEach(([k,v])=>{
+    const b=document.createElement("button");
+    b.type="button";
+    b.textContent=v[0];
+    if(k===active)b.className="on";
+    b.onclick=()=>{active=k;renderTabs();renderChart()};
+    c.appendChild(b);
+  });
+}
+
+function renderChart(){
+  const [name,u,dec,v]=D[active],W=760,H=260,p={l:26,r:10,t:14,b:30};
+  const mn=Math.min(...v),mx=Math.max(...v),sp=Math.max(mx-mn,2),lo=mn-sp*.25,hi=mx+sp*.25;
+  const x=i=>p.l+i*(W-p.l-p.r)/(v.length-1),y=n=>p.t+(hi-n)*(H-p.t-p.b)/(hi-lo);
+  pts=v.map((n,i)=>({x:x(i),y:y(n),v:n,i}));
+  const line=pts.map(q=>q.x+","+q.y).join(" ");
+  let grid="";
+  for(let i=0;i<4;i++){const yy=p.t+i*(H-p.t-p.b)/3;grid+='<line x1="'+p.l+'" y1="'+yy+'" x2="'+(W-p.r)+'" y2="'+yy+'" stroke="rgba(255,255,255,.10)"/>'}
+  const labs=["0h","6h","12h","18h","agora"].map((z,i)=>'<text x="'+(p.l+i*(W-p.l-p.r)/4)+'" y="'+(H-6)+'" fill="rgba(255,255,255,.42)" font-size="10" text-anchor="'+(i===0?"start":i===4?"end":"middle")+'">'+z+'</text>').join("");
+  document.getElementById("chart").innerHTML=grid+'<polyline points="'+line+'" fill="none" stroke="rgba(255,255,255,.9)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/><line id="cross" y1="'+p.t+'" y2="'+(H-p.b)+'" stroke="rgba(255,255,255,.35)" opacity="0"/><circle id="focus" r="4.5" fill="#fff" opacity="0"/>'+labs;
+  document.getElementById("chartValue").textContent=v.at(-1).toFixed(dec)+u;
+  document.getElementById("chartStats").textContent="mín. "+mn.toFixed(dec)+u+" · máx. "+mx.toFixed(dec)+u;
+}
+
+function move(e){
+  const chart=document.getElementById("chart");
+  const r=chart.getBoundingClientRect();
+  const cx=e.touches?e.touches[0].clientX:e.clientX;
+  const cy=e.touches?e.touches[0].clientY:e.clientY;
+  const sx=(cx-r.left)*760/r.width;
+  const q=pts.reduce((a,b)=>Math.abs(b.x-sx)<Math.abs(a.x-sx)?b:a);
+  const d=D[active],cross=document.getElementById("cross"),focus=document.getElementById("focus"),tip=document.getElementById("tip");
+  cross.setAttribute("x1",q.x);cross.setAttribute("x2",q.x);cross.setAttribute("opacity","1");
+  focus.setAttribute("cx",q.x);focus.setAttribute("cy",q.y);focus.setAttribute("opacity","1");
+  tip.textContent=String(q.i).padStart(2,"0")+"h · "+q.v.toFixed(d[2])+d[1];
+  tip.style.left=cx+"px";tip.style.top=cy+"px";tip.classList.add("show");
+}
+function leave(){
+  document.getElementById("tip").classList.remove("show");
+  document.getElementById("cross")?.setAttribute("opacity","0");
+  document.getElementById("focus")?.setAttribute("opacity","0");
+}
+const chart=document.getElementById("chart");
+chart.addEventListener("mousemove",move);
+chart.addEventListener("mouseleave",leave);
+chart.addEventListener("touchmove",e=>{e.preventDefault();move(e)},{passive:false});
+chart.addEventListener("touchend",leave);
+
+function setTheme(n,fromDay=false){
+  document.body.className=n;
+  if(!fromDay){
+    const labels={cloudy:"Nublado",sunset:"Fim de tarde",night:"Céu limpo",rain:"Chuva"};
+    document.getElementById("condition").textContent=labels[n]||"Céu aberto";
+  }
+}
+function auto(){
+  if(selectedDay!==0){setTheme(DAYS[selectedDay].theme,true);return}
+  const h=new Date().getHours();
+  setTheme(h>=5&&h<8?"sunset":h>=8&&h<17?"":h>=17&&h<19?"sunset":"night",true);
+}
+document.querySelectorAll("#switch button").forEach(b=>b.onclick=()=>{
+  document.querySelectorAll("#switch button").forEach(x=>x.classList.remove("on"));
+  b.classList.add("on");
+  b.dataset.w==="auto"?auto():setTheme(b.dataset.w,false);
+});
+
+function clock(){
+  const n=new Date();
+  if(selectedDay===0){
+    document.getElementById("meta").textContent=new Intl.DateTimeFormat("pt-BR",{weekday:"long",hour:"2-digit",minute:"2-digit"}).format(n)+" · atualizado agora";
+  }
+  const m=n.getHours()*60+n.getMinutes();
+  document.getElementById("marker").style.left="calc("+Math.max(3,Math.min(95,m/1440*100))+"% - 6px)";
+}
+
+D=scaledDataset(BASE,0);
+renderDays();
+renderHours();
+renderConditions();
+updateHero();
+renderTabs();
+renderChart();
+auto();
+clock();
+setInterval(clock,30000);
 </script>
 </body>
 </html>
