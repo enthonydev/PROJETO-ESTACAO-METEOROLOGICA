@@ -54,5 +54,8 @@ jobs:
       - name: Testar firmware estrutural
         run: PYTHONPATH=firmware/src python -m pytest firmware/tests -q
 
+      - name: Testar frontend estático
+        run: python -m pytest frontend/tests/test_frontend_static.py -q
+
       - name: Verificar compilação Python
         run: python -m compileall -q backend/app backend/tests firmware/src firmware/tests
