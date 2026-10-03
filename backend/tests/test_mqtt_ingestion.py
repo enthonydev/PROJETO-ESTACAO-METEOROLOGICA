@@ -4,6 +4,10 @@ import json
 
 import pytest
 
+from fastapi.testclient import TestClient
+
+from app.api.dependencies import get_measurement_repository
+from app.main import app
 from app.repositories.measurements import InMemoryMeasurementRepository
 from app.services.mqtt_ingestion import InvalidMqttMessageError, process_mqtt_message
 
@@ -77,3 +81,21 @@ def test_invalid_json_is_rejected() -> None:
             b"{invalido",
             repository,
         )
+
+
+def test_mqtt_to_rest_pipeline_without_hardware() -> None:
+    repository = get_measurement_repository()
+    message = payload("estacao-e2e")
+    message["timestamp"] = "2026-10-02T22:30:00Z"
+
+    process_mqtt_message(
+        "estacao/estacao-e2e/telemetry",
+        json.dumps(message).encode(),
+        repository,
+    )
+
+    response = TestClient(app).get("/api/v1/stations/estacao-e2e/latest")
+
+    assert response.status_code == 200
+    assert response.json()["station_id"] == "estacao-e2e"
+    assert response.json()["measurements"]["temperature_c"] == 25.1
