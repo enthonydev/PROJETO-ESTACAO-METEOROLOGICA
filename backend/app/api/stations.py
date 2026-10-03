@@ -5,7 +5,7 @@ from typing import Literal
 from fastapi import APIRouter, Depends, HTTPException, Query
 
 from app.api.dependencies import get_station_service
-from app.repositories.measurements import StationNotFoundError
+from app.repositories.measurements import MeasurementNotFoundError, StationNotFoundError
 from app.schemas.station import (
     MeasurementListResponse,
     MeasurementResponse,
@@ -40,7 +40,7 @@ def latest_measurement(
 ) -> MeasurementResponse:
     try:
         return service.latest(station_id)
-    except StationNotFoundError as exc:
+    except (StationNotFoundError, MeasurementNotFoundError) as exc:
         raise not_found(station_id) from exc
 
 
@@ -52,7 +52,7 @@ def measurements(
 ) -> MeasurementListResponse:
     try:
         return service.measurements(station_id, range_name)
-    except StationNotFoundError as exc:
+    except (StationNotFoundError, MeasurementNotFoundError) as exc:
         raise not_found(station_id) from exc
 
 
@@ -64,5 +64,5 @@ def summary(
 ) -> StationStatsResponse:
     try:
         return service.summary(station_id, range_name)
-    except StationNotFoundError as exc:
+    except (StationNotFoundError, MeasurementNotFoundError) as exc:
         raise not_found(station_id) from exc
