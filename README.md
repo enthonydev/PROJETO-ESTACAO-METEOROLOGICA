@@ -41,10 +41,10 @@ A arquitetura completa está documentada em [`docs/arquitetura/arquitetura-siste
 | Firmware | MicroPython | Estrutura implementada |
 | Telemetria | MQTT sobre Wi-Fi | Contrato definido |
 | Contrato de dados | JSON v1.0 | Validado em software |
-| Backend | Python + FastAPI | Implementado parcialmente |
-| Persistência | PostgreSQL | Modelo e migration disponíveis |
-| API | REST | Parcialmente implementada |
-| Dashboard | HTML, CSS e JavaScript | Implementado em modo de demonstração; integração REST pendente |
+| Backend | Python + FastAPI | API de consulta implementada; ingestão MQTT pendente |
+| Persistência | PostgreSQL | Repositório implementado; validação em runtime pendente |
+| API | REST | Consultas do dashboard implementadas |
+| Dashboard | HTML, CSS e JavaScript | Implementado e integrado à API REST; hardware não necessário |
 | Sensores físicos | DHT22 + BMP280 + MQ-135 + LDR + chuva experimental | Baseline aprovada; validação física prevista para N2 |
 | Display local | 1× OLED I²C 128x64 | Baseline aprovada; validação física prevista para N2 |
 | Referência temporal | NTP | Projetado; validação no ESP32 prevista para N2 |
@@ -73,7 +73,7 @@ Já estão disponíveis no repositório:
 
 - requisitos funcionais e não funcionais, casos de uso e matriz de rastreabilidade;
 - arquitetura e contrato de telemetria v1.0;
-- backend FastAPI com `GET /health` e `POST /api/v1/telemetry/validate`;
+- backend FastAPI com healthcheck, validação de telemetria, consultas de estação/histórico/resumo e ingestão HTTP de apoio ao desenvolvimento;
 - fixtures e testes automatizados do backend;
 - estrutura inicial do firmware com serviços, estados, tasks, interfaces e renderizadores;
 - testes estruturais de firmware com dependências simuladas;
@@ -81,16 +81,17 @@ Já estão disponíveis no repositório:
 - CI para validação do contrato, testes e compilação Python;
 - relatório acadêmico consolidado da N1, insumos técnicos e auditorias de coerência;
 - auditoria final da Sprint 5 da frente de software, arquitetura e integração técnica;
-- dashboard web responsivo com histórico multi-métrica, estados operacionais, exportação CSV, cenários de demonstração e testes estáticos no CI.
+- dashboard web responsivo com histórico multi-métrica, estados operacionais, exportação CSV, cenários de demonstração e testes estáticos no CI;
+- integração frontend/backend pela mesma aplicação FastAPI, com dados sintéticos em memória quando não há banco configurado;
+- implementação de repositório PostgreSQL selecionada automaticamente quando `DATABASE_URL` estiver configurada.
 
 As evidências da N1 comprovam o estado documental e o comportamento validado em software. Elas não representam validação física da estação.
 
 Permanecem para a N2 e etapas seguintes:
 
 - ingestão MQTT real;
-- persistência PostgreSQL em runtime;
-- endpoints REST de consulta;
-- integração do dashboard com os endpoints REST reais;
+- validação da persistência PostgreSQL contra uma instância real;
+- ingestão MQTT real;
 - drivers e pinagem definitivos;
 - confirmação dos modelos, níveis elétricos e endereços dos módulos adquiridos;
 - montagem e calibração ou caracterização aplicável;
