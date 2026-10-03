@@ -70,6 +70,24 @@ jobs:
           TEST_DATABASE_URL: postgresql://estacao:estacao@localhost:5432/estacao_test
         run: PYTHONPATH=backend python -m pytest backend/tests/test_postgres_repository.py -q
 
+      - name: Instalar broker MQTT para integração
+        shell: bash
+        run: |
+          set -euo pipefail
+          sudo apt-get update
+          sudo apt-get install -y mosquitto mosquitto-clients
+          sudo systemctl stop mosquitto || true
+          mosquitto -c backend/tests/integration/mosquitto-ci.conf -d
+          sleep 1
+          mosquitto_pub -h 127.0.0.1 -p 1883 -t ci/health -m ok
+
+      - name: Validar fluxo MQTT PostgreSQL API
+        env:
+          TEST_DATABASE_URL: postgresql://estacao:estacao@localhost:5432/estacao_test
+          TEST_MQTT_BROKER_HOST: 127.0.0.1
+          TEST_MQTT_BROKER_PORT: "1883"
+        run: PYTHONPATH=backend python -m pytest backend/tests/integration/test_broker_e2e.py -q
+
       - name: Testar firmware estrutural
         run: PYTHONPATH=firmware/src python -m pytest firmware/tests -q
 
