@@ -41,7 +41,7 @@ A arquitetura completa está documentada em [`docs/arquitetura/arquitetura-siste
 | Firmware | MicroPython | Estrutura implementada |
 | Telemetria | MQTT sobre Wi-Fi | Consumidor backend implementado; broker/ESP32 ainda pendentes |
 | Contrato de dados | JSON v1.0 | Validado em software |
-| Backend | Python + FastAPI | API de consulta implementada; ingestão MQTT pendente |
+| Backend | Python + FastAPI | API de consulta e processamento MQTT implementados; broker/ESP32 reais pendentes |
 | Persistência | PostgreSQL | Repositório implementado e validado em runtime no CI |
 | API | REST | Consultas do dashboard implementadas |
 | Dashboard | HTML, CSS e JavaScript | Implementado e integrado à API REST; hardware não necessário |
@@ -86,14 +86,15 @@ Já estão disponíveis no repositório:
 - implementação de repositório PostgreSQL selecionada automaticamente quando `DATABASE_URL` estiver configurada;
 - consumidor MQTT com validação de tópico, contrato e correspondência de `station_id`;
 - teste ponta a ponta simulado MQTT → repositório → API REST;
-- validação de PostgreSQL 16 em runtime no CI.
+- validação de PostgreSQL 16 em runtime no CI;
+- auditoria pré-hardware da N2 com correções de segurança e coerência operacional.
 
 As evidências da N1 comprovam o estado documental e o comportamento validado em software. Elas não representam validação física da estação.
 
 Permanecem para a N2 e etapas seguintes:
 
-- ingestão MQTT real;
-- conexão do consumidor MQTT a um broker de integração/produção;
+- conexão do consumidor MQTT a um broker real de integração/produção;
+- ensaio broker MQTT → worker → PostgreSQL → API REST;
 - publicação MQTT real pelo ESP32;
 - drivers e pinagem definitivos;
 - confirmação dos modelos, níveis elétricos e endereços dos módulos adquiridos;
@@ -114,6 +115,8 @@ A N1 foi estruturada para não apresentar como concluído aquilo que ainda depen
 - [Relatório acadêmico da N1](docs/academico/n1/relatorio-n1.md)
 - [Auditoria da Sprint 5 — frente técnica](docs/academico/n1/auditoria-sprint-5-enthony.md)
 - [Auditoria consolidada da N1](docs/academico/n1/auditoria-consolidacao-n1.md)
+- [Auditoria técnica da N2 — estado pré-hardware](docs/academico/n2/auditoria-software-pre-hardware.md)
+- [Matriz de rastreabilidade da N2](docs/requisitos/matriz-rastreabilidade-n2.md)
 - [Insumos técnicos consolidados](docs/academico/n1/insumos-tecnicos-consolidacao.md)
 - [Arquitetura do sistema](docs/arquitetura/arquitetura-sistema.md)
 - [ADR-002 — adequação da arquitetura física](docs/arquitetura/adr/ADR-002-adequacao-arquitetura-fisica-orcamento.md)
