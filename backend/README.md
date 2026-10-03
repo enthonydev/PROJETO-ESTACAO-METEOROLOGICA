@@ -164,3 +164,31 @@ API REST
 O CI também sobe uma instância PostgreSQL 16 temporária e executa um roundtrip real de persistência e consulta usando a migration do projeto.
 
 Essas evidências validam integração de software e runtime do banco. Elas não representam comunicação com ESP32, broker MQTT real em campo ou sensores físicos.
+
+
+## Integração ponta a ponta com broker real
+
+O CI possui um ensaio dedicado que inicia um broker Mosquitto real e executa:
+
+```text
+publisher Paho sintético
+→ Mosquitto
+→ worker MQTT
+→ PostgreSQL
+→ FastAPI
+→ API REST
+```
+
+O teste está em:
+
+```text
+backend/tests/integration/test_broker_e2e.py
+```
+
+A configuração mínima do broker de CI está em:
+
+```text
+backend/tests/integration/mosquitto-ci.conf
+```
+
+Esse ensaio valida transporte MQTT real entre processos de software. Ele não representa publicação pelo ESP32 nem validação física dos sensores.

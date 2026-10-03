@@ -60,7 +60,7 @@ Esta matriz complementa, sem substituir, a matriz histórica da N1. Ela registra
 | RNF-11 | Documentado/verificado | política de segurança e ausência de credenciais versionadas |
 | RNF-12 | Parcial | logging básico disponível; observabilidade avançada pendente |
 | RNF-13 | Validado em software | schema v1.0 versionado e testado |
-| RNF-14 | Parcial | várias camadas cobertas; broker real e hardware ainda ausentes |
+| RNF-14 | Parcial | broker MQTT real, PostgreSQL, API e frontend cobertos; hardware físico ainda ausente |
 | RNF-15 | Aplicado | simulação explicitamente separada de validação física |
 | RNF-16 | Aplicado | evolução por branch, PR e checks |
 | RNF-17 | Aplicado no fluxo | commits em português conforme governança vigente |
@@ -68,9 +68,9 @@ Esta matriz complementa, sem substituir, a matriz histórica da N1. Ela registra
 | RNF-19 | Em execução | N1 preservada e rastreabilidade N2 criada nesta etapa |
 | RNF-20 | Validado em software | dashboard/API/banco reproduzíveis sem hardware |
 
-## 5. Próximo gate sem hardware
+## 5. Gate final sem hardware
 
-O próximo gate técnico possível sem ESP32 é:
+O gate técnico pré-hardware passa a ser:
 
 ```text
 publisher sintético
@@ -81,4 +81,4 @@ publisher sintético
 → consulta REST/dashboard
 ```
 
-Após esse gate, as principais pendências passam a ser físicas ou de infraestrutura final.
+Este fluxo foi incorporado ao CI. Com sua aprovação no workflow, o próximo conjunto de pendências relevantes passa a ser físico ou ligado à infraestrutura final do ambiente de produção.
