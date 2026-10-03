@@ -1,5 +1,5 @@
 const API_BASE = "";
-const USE_MOCK_DATA = true;
+const USE_MOCK_DATA = window.location.protocol === "file:";
 const AUTO_REFRESH_MS = 60_000;
 
 const metricConfig = {
@@ -76,6 +76,7 @@ const requiredMeasurementKeys = [
 ];
 
 const demoMode = new URLSearchParams(window.location.search).get("demo");
+const USING_DEMO_DATA = USE_MOCK_DATA || Boolean(demoMode);
 
 function setText(id, value) {
   const element = document.getElementById(id);
@@ -202,14 +203,14 @@ function renderLatest(rawPayload) {
   }
 
   setText("lastUpdate", `Última atualização: ${formatDateTime(payload.timestamp)}`);
-  setText("statusStation", USE_MOCK_DATA ? "Demonstração" : "Operacional");
+  setText("statusStation", USING_DEMO_DATA ? "Demonstração" : "Operacional");
   setText("statusData", deriveDataState(payload.quality));
-  setText("statusSource", USE_MOCK_DATA ? "Simulação" : "API REST");
+  setText("statusSource", USING_DEMO_DATA ? "Simulação" : "API REST");
   setText("statusUpdated", formatDateTime(payload.timestamp));
   setText("statusSchema", payload.schema_version);
   setText(
     "temperatureNote",
-    USE_MOCK_DATA ? "Leitura simulada para desenvolvimento da interface" : "Leitura recebida da estação"
+    USING_DEMO_DATA ? "Leitura simulada para desenvolvimento da interface" : "Leitura recebida da API"
   );
 
   renderFreshness(payload.timestamp);
@@ -346,7 +347,7 @@ function getMockHistory(range, metric) {
 async function loadLatest() {
   if (demoMode === "error") throw new Error("Falha simulada da API para teste da interface.");
 
-  if (USE_MOCK_DATA) {
+  if (USING_DEMO_DATA) {
     renderLatest(buildMockLatest());
     return;
   }
@@ -362,7 +363,7 @@ async function loadLatest() {
 async function loadHistory(range, metric) {
   if (demoMode === "error") throw new Error("Falha simulada da API para teste da interface.");
 
-  if (USE_MOCK_DATA) {
+  if (USING_DEMO_DATA) {
     state.history = getMockHistory(range, metric);
     renderChart(state.history, range, metric);
     return;
@@ -432,7 +433,7 @@ function renderClock() {
 }
 
 function renderOfflineState() {
-  if (USE_MOCK_DATA) return;
+  if (USING_DEMO_DATA) return;
 
   setConnectionState("offline", "Offline");
   setNotice("Sem conexão com a rede. Os últimos dados carregados permanecem na tela.", "offline", true);
@@ -445,7 +446,7 @@ function handleError(error) {
   setNotice(error.message || "Não foi possível atualizar o painel.", "error", true);
   setText("statusStation", "Sem conexão");
   setText("statusData", state.latest ? deriveDataState(state.latest.quality) : "Não disponível");
-  setText("statusSource", USE_MOCK_DATA ? "Simulação" : "API REST");
+  setText("statusSource", USING_DEMO_DATA ? "Simulação" : "API REST");
 }
 
 async function refreshDashboard() {
@@ -461,7 +462,7 @@ async function refreshDashboard() {
 
     state.lastSuccessfulRefresh = new Date();
 
-    if (USE_MOCK_DATA) {
+    if (USING_DEMO_DATA) {
       setConnectionState("warning", "Simulação");
       setNotice(
         "Modo de demonstração: os valores desta tela são simulados e não representam medições físicas.",
@@ -519,7 +520,7 @@ document.getElementById("exportButton").addEventListener("click", exportCsv);
 
 window.addEventListener("offline", renderOfflineState);
 window.addEventListener("online", () => {
-  if (!USE_MOCK_DATA) refreshDashboard();
+  if (!USING_DEMO_DATA) refreshDashboard();
 });
 
 renderClock();
