@@ -1,0 +1,1 @@
+"""Workers assíncronos do backend."""

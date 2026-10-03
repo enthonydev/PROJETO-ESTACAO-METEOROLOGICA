@@ -108,3 +108,59 @@ postgresql://usuario:senha@localhost:5432/estacao
 ```
 
 Com o banco ativo, é possível enviar payloads de teste por `POST /api/v1/telemetry` e consultá-los imediatamente pelo dashboard.
+
+
+## MQTT
+
+O consumidor MQTT já está implementado como worker separado do servidor HTTP.
+
+Configurações disponíveis:
+
+```text
+MQTT_BROKER_HOST=localhost
+MQTT_BROKER_PORT=1883
+MQTT_SUBSCRIPTION_TOPIC=estacao/+/telemetry
+LOG_LEVEL=INFO
+```
+
+Execução:
+
+```bash
+PYTHONPATH=backend python -m app.workers.mqtt_consumer
+```
+
+No Windows PowerShell:
+
+```powershell
+$env:PYTHONPATH="backend"
+python -m app.workers.mqtt_consumer
+```
+
+O worker valida:
+
+- formato do tópico `estacao/<station_id>/telemetry`;
+- JSON UTF-8;
+- contrato de telemetria v1.0;
+- correspondência entre o `station_id` do tópico e o payload.
+
+Somente depois da validação a mensagem é enviada ao repositório ativo.
+
+## Evidências sem hardware
+
+Os testes automatizados validam:
+
+```text
+mensagem MQTT simulada
+        ↓
+validação de tópico e contrato
+        ↓
+repositório em memória
+        ↓
+serviço de consulta
+        ↓
+API REST
+```
+
+O CI também sobe uma instância PostgreSQL 16 temporária e executa um roundtrip real de persistência e consulta usando a migration do projeto.
+
+Essas evidências validam integração de software e runtime do banco. Elas não representam comunicação com ESP32, broker MQTT real em campo ou sensores físicos.

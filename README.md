@@ -39,10 +39,10 @@ A arquitetura completa está documentada em [`docs/arquitetura/arquitetura-siste
 | --- | --- | --- |
 | Microcontrolador | ESP32 DevKit V1 | Projetado |
 | Firmware | MicroPython | Estrutura implementada |
-| Telemetria | MQTT sobre Wi-Fi | Contrato definido |
+| Telemetria | MQTT sobre Wi-Fi | Consumidor backend implementado; broker/ESP32 ainda pendentes |
 | Contrato de dados | JSON v1.0 | Validado em software |
 | Backend | Python + FastAPI | API de consulta implementada; ingestão MQTT pendente |
-| Persistência | PostgreSQL | Repositório implementado; validação em runtime pendente |
+| Persistência | PostgreSQL | Repositório implementado e validado em runtime no CI |
 | API | REST | Consultas do dashboard implementadas |
 | Dashboard | HTML, CSS e JavaScript | Implementado e integrado à API REST; hardware não necessário |
 | Sensores físicos | DHT22 + BMP280 + MQ-135 + LDR + chuva experimental | Baseline aprovada; validação física prevista para N2 |
@@ -83,15 +83,18 @@ Já estão disponíveis no repositório:
 - auditoria final da Sprint 5 da frente de software, arquitetura e integração técnica;
 - dashboard web responsivo com histórico multi-métrica, estados operacionais, exportação CSV, cenários de demonstração e testes estáticos no CI;
 - integração frontend/backend pela mesma aplicação FastAPI, com dados sintéticos em memória quando não há banco configurado;
-- implementação de repositório PostgreSQL selecionada automaticamente quando `DATABASE_URL` estiver configurada.
+- implementação de repositório PostgreSQL selecionada automaticamente quando `DATABASE_URL` estiver configurada;
+- consumidor MQTT com validação de tópico, contrato e correspondência de `station_id`;
+- teste ponta a ponta simulado MQTT → repositório → API REST;
+- validação de PostgreSQL 16 em runtime no CI.
 
 As evidências da N1 comprovam o estado documental e o comportamento validado em software. Elas não representam validação física da estação.
 
 Permanecem para a N2 e etapas seguintes:
 
 - ingestão MQTT real;
-- validação da persistência PostgreSQL contra uma instância real;
-- ingestão MQTT real;
+- conexão do consumidor MQTT a um broker de integração/produção;
+- publicação MQTT real pelo ESP32;
 - drivers e pinagem definitivos;
 - confirmação dos modelos, níveis elétricos e endereços dos módulos adquiridos;
 - montagem e calibração ou caracterização aplicável;
