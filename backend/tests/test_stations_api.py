@@ -74,3 +74,35 @@ def test_dashboard_is_served_by_backend() -> None:
 
     assert response.status_code == 200
     assert "Painel ambiental" in response.text
+
+
+def test_http_ingestion_updates_query_repository() -> None:
+    payload = {
+        "schema_version": "1.0",
+        "station_id": "estacao-teste",
+        "timestamp": "2026-10-02T22:00:00Z",
+        "location": {"latitude": None, "longitude": None},
+        "measurements": {
+            "temperature_c": 25.1,
+            "humidity_pct": 61,
+            "pressure_hpa": 1011,
+            "air_quality_raw": 180,
+            "luminosity_pct": 40,
+            "rain_mm": None,
+        },
+        "quality": {
+            "temperature": "ok",
+            "humidity": "ok",
+            "pressure": "ok",
+            "air_quality": "suspect",
+            "luminosity": "ok",
+            "rain": "error",
+        },
+    }
+
+    created = client.post("/api/v1/telemetry", json=payload)
+    latest = client.get("/api/v1/stations/estacao-teste/latest")
+
+    assert created.status_code == 201
+    assert latest.status_code == 200
+    assert latest.json()["measurements"]["temperature_c"] == 25.1
