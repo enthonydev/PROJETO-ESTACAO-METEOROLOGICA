@@ -39,7 +39,7 @@ A arquitetura completa está documentada em [`docs/arquitetura/arquitetura-siste
 | --- | --- | --- |
 | Microcontrolador | ESP32 DevKit V1 | Projetado |
 | Firmware | MicroPython | Estrutura implementada |
-| Telemetria | MQTT sobre Wi-Fi | Consumidor backend implementado; broker/ESP32 ainda pendentes |
+| Telemetria | MQTT sobre Wi-Fi | Broker e consumidor validados em software; ESP32 ainda pendente |
 | Contrato de dados | JSON v1.0 | Validado em software |
 | Backend | Python + FastAPI | API de consulta e processamento MQTT implementados; broker/ESP32 reais pendentes |
 | Persistência | PostgreSQL | Repositório implementado e validado em runtime no CI |
@@ -85,7 +85,8 @@ Já estão disponíveis no repositório:
 - integração frontend/backend pela mesma aplicação FastAPI, com dados sintéticos em memória quando não há banco configurado;
 - implementação de repositório PostgreSQL selecionada automaticamente quando `DATABASE_URL` estiver configurada;
 - consumidor MQTT com validação de tópico, contrato e correspondência de `station_id`;
-- teste ponta a ponta simulado MQTT → repositório → API REST;
+- teste lógico MQTT → repositório → API REST;
+- teste de integração com broker Mosquitto real → worker → PostgreSQL → API REST;
 - validação de PostgreSQL 16 em runtime no CI;
 - auditoria pré-hardware da N2 com correções de segurança e coerência operacional.
 
@@ -93,8 +94,7 @@ As evidências da N1 comprovam o estado documental e o comportamento validado em
 
 Permanecem para a N2 e etapas seguintes:
 
-- conexão do consumidor MQTT a um broker real de integração/produção;
-- ensaio broker MQTT → worker → PostgreSQL → API REST;
+- publicação MQTT real pelo ESP32 em ambiente integrado;
 - publicação MQTT real pelo ESP32;
 - drivers e pinagem definitivos;
 - confirmação dos modelos, níveis elétricos e endereços dos módulos adquiridos;
@@ -117,6 +117,7 @@ A N1 foi estruturada para não apresentar como concluído aquilo que ainda depen
 - [Auditoria consolidada da N1](docs/academico/n1/auditoria-consolidacao-n1.md)
 - [Auditoria técnica da N2 — estado pré-hardware](docs/academico/n2/auditoria-software-pre-hardware.md)
 - [Matriz de rastreabilidade da N2](docs/requisitos/matriz-rastreabilidade-n2.md)
+- [Fechamento do software pré-hardware](docs/academico/n2/fechamento-software-pre-hardware.md)
 - [Insumos técnicos consolidados](docs/academico/n1/insumos-tecnicos-consolidacao.md)
 - [Arquitetura do sistema](docs/arquitetura/arquitetura-sistema.md)
 - [ADR-002 — adequação da arquitetura física](docs/arquitetura/adr/ADR-002-adequacao-arquitetura-fisica-orcamento.md)
