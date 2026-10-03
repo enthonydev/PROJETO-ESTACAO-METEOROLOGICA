@@ -10,8 +10,10 @@ def build_demo_payloads(station_id: str = "estacao-01") -> list[TelemetryPayload
     now = datetime.now(timezone.utc).replace(second=0, microsecond=0)
     payloads: list[TelemetryPayload] = []
 
-    for index in range(72):
-        measured_at = now - timedelta(hours=71 - index)
+    total_hours = 30 * 24
+
+    for index in range(total_hours + 1):
+        measured_at = now - timedelta(hours=total_hours - index)
         daylight = max(0.0, 1 - abs((measured_at.hour - 12) / 7))
         temperature = 21.8 + daylight * 5.4 + ((index % 5) - 2) * 0.12
         humidity = 74 - daylight * 18 + ((index % 4) - 1.5) * 0.6
