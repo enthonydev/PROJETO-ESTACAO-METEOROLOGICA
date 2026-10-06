@@ -3,7 +3,8 @@ import re
 
 ROOT = Path(__file__).resolve().parents[2]
 HTML = (ROOT / "frontend" / "index.html").read_text(encoding="utf-8")
-JS = (ROOT / "frontend" / "src" / "app.js").read_text(encoding="utf-8")
+JS_FILES = list((ROOT / "frontend" / "src").glob("*.js"))
+JS = "\n".join(path.read_text(encoding="utf-8") for path in JS_FILES)
 CSS = (ROOT / "frontend" / "src" / "styles.css").read_text(encoding="utf-8")
 
 
@@ -48,6 +49,12 @@ def test_sem_dependencias_frontend_externas():
     assert "https://cdn." not in HTML
     assert "unpkg.com" not in HTML
     assert "cdnjs" not in HTML
+
+
+def test_frontend_modularizado():
+    assert 'type="module"' in HTML
+    for module in ["config.js", "state.js", "demo-data.js"]:
+        assert (ROOT / "frontend" / "src" / module).is_file()
 
 
 def test_ids_referenciados_no_js_existem_no_html():
