@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-from datetime import timedelta
 from typing import Iterable, Protocol
 
 from app.schemas.station import StationSummary
