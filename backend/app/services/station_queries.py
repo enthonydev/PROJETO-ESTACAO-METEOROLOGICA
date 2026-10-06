@@ -7,6 +7,7 @@ from app.schemas.station import (
     StationStatsResponse,
     StationSummary,
 )
+from app.services.measurement_rules import build_station_summary, ensure_supported_range
 
 
 class StationQueryService:
@@ -22,15 +23,18 @@ class StationQueryService:
         )
 
     def measurements(self, station_id: str, range_name: str) -> MeasurementListResponse:
+        supported_range = ensure_supported_range(range_name)
         items = [
             MeasurementResponse.model_validate(payload.model_dump())
-            for payload in self.repository.history(station_id, range_name)
+            for payload in self.repository.history(station_id, supported_range)
         ]
         return MeasurementListResponse(
             station_id=station_id,
-            range=range_name,
+            range=supported_range,
             items=items,
         )
 
     def summary(self, station_id: str, range_name: str) -> StationStatsResponse:
-        return self.repository.summary(station_id, range_name)
+        supported_range = ensure_supported_range(range_name)
+        values = self.repository.history(station_id, supported_range)
+        return build_station_summary(station_id, supported_range, values)
