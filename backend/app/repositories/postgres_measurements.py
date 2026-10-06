@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-from statistics import fmean
-
 from psycopg import connect
 from psycopg.rows import dict_row
 
@@ -11,15 +9,10 @@ from app.repositories.measurements import (
     MeasurementNotFoundError,
     StationNotFoundError,
 )
-from app.schemas.station import MetricStats, StationStatsResponse, StationSummary
+from app.schemas.station import StationSummary
 from app.schemas.telemetry import Location, Measurements, Quality, TelemetryPayload
+from app.services.measurement_rules import RANGE_INTERVAL, ensure_supported_range
 
-
-RANGE_INTERVAL = {
-    "24h": "24 hours",
-    "7d": "7 days",
-    "30d": "30 days",
-}
 
 
 class PostgresMeasurementRepository:
@@ -99,10 +92,9 @@ class PostgresMeasurementRepository:
         range_clause = ""
 
         if range_name is not None:
-            if range_name not in RANGE_INTERVAL:
-                raise ValueError(f"Período não suportado: {range_name}")
-            range_clause = "AND m.measured_at >= NOW() - %s::interval"
-            params.append(RANGE_INTERVAL[range_name])
+            supported_range = ensure_supported_range(range_name)
+            range_clause = """\n                AND m.measured_at >= (\n                    SELECT MAX(m2.measured_at)\n                    FROM measurements m2\n                    JOIN stations s2 ON s2.id = m2.station_id\n                    WHERE s2.code = %s\n                ) - %s::interval\n            """
+            params.extend([station_id, RANGE_INTERVAL[supported_range]])
 
         query = f"""
             SELECT
@@ -171,29 +163,6 @@ class PostgresMeasurementRepository:
             self._payload_from_rows(row, quality.get(row["id"], []))
             for row in rows
         ]
-
-    def summary(self, station_id: str, range_name: str) -> StationStatsResponse:
-        values = self.history(station_id, range_name)
-
-        def stats(metric: str) -> MetricStats:
-            numbers = [
-                getattr(item.measurements, metric)
-                for item in values
-                if getattr(item.measurements, metric) is not None
-            ]
-            if not numbers:
-                return MetricStats()
-            return MetricStats(min=min(numbers), avg=fmean(numbers), max=max(numbers))
-
-        return StationStatsResponse(
-            station_id=station_id,
-            range=range_name,
-            temperature_c=stats("temperature_c"),
-            humidity_pct=stats("humidity_pct"),
-            pressure_hpa=stats("pressure_hpa"),
-            air_quality_raw=stats("air_quality_raw"),
-            luminosity_pct=stats("luminosity_pct"),
-        )
 
     def add(self, payload: TelemetryPayload) -> None:
         station_name = payload.station_id.replace("-", " ").title()

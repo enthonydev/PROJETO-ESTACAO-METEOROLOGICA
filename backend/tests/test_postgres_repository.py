@@ -8,6 +8,7 @@ import pytest
 
 from app.repositories.postgres_measurements import PostgresMeasurementRepository
 from app.schemas.telemetry import Location, Measurements, Quality, TelemetryPayload
+from app.services.station_queries import StationQueryService
 
 
 DATABASE_URL = os.getenv("TEST_DATABASE_URL")
@@ -64,7 +65,7 @@ def test_postgres_roundtrip() -> None:
 
     latest = repository.latest("estacao-pg")
     history = repository.history("estacao-pg", "24h")
-    summary = repository.summary("estacao-pg", "24h")
+    summary = StationQueryService(repository).summary("estacao-pg", "24h")
 
     assert latest.station_id == "estacao-pg"
     assert latest.measurements.temperature_c == 24.2

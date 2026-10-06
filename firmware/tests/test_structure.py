@@ -3,6 +3,7 @@
 from displays.local_display import LocalDisplay
 from services.sensor_service import SensorService
 from services.time_service import TimeService
+from services.weather_api import WeatherStateService
 
 
 class Driver:
@@ -54,3 +55,17 @@ def test_time_service_converts_source_tuple_without_display_dependency():
     assert state.year == 2026
     assert state.weekday == 4
     assert state.hour == 0
+
+
+
+class FailingWeatherProvider:
+    def fetch(self):
+        raise TimeoutError("timeout simulado")
+
+
+def test_weather_service_marks_last_state_as_stale_on_expected_failure():
+    service = WeatherStateService(FailingWeatherProvider())
+    state = service.update()
+
+    assert state.stale is True
+    assert isinstance(service.last_error, TimeoutError)

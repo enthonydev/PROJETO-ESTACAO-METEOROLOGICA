@@ -3,7 +3,8 @@ import re
 
 ROOT = Path(__file__).resolve().parents[2]
 HTML = (ROOT / "frontend" / "index.html").read_text(encoding="utf-8")
-JS = (ROOT / "frontend" / "src" / "app.js").read_text(encoding="utf-8")
+JS_FILES = list((ROOT / "frontend" / "src").glob("*.js"))
+JS = "\n".join(path.read_text(encoding="utf-8") for path in JS_FILES)
 CSS = (ROOT / "frontend" / "src" / "styles.css").read_text(encoding="utf-8")
 
 
@@ -32,7 +33,7 @@ def test_chuva_nao_e_inventada():
 
 
 def test_modo_mock_explicitamente_identificado():
-    assert 'USE_MOCK_DATA = window.location.protocol === "file:"' in JS
+    assert "Boolean(demoMode)" in JS
     assert "não representam medições físicas" in JS
     assert "/api/v1/stations/" in JS
 
@@ -48,6 +49,12 @@ def test_sem_dependencias_frontend_externas():
     assert "https://cdn." not in HTML
     assert "unpkg.com" not in HTML
     assert "cdnjs" not in HTML
+
+
+def test_frontend_modularizado():
+    assert 'type="module"' in HTML
+    for module in ["config.js", "state.js", "demo-data.js"]:
+        assert (ROOT / "frontend" / "src" / module).is_file()
 
 
 def test_ids_referenciados_no_js_existem_no_html():
