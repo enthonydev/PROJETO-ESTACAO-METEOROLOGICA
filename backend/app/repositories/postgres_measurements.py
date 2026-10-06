@@ -93,8 +93,8 @@ class PostgresMeasurementRepository:
 
         if range_name is not None:
             supported_range = ensure_supported_range(range_name)
-            range_clause = "AND m.measured_at >= NOW() - %s::interval"
-            params.append(RANGE_INTERVAL[supported_range])
+            range_clause = """\n                AND m.measured_at >= (\n                    SELECT MAX(m2.measured_at)\n                    FROM measurements m2\n                    JOIN stations s2 ON s2.id = m2.station_id\n                    WHERE s2.code = %s\n                ) - %s::interval\n            """
+            params.extend([station_id, RANGE_INTERVAL[supported_range]])
 
         query = f"""
             SELECT
