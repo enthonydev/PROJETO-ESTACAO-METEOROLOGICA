@@ -1,4 +1,6 @@
-import { API_BASE, AUTO_REFRESH_MS, USE_MOCK_DATA, metricConfig, requiredMeasurementKeys } from "./config.js";
+import { AUTO_REFRESH_MS, USE_MOCK_DATA, metricConfig } from "./config.js";
+import { fetchHistory, fetchLatest, validateTelemetry } from "./api.js";
+import { renderChart } from "./chart.js";
 import { buildMockLatest, getMockHistory } from "./demo-data.js";
 import { state } from "./state.js";
 
@@ -53,18 +55,6 @@ function setNotice(message, stateName = "neutral", canRetry = false) {
   notice.dataset.state = stateName;
   setText("noticeText", message);
   retry.hidden = !canRetry;
-}
-
-function validateTelemetry(payload) {
-  if (!payload || typeof payload !== "object") throw new Error("Resposta de telemetria ausente.");
-  if (payload.schema_version !== "1.0") throw new Error("Versão de telemetria incompatível.");
-  if (!payload.station_id || typeof payload.station_id !== "string") throw new Error("Identificação da estação ausente.");
-  if (!payload.measurements || !payload.quality) throw new Error("Telemetria incompleta.");
-
-  const missingKey = requiredMeasurementKeys.find(key => !(key in payload.measurements));
-  if (missingKey) throw new Error(`Métrica ausente no payload: ${missingKey}`);
-
-  return payload;
 }
 
 function deriveDataState(quality) {
@@ -258,12 +248,7 @@ async function loadLatest() {
     return;
   }
 
-  const response = await fetch(`${API_BASE}/api/v1/stations/${state.station}/latest`, {
-    headers: { Accept: "application/json" }
-  });
-
-  if (!response.ok) throw new Error(`Falha ao carregar leitura atual (HTTP ${response.status}).`);
-  renderLatest(await response.json());
+  renderLatest(await fetchLatest(state.station));
 }
 
 async function loadHistory(range, metric) {
@@ -275,14 +260,7 @@ async function loadHistory(range, metric) {
     return;
   }
 
-  const response = await fetch(
-    `${API_BASE}/api/v1/stations/${state.station}/measurements?range=${encodeURIComponent(range)}`,
-    { headers: { Accept: "application/json" } }
-  );
-
-  if (!response.ok) throw new Error(`Falha ao carregar histórico (HTTP ${response.status}).`);
-
-  const data = await response.json();
+  const data = await fetchHistory(state.station, range);
   const items = Array.isArray(data) ? data : data.items ?? [];
 
   state.history = items
