@@ -1,5 +1,4 @@
 export const API_BASE = "";
-export const USE_MOCK_DATA = window.location.protocol === "file:";
 export const AUTO_REFRESH_MS = 60_000;
 
 export const metricConfig = {
