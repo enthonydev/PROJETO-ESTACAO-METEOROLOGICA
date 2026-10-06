@@ -33,7 +33,7 @@ def test_chuva_nao_e_inventada():
 
 
 def test_modo_mock_explicitamente_identificado():
-    assert 'USE_MOCK_DATA = window.location.protocol === "file:"' in JS
+    assert "Boolean(demoMode)" in JS
     assert "não representam medições físicas" in JS
     assert "/api/v1/stations/" in JS
 
