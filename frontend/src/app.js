@@ -1,11 +1,11 @@
-import { AUTO_REFRESH_MS, USE_MOCK_DATA, metricConfig } from "./config.js";
+import { AUTO_REFRESH_MS, metricConfig } from "./config.js";
 import { fetchHistory, fetchLatest, validateTelemetry } from "./api.js";
 import { renderChart } from "./chart.js";
 import { buildMockLatest, getMockHistory } from "./demo-data.js";
 import { state } from "./state.js";
 
 const demoMode = new URLSearchParams(window.location.search).get("demo");
-const USING_DEMO_DATA = USE_MOCK_DATA || Boolean(demoMode);
+const USING_DEMO_DATA = Boolean(demoMode);
 
 function setText(id, value) {
   const element = document.getElementById(id);
