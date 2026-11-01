@@ -409,8 +409,8 @@ function interactChart(e){
  const tip=document.getElementById("tooltip");tip.textContent=`${String(pt.i).padStart(2,"0")}h · ${pt.v.toFixed(d.dec)}${d.unit}`;tip.style.left=cx+"px";tip.style.top=cy+"px";tip.classList.add("show");
 }
 function leaveChart(){document.getElementById("tooltip").classList.remove("show");document.getElementById("cross")?.setAttribute("opacity","0");document.getElementById("focus")?.setAttribute("opacity","0")}
-chart.addEventListener("mousemove",interactChart);chart.addEventListener("mouseleave",leaveChart);
-chart.addEventListener("touchmove",e=>{e.preventDefault();interactChart(e)},{passive:false});chart.addEventListener("touchend",leaveChart);
+document.getElementById("chart").addEventListener("mousemove",interactChart);document.getElementById("chart").addEventListener("mouseleave",leaveChart);
+document.getElementById("chart").addEventListener("touchmove",e=>{e.preventDefault();interactChart(e)},{passive:false});document.getElementById("chart").addEventListener("touchend",leaveChart);
 
 function applyTheme(name){
  const labels={"clear-day":"Céu aberto","cloudy-day":"Nublado","sunset":"Fim de tarde","clear-night":"Céu limpo","rain":"Chuva"};
