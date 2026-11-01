@@ -190,7 +190,7 @@ def test_broker_mqtt_to_postgres_to_rest() -> None:
 
         dashboard = httpx.get(f"{API_BASE}/dashboard/", timeout=2.0)
         assert dashboard.status_code == 200
-        assert "Painel ambiental" in dashboard.text
+        assert "Estação Meteorológica — Clima interativo" in dashboard.text
     finally:
         try:
             publish.single(

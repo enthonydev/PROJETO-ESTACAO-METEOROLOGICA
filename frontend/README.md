@@ -1,3 +1,16 @@
+## Interface visual recuperada do protótipo Clima iOS
+
+O dashboard padrão em `/dashboard/` agora redireciona para `weather.html`, recuperado da interface experimental `preview_weather_ultra_interativo.html` aprovada pelo grupo. Preserva o céu responsivo ao horário, o efeito parallax, os cards, os temas visuais e o gráfico SVG interativo.
+
+- Consulta `/api/v1/stations/{station_id}/latest` e `/api/v1/stations/{station_id}/measurements?range=24h` em vez de gráficos e medições fixas de demonstração.
+- Escolha a estação via `?station=estacao-esp32-real`, com este ID como padrão.
+- Enquanto a ponte serial não está conectada, exibe estado de espera, nunca valores meteorológicos inventados.
+- O cartão de previsão horária continua informativo e sem previsão até integração de dados apropriados.
+- O tema céu azul / noite / chuva controlado manualmente é **apenas visual**, e não afirma condição meteorológica observada.
+- A interface antiga permanece acessível em `/dashboard/index.html` para compatibilidade histórica.
+- Para teste local com hardware: consulte `docs/integracao/ensaio-serial-dev-1.1.md` a partir da raiz do repositório.
+
+
 # Frontend
 
 Dashboard web da Estação Meteorológica Inteligente com ESP32.

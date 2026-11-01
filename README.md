@@ -1,3 +1,19 @@
+## Interface Clima iOS (atualização)
+
+A interface visual aprovada anteriormente foi recuperada do protótipo `preview_weather_ultra_interativo.html` e integrada ao backend existente, preservando animações, ambiente dinâmico, cards e gráfico interativo.
+
+- `http://127.0.0.1:8000/dashboard/` abre a nova interface.
+- `http://127.0.0.1:8000/dashboard/weather.html?station=estacao-esp32-real` acessa diretamente a estação física.
+- `http://127.0.0.1:8000/dashboard/index.html` preserva a interface antiga somente como legado.
+- A UI **não inventa** valores de sensores ausentes nem previsões horárias. Com ponte serial ativa, mostra temperatura e umidade reais e seus históricos.
+- O ambiente dinâmico é visual, não substitui dados meteorológicos externos.
+- Atualização automática a cada 10 s, por consultas REST locais; não exige nova dependência de frontend.
+
+Para instalar/executar o backend e a ponte serial, consulte [o ensaio USB](docs/integracao/ensaio-serial-dev-1.1.md). O usuário que já iniciou a versão anterior deve parar o Uvicorn com Ctrl+C, baixar a `main` atualizada e iniciar novamente. Não há novo pacote Python para instalar.
+
+---
+
+
 <div align="center">
 
 # Estação Meteorológica Inteligente com ESP32

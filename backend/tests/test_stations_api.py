@@ -73,7 +73,8 @@ def test_dashboard_is_served_by_backend() -> None:
     response = client.get("/dashboard/")
 
     assert response.status_code == 200
-    assert "Painel ambiental" in response.text
+    assert "Estação Meteorológica — Clima interativo" in response.text
+    assert 'id="weatherSwitch"' in response.text
 
 
 def test_http_ingestion_is_disabled_by_default() -> None:

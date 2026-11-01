@@ -1,0 +1,497 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Estação Meteorológica — Clima interativo</title>
+<style>
+:root{
+  --white:#fff;
+  --soft:rgba(255,255,255,.76);
+  --faint:rgba(255,255,255,.48);
+  --glass:rgba(255,255,255,.135);
+  --glass-hover:rgba(255,255,255,.18);
+  --stroke:rgba(255,255,255,.20);
+  --shadow:0 24px 60px rgba(10,37,73,.22);
+  --radius:24px;
+  --font:-apple-system,BlinkMacSystemFont,"SF Pro Display","SF Pro Text","Segoe UI",Arial,sans-serif;
+  --mx:0;
+  --my:0;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0; min-height:100vh; color:#fff; font-family:var(--font);
+  background:#4ca9f7; overflow-x:hidden; transition:background 1.2s cubic-bezier(.22,.61,.36,1);
+}
+body.clear-day{background:linear-gradient(180deg,#63c4ff 0%,#4ba6f4 36%,#2e77c3 74%,#245b9b 100%)}
+body.cloudy-day{background:linear-gradient(180deg,#9bbfd7 0%,#719ab7 36%,#557b9a 74%,#3d5b7d 100%)}
+body.sunset{background:linear-gradient(180deg,#efab77 0%,#d27d8e 35%,#776a9c 68%,#3d4f7a 100%)}
+body.clear-night{background:linear-gradient(180deg,#162946 0%,#203a65 38%,#1b3156 73%,#0f1d34 100%)}
+body.rain{background:linear-gradient(180deg,#748b9d 0%,#5a7287 38%,#40576c 74%,#2b3d50 100%)}
+body::after{
+  content:"";position:fixed;inset:0;z-index:0;pointer-events:none;
+  background:linear-gradient(180deg,rgba(255,255,255,.05),transparent 28%,rgba(4,20,42,.13) 100%);
+}
+
+.ambient{position:fixed;inset:0;z-index:0;overflow:hidden;pointer-events:none}
+.orb{
+  position:absolute;right:8vw;top:8vh;width:150px;height:150px;border-radius:50%;
+  background:radial-gradient(circle,#fff7c8 0 25%,#ffe480 46%,rgba(255,223,116,.10) 71%,transparent 73%);
+  transform:translate(calc(var(--mx)*-18px),calc(var(--my)*-12px));
+  transition:opacity 1s ease,transform .18s linear;
+}
+.moon{
+  position:absolute;right:9vw;top:9vh;width:90px;height:90px;border-radius:50%;
+  background:radial-gradient(circle at 35% 34%,#fff 0 25%,#e7edf5 57%,#bdcad8 100%);
+  box-shadow:0 0 38px rgba(215,229,255,.25);opacity:0;
+  transform:translate(calc(var(--mx)*-14px),calc(var(--my)*-10px));
+  transition:opacity 1s ease,transform .18s linear;
+}
+.stars{position:absolute;inset:0;opacity:0;transition:opacity 1s ease}
+.star{position:absolute;width:2px;height:2px;border-radius:50%;background:#fff;animation:twinkle 2.8s ease-in-out infinite alternate}
+@keyframes twinkle{from{opacity:.25}to{opacity:.9}}
+
+.cloud{
+  position:absolute;width:230px;height:65px;border-radius:60px;
+  background:rgba(255,255,255,.18);filter:blur(2px);
+  transition:opacity 1s ease;
+  animation:drift 24s linear infinite alternate;
+}
+.cloud::before,.cloud::after{content:"";position:absolute;border-radius:50%;background:inherit}
+.cloud::before{width:95px;height:95px;left:35px;top:-40px}
+.cloud::after{width:125px;height:125px;right:25px;top:-60px}
+.c1{left:5vw;top:18vh;opacity:.18}
+.c2{right:20vw;top:26vh;opacity:.13;transform:scale(.72);animation-duration:30s}
+.c3{left:48vw;top:10vh;opacity:.08;transform:scale(.55);animation-duration:36s}
+@keyframes drift{from{margin-left:-28px}to{margin-left:34px}}
+
+.rain-layer{
+  position:absolute;inset:-15% -10%;opacity:0;
+  background:repeating-linear-gradient(112deg,transparent 0 25px,rgba(255,255,255,.075) 26px 28px,transparent 29px 52px);
+  animation:rainfall .85s linear infinite;transition:opacity .8s ease;
+}
+@keyframes rainfall{from{background-position:0 0}to{background-position:50px 120px}}
+
+body.clear-night .orb{opacity:0}
+body.clear-night .moon{opacity:.95}
+body.clear-night .stars{opacity:.95}
+body.rain .rain-layer{opacity:1}
+body.rain .cloud{opacity:.75}
+body.cloudy-day .cloud{opacity:.78}
+body.sunset .cloud{opacity:.38}
+
+.shell{width:min(1180px,calc(100% - 30px));margin:auto;padding:22px 0 64px;position:relative;z-index:2}
+.topbar{
+  display:flex;align-items:center;justify-content:space-between;gap:18px;
+  position:sticky;top:12px;z-index:10;padding:6px 0;
+}
+.brand{display:flex;align-items:center;gap:10px;font-weight:650;font-size:.91rem}
+.live{width:8px;height:8px;border-radius:50%;background:#e7fbff;box-shadow:0 0 0 4px rgba(255,255,255,.09)}
+.nav{
+  display:flex;gap:4px;padding:4px;border-radius:999px;border:1px solid var(--stroke);
+  background:rgba(19,63,112,.16);backdrop-filter:blur(22px) saturate(130%);-webkit-backdrop-filter:blur(22px) saturate(130%);
+}
+.nav button{
+  border:0;background:transparent;color:var(--soft);padding:8px 13px;border-radius:999px;
+  font-size:.8rem;font-weight:620;cursor:pointer;transition:.2s ease
+}
+.nav button.active,.nav button:hover{background:rgba(255,255,255,.18);color:#fff}
+
+.hero{
+  min-height:82vh;display:grid;place-items:center;text-align:center;position:relative;
+}
+.hero-inner{
+  transform:translate(calc(var(--mx)*8px),calc(var(--my)*5px));
+  transition:transform .16s linear;
+}
+.location{font-size:1.2rem;font-weight:650;letter-spacing:-.025em}
+.meta{margin-top:5px;font-size:.86rem;color:var(--soft)}
+.temperature{
+  margin-top:20px;font-size:clamp(6rem,15vw,10.5rem);line-height:.84;font-weight:180;letter-spacing:-.08em;
+  text-shadow:0 20px 55px rgba(7,38,78,.20);font-variant-numeric:tabular-nums
+}
+.condition{margin-top:23px;font-size:1.18rem;font-weight:650;letter-spacing:-.02em}
+.hilo{margin-top:6px;color:var(--soft);font-size:.93rem}
+
+.scrollhint{
+  position:absolute;bottom:22px;left:50%;transform:translateX(-50%);
+  font-size:.71rem;color:var(--faint);display:grid;gap:7px;place-items:center
+}
+.mouse{width:20px;height:30px;border:1px solid rgba(255,255,255,.35);border-radius:12px;position:relative}
+.mouse::after{content:"";position:absolute;width:3px;height:6px;background:#fff;border-radius:2px;left:8px;top:6px;animation:wheel 1.5s ease-in-out infinite}
+@keyframes wheel{0%{opacity:0;transform:translateY(0)}35%{opacity:1}100%{opacity:0;transform:translateY(10px)}}
+
+.glass{
+  background:var(--glass);border:1px solid var(--stroke);box-shadow:var(--shadow);
+  backdrop-filter:blur(26px) saturate(135%);-webkit-backdrop-filter:blur(26px) saturate(135%)
+}
+.card{border-radius:var(--radius);padding:20px;position:relative;overflow:hidden}
+.card::before{
+  content:"";position:absolute;inset:0;pointer-events:none;
+  background:linear-gradient(135deg,rgba(255,255,255,.10),transparent 32%);
+}
+.section-title{display:flex;align-items:center;justify-content:space-between;gap:15px;margin-bottom:16px;position:relative}
+.section-title h2{margin:0;font-size:.75rem;text-transform:uppercase;letter-spacing:.10em;font-weight:700;color:rgba(255,255,255,.72)}
+.section-title span{font-size:.72rem;color:rgba(255,255,255,.52)}
+.reveal{opacity:0;transform:translateY(22px);transition:opacity .75s ease,transform .75s cubic-bezier(.22,.61,.36,1)}
+.reveal.visible{opacity:1;transform:none}
+
+.hourly{margin-bottom:14px}
+.hours{display:grid;grid-template-columns:repeat(8,minmax(78px,1fr));gap:8px;overflow-x:auto}
+.hour{padding:12px 8px;text-align:center;border-radius:17px;transition:.22s ease}
+.hour:hover{background:rgba(255,255,255,.10);transform:translateY(-3px)}
+.hour.now{background:rgba(255,255,255,.13)}
+.time{font-size:.75rem;color:var(--soft)}
+.wicon{font-size:1.5rem;margin:10px 0 8px;filter:drop-shadow(0 5px 8px rgba(0,0,0,.12))}
+.deg{font-size:1rem;font-weight:650}
+
+.grid{display:grid;grid-template-columns:1.55fr .9fr;gap:14px;margin-top:14px}
+.metric-tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px;position:relative}
+.metric-tabs button,.weather-switch button{
+  border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.07);color:rgba(255,255,255,.70);
+  padding:8px 11px;border-radius:999px;cursor:pointer;font-size:.75rem;transition:.2s ease
+}
+.metric-tabs button:hover,.weather-switch button:hover{background:rgba(255,255,255,.15);color:#fff;transform:translateY(-1px)}
+.metric-tabs button.active,.weather-switch button.active{background:rgba(255,255,255,.23);color:#fff}
+.chart-top{display:flex;justify-content:space-between;align-items:end;gap:12px;margin-bottom:8px}
+.chart-value{font-size:2rem;font-weight:500;letter-spacing:-.05em;font-variant-numeric:tabular-nums}
+.chart-stats{font-size:.75rem;color:var(--soft)}
+svg{display:block;width:100%;height:auto;touch-action:none}
+.tooltip{
+  position:fixed;z-index:50;pointer-events:none;opacity:0;transform:translate(-50%,-125%);
+  padding:8px 10px;border-radius:12px;font-size:.73rem;background:rgba(10,30,56,.80);border:1px solid rgba(255,255,255,.18);
+  backdrop-filter:blur(15px);transition:opacity .1s ease
+}
+.tooltip.show{opacity:1}
+
+.details{display:grid;grid-template-columns:1fr 1fr;gap:9px;position:relative}
+.tile{
+  min-height:112px;padding:15px;border-radius:18px;background:rgba(255,255,255,.08);
+  border:1px solid rgba(255,255,255,.09);transition:transform .16s ease,background .2s ease;transform-style:preserve-3d
+}
+.tile:hover{background:rgba(255,255,255,.13)}
+.tile .k{font-size:.69rem;color:rgba(255,255,255,.58);margin-bottom:9px}
+.tile .v{font-size:1.34rem;font-weight:620;letter-spacing:-.035em}
+.tile .u{font-size:.70rem;color:rgba(255,255,255,.55);margin-top:4px}
+.spark{height:28px;margin-top:9px;opacity:.72}
+
+.environment{
+  margin-top:14px;display:grid;grid-template-columns:1fr .72fr;gap:14px
+}
+.sky-control{min-height:240px}
+.weather-switch{display:flex;gap:6px;flex-wrap:wrap;position:relative}
+.timeline{
+  position:relative;margin-top:34px;height:80px
+}
+.timeline::before{
+  content:"";position:absolute;left:0;right:0;top:33px;height:1px;background:rgba(255,255,255,.18)
+}
+.sunpath{
+  position:absolute;left:6%;right:6%;top:2px;height:60px;border-radius:50% 50% 0 0 / 100% 100% 0 0;
+  border-top:1px dashed rgba(255,255,255,.34)
+}
+.marker{
+  position:absolute;top:25px;width:17px;height:17px;border-radius:50%;background:#fff3bb;
+  box-shadow:0 0 20px rgba(255,233,156,.36);transition:left .8s cubic-bezier(.22,.61,.36,1)
+}
+.labels{position:absolute;left:0;right:0;bottom:0;display:flex;justify-content:space-between;color:var(--faint);font-size:.69rem}
+
+.status-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px;position:relative}
+.status-item{padding:14px;border-radius:16px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.09)}
+.status-item span{display:block;font-size:.67rem;color:var(--faint);margin-bottom:5px}
+.status-item strong{font-size:.88rem}
+.ai-note{margin-top:12px;color:rgba(255,255,255,.54);font-size:.68rem;line-height:1.5}
+
+footer{padding:22px 4px 0;color:rgba(255,255,255,.48);font-size:.68rem;display:flex;justify-content:space-between;gap:12px}
+
+@media(max-width:900px){.grid,.environment{grid-template-columns:1fr}}
+@media(max-width:650px){
+  .shell{width:min(100% - 18px,1180px);padding-top:13px}
+  .topbar{align-items:flex-start}.nav button{padding:7px 10px}
+  .hero{min-height:76vh}.hours{grid-template-columns:repeat(8,82px)}
+  .details,.status-grid{grid-template-columns:1fr 1fr}
+  footer{flex-direction:column}
+}
+</style>
+</head>
+<body class="clear-day">
+<div class="ambient">
+  <div class="orb"></div><div class="moon"></div><div class="stars" id="stars"></div>
+  <div class="cloud c1"></div><div class="cloud c2"></div><div class="cloud c3"></div><div class="rain-layer"></div>
+</div>
+<div class="tooltip" id="tooltip"></div>
+
+<main class="shell">
+  <header class="topbar">
+    <div class="brand"><span class="live"></span><span id="brandStation">Estação ESP32</span></div>
+    <nav class="nav">
+      <button class="active" data-target="hero">Agora</button>
+      <button data-target="history">Histórico</button>
+      <button data-target="system">Sistema</button>
+    </nav>
+  </header>
+
+  <section class="hero" id="hero">
+    <div class="hero-inner">
+      <div class="location" id="stationLocation">Estação ESP32</div>
+      <div class="meta" id="meta">Aguardando dados reais do ESP32</div>
+      <div class="temperature" id="temperature">--°</div>
+      <div class="condition" id="condition">Aguardando leituras</div>
+      <div class="hilo" id="hilo">Histórico ainda indisponível</div>
+    </div>
+    <div class="scrollhint"><div class="mouse"></div><span>explorar</span></div>
+  </section>
+
+  <section class="card glass hourly reveal">
+    <div class="section-title"><h2>Próximas horas</h2><span>sem previsão meteorológica</span></div>
+    <div class="hours" style="justify-content:center;text-align:center;min-height:76px;align-items:center;">
+      Previsão indisponível: os sensores locais não permitem prever as próximas horas. Nenhum valor foi simulado.
+    </div>
+  </section>
+
+  <section class="grid reveal" id="history">
+    <article class="card glass">
+      <div class="section-title"><h2>Histórico da estação</h2><span id="metricName">Temperatura</span></div>
+      <div class="metric-tabs" id="metricTabs"></div>
+      <div class="chart-top">
+        <div class="chart-value" id="chartValue">--</div>
+        <div class="chart-stats" id="chartStats">Aguardando histórico real</div>
+      </div>
+      <svg id="chart" viewBox="0 0 760 250"></svg>
+    </article>
+
+    <aside class="card glass">
+      <div class="section-title"><h2>Condições</h2><span>agora</span></div>
+      <div class="details">
+        <div class="tile tilt"><div class="k">Umidade</div><div class="v" id="humidityValue">--</div><div class="u">relativa (%)</div></div>
+        <div class="tile tilt"><div class="k">Pressão</div><div class="v" id="pressureValue">--</div><div class="u">hPa · sensor pendente</div></div>
+        <div class="tile tilt"><div class="k">Qualidade do ar</div><div class="v" id="airValue">--</div><div class="u">sensor pendente</div></div>
+        <div class="tile tilt"><div class="k">Luminosidade</div><div class="v" id="lightValue">--</div><div class="u">percentual não medido</div></div>
+        <div class="tile tilt"><div class="k">Chuva</div><div class="v" id="rainValue">Sem dado</div><div class="u">mm não medidos; digital na OLED</div></div>
+        <div class="tile tilt"><div class="k">Conexão</div><div class="v" id="dataValue">Aguardando</div><div class="u" id="dataNote">USB serial → API local</div></div>
+      </div>
+    </aside>
+  </section>
+
+  <section class="environment reveal" id="system">
+    <article class="card glass sky-control">
+      <div class="section-title"><h2>Ambiente dinâmico</h2><span>efeito visual, não previsão</span></div>
+      <div class="weather-switch" id="weatherSwitch">
+        <button class="active" data-weather="auto">Automático</button>
+        <button data-weather="clear-day">Dia</button>
+        <button data-weather="cloudy-day">Nublado</button>
+        <button data-weather="sunset">Fim de tarde</button>
+        <button data-weather="clear-night">Noite</button>
+        <button data-weather="rain">Chuva</button>
+      </div>
+      <div class="timeline">
+        <div class="sunpath"></div><div class="marker" id="timeMarker"></div>
+        <div class="labels"><span>06h</span><span>12h</span><span>18h</span><span>00h</span></div>
+      </div>
+      <div class="ai-note">
+        O modo automático adapta a aparência ao horário do navegador. Outros temas são apenas efeitos visuais; não representam previsão nem medição de chuva.
+      </div>
+    </article>
+
+    <aside class="card glass">
+      <div class="section-title"><h2>Sistema</h2><span>integração local</span></div>
+      <div class="status-grid">
+        <div class="status-item"><span>API REST</span><strong id="apiStatus">Aguardando</strong></div>
+        <div class="status-item"><span>Armazenamento</span><strong>Temporário</strong></div>
+        <div class="status-item"><span>MQTT</span><strong>Não conectado</strong></div>
+        <div class="status-item"><span>Frontend</span><strong>API REST</strong></div>
+        <div class="status-item"><span>Hardware</span><strong id="hardwareStatus">Aguardando ponte</strong></div>
+        <div class="status-item"><span>Schema</span><strong>v1.0</strong></div>
+      </div>
+    </aside>
+  </section>
+
+  <footer>
+    <span>Projeto e Desenvolvimento II · Ciência da Computação · CC2P04</span>
+    <span>Interface experimental com assistência de IA e curadoria humana</span>
+  </footer>
+</main>
+
+<script>
+const root=document.documentElement;
+window.addEventListener("pointermove",e=>{
+  root.style.setProperty("--mx",((e.clientX/window.innerWidth)-.5).toFixed(3));
+  root.style.setProperty("--my",((e.clientY/window.innerHeight)-.5).toFixed(3));
+});
+
+const stars=document.getElementById("stars");
+for(let i=0;i<85;i++){
+  const s=document.createElement("span");s.className="star";
+  s.style.left=(Math.random()*100)+"%";s.style.top=(Math.random()*58)+"%";
+  s.style.animationDelay=(Math.random()*3)+"s";stars.appendChild(s);
+}
+
+const revealObserver=new IntersectionObserver(entries=>{
+  entries.forEach(e=>{if(e.isIntersecting)e.target.classList.add("visible")})
+},{threshold:.12});
+document.querySelectorAll(".reveal").forEach(el=>revealObserver.observe(el));
+
+document.querySelectorAll(".nav button").forEach(btn=>{
+  btn.onclick=()=>{
+    document.querySelectorAll(".nav button").forEach(b=>b.classList.remove("active"));
+    btn.classList.add("active");
+    document.getElementById(btn.dataset.target).scrollIntoView({behavior:"smooth",block:"start"});
+  }
+});
+
+document.querySelectorAll(".tilt").forEach(tile=>{
+  tile.addEventListener("pointermove",e=>{
+    const r=tile.getBoundingClientRect(),x=(e.clientX-r.left)/r.width-.5,y=(e.clientY-r.top)/r.height-.5;
+    tile.style.transform=`perspective(650px) rotateX(${-y*5}deg) rotateY(${x*6}deg) translateY(-2px)`;
+  });
+  tile.addEventListener("pointerleave",()=>tile.style.transform="");
+});
+
+const datasets={
+ temperature_c:{label:"Temperatura",unit:"°C",dec:1,vals:[]},
+ humidity_pct:{label:"Umidade",unit:"%",dec:1,vals:[]},
+ pressure_hpa:{label:"Pressão",unit:" hPa",dec:0,vals:[]},
+ air_quality_raw:{label:"Qualidade do ar",unit:" raw",dec:0,vals:[]},
+ luminosity_pct:{label:"Luminosidade",unit:"%",dec:0,vals:[]}
+};
+let activeMetric="temperature_c",points=[];
+
+function renderTabs(){
+ const c=document.getElementById("metricTabs");c.innerHTML="";
+ Object.entries(datasets).forEach(([k,v])=>{
+   const b=document.createElement("button");b.textContent=v.label;
+   if(k===activeMetric)b.classList.add("active");
+   b.onclick=()=>{activeMetric=k;renderTabs();drawChart(true)};
+   c.appendChild(b);
+ });
+}
+function drawChart(animate=false){
+ const d=datasets[activeMetric],vals=d.vals,W=760,H=250,p={l:28,r:14,t:14,b:28};
+ const svg=document.getElementById("chart");
+ document.getElementById("metricName").textContent=d.label;
+ if(!vals.length){
+   points=[];
+   svg.innerHTML='<text x="380" y="130" fill="rgba(255,255,255,.82)" font-size="16" text-anchor="middle">Sem medições reais disponíveis</text>';
+   document.getElementById("chartValue").textContent="--";
+   document.getElementById("chartStats").textContent="Nenhum dado válido para essa métrica";
+   return;
+ }
+ const min=Math.min(...vals),max=Math.max(...vals),spread=Math.max(max-min,2),ymin=min-spread*.25,ymax=max+spread*.25;
+ const x=i=>p.l+i*(W-p.l-p.r)/Math.max(vals.length-1,1);
+ const y=v=>p.t+(ymax-v)*(H-p.t-p.b)/(ymax-ymin);
+ points=vals.map((v,i)=>({x:x(i),y:y(v),v,i}));
+ const pts=points.map(pt=>`${pt.x},${pt.y}`).join(" ");
+ const area=`${p.l},${H-p.b} ${pts} ${points.at(-1).x},${H-p.b}`;
+ let grid="";for(let i=0;i<4;i++){const yy=p.t+i*(H-p.t-p.b)/3;grid+=`<line x1="${p.l}" y1="${yy}" x2="${W-p.r}" y2="${yy}" stroke="rgba(255,255,255,.11)"/>`}
+ svg.innerHTML=grid+`<polygon points="${area}" fill="rgba(255,255,255,.07)"/><polyline id="mainLine" points="${pts}" fill="none" stroke="rgba(255,255,255,.92)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/><line id="cross" y1="${p.t}" y2="${H-p.b}" stroke="rgba(255,255,255,.40)" opacity="0"/><circle id="focus" r="5" fill="#fff" stroke="rgba(12,52,98,.45)" stroke-width="3" opacity="0"/>`;
+ document.getElementById("chartValue").textContent=vals.at(-1).toFixed(d.dec)+d.unit;
+ document.getElementById("chartStats").textContent=`mín. ${min.toFixed(d.dec)}${d.unit} · máx. ${max.toFixed(d.dec)}${d.unit} · ${vals.length} leituras`;
+ if(animate && vals.length>1){
+   const line=document.getElementById("mainLine"),len=line.getTotalLength();
+   line.style.strokeDasharray=len;line.style.strokeDashoffset=len;
+   line.animate([{strokeDashoffset:len},{strokeDashoffset:0}],{duration:650,easing:"ease-out",fill:"forwards"});
+ }
+}
+function tweenText(el,target,dec,unit){
+ const start=parseFloat(el.textContent)||0,t0=performance.now(),dur=420;
+ function tick(t){const p=Math.min(1,(t-t0)/dur),e=1-Math.pow(1-p,3),v=start+(target-start)*e;el.textContent=v.toFixed(dec)+unit;if(p<1)requestAnimationFrame(tick)}
+ requestAnimationFrame(tick)
+}
+function interactChart(e){
+ const svg=document.getElementById("chart"),r=svg.getBoundingClientRect(),cx=e.touches?e.touches[0].clientX:e.clientX,cy=e.touches?e.touches[0].clientY:e.clientY,sx=(cx-r.left)*(760/r.width);
+ if(!points.length)return;
+ const pt=points.reduce((a,b)=>Math.abs(b.x-sx)<Math.abs(a.x-sx)?b:a),d=datasets[activeMetric];
+ const cross=document.getElementById("cross"),focus=document.getElementById("focus");
+ cross.setAttribute("x1",pt.x);cross.setAttribute("x2",pt.x);cross.setAttribute("opacity","1");
+ focus.setAttribute("cx",pt.x);focus.setAttribute("cy",pt.y);focus.setAttribute("opacity","1");
+ const tip=document.getElementById("tooltip");tip.textContent=`${String(pt.i).padStart(2,"0")}h · ${pt.v.toFixed(d.dec)}${d.unit}`;tip.style.left=cx+"px";tip.style.top=cy+"px";tip.classList.add("show");
+}
+function leaveChart(){document.getElementById("tooltip").classList.remove("show");document.getElementById("cross")?.setAttribute("opacity","0");document.getElementById("focus")?.setAttribute("opacity","0")}
+document.getElementById("chart").addEventListener("mousemove",interactChart);document.getElementById("chart").addEventListener("mouseleave",leaveChart);
+document.getElementById("chart").addEventListener("touchmove",e=>{e.preventDefault();interactChart(e)},{passive:false});document.getElementById("chart").addEventListener("touchend",leaveChart);
+
+function applyTheme(name){
+ const labels={"clear-day":"Céu aberto","cloudy-day":"Nublado","sunset":"Fim de tarde","clear-night":"Céu limpo","rain":"Chuva"};
+ document.body.className=name;
+ document.getElementById("condition").textContent="Tema visual: "+(labels[name]||"Dia") ;
+}
+function autoTheme(){
+ const h=new Date().getHours();
+ if(h>=5&&h<8)applyTheme("sunset");
+ else if(h>=8&&h<17)applyTheme("clear-day");
+ else if(h>=17&&h<19)applyTheme("sunset");
+ else applyTheme("clear-night");
+}
+document.querySelectorAll("#weatherSwitch button").forEach(b=>{
+ b.onclick=()=>{
+   document.querySelectorAll("#weatherSwitch button").forEach(x=>x.classList.remove("active"));b.classList.add("active");
+   b.dataset.weather==="auto"?autoTheme():applyTheme(b.dataset.weather)
+ }
+});
+
+function updateTime(){
+ const n=new Date();
+ if(!window.lastSensorTime)document.getElementById("meta").textContent="Aguardando leituras reais · "+new Intl.DateTimeFormat("pt-BR",{hour:"2-digit",minute:"2-digit"}).format(n);
+ const mins=n.getHours()*60+n.getMinutes(),left=Math.max(3,Math.min(95,(mins/(24*60))*100));
+ document.getElementById("timeMarker").style.left=`calc(${left}% - 8px)`;
+}
+
+const stationId=new URLSearchParams(location.search).get("station")||"estacao-esp32-real";
+let lastSuccessfulRead=null;
+const textById=(id,value)=>{const el=document.getElementById(id);if(el)el.textContent=value;};
+textById("brandStation",stationId);
+textById("stationLocation",stationId);
+function fmtMetric(v,dec,unit){return typeof v==="number" && Number.isFinite(v)?v.toFixed(dec)+unit:"--";}
+async function getJSON(path){
+ const response=await fetch(path,{cache:"no-store"});
+ if(!response.ok)throw new Error("HTTP "+response.status);
+ return response.json();
+}
+async function refreshRealData(){
+ try{
+   const endpoint="/api/v1/stations/"+encodeURIComponent(stationId);
+   const [latest,history]=await Promise.all([
+     getJSON(endpoint+"/latest"),
+     getJSON(endpoint+"/measurements?range=24h")
+   ]);
+   if(latest.schema_version!=="1.0"||!latest.measurements)throw new Error("Contrato incompatível");
+   lastSuccessfulRead=latest.timestamp;
+   window.lastSensorTime=latest.timestamp;
+   const m=latest.measurements;
+   textById("temperature",fmtMetric(m.temperature_c,1,"°"));
+   textById("humidityValue",fmtMetric(m.humidity_pct,1,"%"));
+   textById("pressureValue",fmtMetric(m.pressure_hpa,0,""));
+   textById("airValue",fmtMetric(m.air_quality_raw,0,""));
+   textById("lightValue",fmtMetric(m.luminosity_pct,0,"%"));
+   textById("rainValue",m.rain_mm===null||m.rain_mm===undefined?"Sem dado":fmtMetric(m.rain_mm,1," mm"));
+   textById("apiStatus","Conectada");
+   textById("hardwareStatus","Leituras recebidas");
+   textById("dataValue","Recebendo");
+   textById("dataNote","Dados recebidos por API local");
+   const ts=new Date(latest.timestamp);
+   const dateLabel=Number.isNaN(ts.getTime())?"horário desconhecido":ts.toLocaleString("pt-BR");
+   textById("meta","Última leitura: "+dateLabel+" · fonte: ESP32 / ponte serial");
+   const items=Array.isArray(history.items)?history.items:[];
+   for(const [key,d] of Object.entries(datasets)){
+     d.vals=items.map(item=>item?.measurements?.[key]).filter(v=>typeof v==="number"&&Number.isFinite(v));
+   }
+   const temps=datasets.temperature_c.vals;
+   textById("hilo",temps.length?
+      "Máx. "+Math.max(...temps).toFixed(1)+"° · Mín. "+Math.min(...temps).toFixed(1)+"°":"Histórico insuficiente");
+   drawChart(false);
+ }catch(error){
+   textById("apiStatus",error.message);
+   textById("hardwareStatus","Sem dados atuais");
+   textById("dataValue",lastSuccessfulRead?"Atrasado":"Aguardando");
+   textById("dataNote",lastSuccessfulRead?"Verifique ponte serial":"Inicie a ponte serial do ESP32");
+   if(!lastSuccessfulRead)textById("meta","Aguardando dados reais: "+error.message);
+   console.warn("Estação sem dados reais disponíveis:",error);
+ }
+}
+
+renderTabs();drawChart(false);autoTheme();updateTime();refreshRealData();setInterval(updateTime,30000);setInterval(refreshRealData,10000);
+</script>
+</body>
+</html>
