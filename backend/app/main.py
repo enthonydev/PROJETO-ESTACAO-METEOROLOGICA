@@ -31,6 +31,12 @@ def validate_payload(payload: dict[str, Any]) -> TelemetryPayload:
 
 FRONTEND_DIR = Path(__file__).resolve().parents[2] / "frontend"
 
+@app.get("/dashboard/", include_in_schema=False)
+def dashboard_home() -> RedirectResponse:
+    """Abre por padrão a interface Clima aprovada, preservando o legado por URL."""
+    return RedirectResponse(url="/dashboard/weather.html")
+
+
 if FRONTEND_DIR.is_dir():
     app.mount(
         "/dashboard",
