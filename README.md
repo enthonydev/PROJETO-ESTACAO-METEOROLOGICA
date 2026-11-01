@@ -63,6 +63,49 @@ O payload contempla identificação da estação, timestamp, localização, medi
 
 O contrato completo está em [`docs/contratos/telemetria-v1.0.json`](docs/contratos/telemetria-v1.0.json).
 
+## Atualização física — DEV 1.1 (01/11/2026)
+
+**Situação confirmada em bancada:** ESP32 com firmware **Arduino/C++**, OLED SSD1306, DHT22, detecção digital de água e LDR digital funcionando simultaneamente. As leituras de chuva foram validadas nos dois estados (seco/molhado), assim como a alternância claro/escuro. O GPIO17 possui diagnóstico serial periódico de 5 segundos.
+
+**Diferença em relação à arquitetura-alvo:** a N1 descrevia MicroPython + Wi-Fi/MQTT. A implementação física atual, testada, é Arduino/C++ via USB serial. Não foi demonstrada ainda comunicação ESP32 → MQTT ou integração física ponta a ponta com o backend; a solução USB serial é uma ponte **experimental para desenvolvimento**, sem alterar o contrato de telemetria v1.0.
+
+- [Registro real de conexões e ensaios](hardware/registro-montagem-dev-1.1.md)
+- [Firmware Arduino DEV 1.1](firmware/arduino/Estacao_Meteorologica_DEV_1_1/Estacao_Meteorologica_DEV_1_1.ino)
+- [Execução do dashboard com o ESP32 pela USB](docs/integracao/ensaio-serial-dev-1.1.md)
+
+### Ver a interface com medições reais (teste local)
+
+No PowerShell, na raiz do repositório, instale as dependências:
+
+```powershell
+python -m pip install -r backend/requirements.txt
+python -m pip install pyserial
+```
+
+Terminal 1:
+
+```powershell
+$env:PYTHONPATH="backend"
+$env:ENABLE_HTTP_INGESTION="true"
+python -m uvicorn app.main:app --host 127.0.0.1 --port 8000
+```
+
+Terminal 2, com o Monitor Serial do Arduino IDE fechado:
+
+```powershell
+python tools/serial_bridge.py --port COM7
+```
+
+Acesse **http://127.0.0.1:8000/dashboard/?station=estacao-esp32-real**.
+
+O banco PostgreSQL **não é obrigatório para esse teste local**: o FastAPI já suporta armazenamento temporário em memória, que se perde quando reiniciado. PostgreSQL continua previsto para persistência e MQTT. Não abra o endpoint de ingestão sem autenticação na rede.
+
+**Limitações honestas:** a interface recebe temperatura e umidade numéricas reais. Os estados digitais da chuva e da luz são exibidos no terminal da ponte e na OLED, mas o contrato atual não possui campos próprios para essas classificações. Portanto `rain_mm` e `luminosity_pct` permanecem `null`, assim como pressão e qualidade do ar ainda não conectadas. Não mostrar 0 mm, 0% ou dados fictícios como reais.
+
+**Riscos e pendências:** houve um jumper solto e mau contato no furo E30 da protoboard; LDR usa GPIO5 (strapping); BMP280 permanece sem pinos soldados; MQ-135 de 5V não foi conectado por falta de espaço/cabos e demanda proteção de entrada. Teste real USB → API → dashboard ainda **pendente de execução com o hardware do usuário**.
+
+---
+
 ## Estado atual
 
 A N1 foi concluída após cinco sprints de especificação, projeto técnico, implementação mínima, consolidação acadêmica e auditoria final.
