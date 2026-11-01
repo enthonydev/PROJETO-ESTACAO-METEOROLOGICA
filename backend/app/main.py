@@ -4,7 +4,7 @@ from pathlib import Path
 from typing import Any
 
 from fastapi import FastAPI, HTTPException
-from fastapi.responses import RedirectResponse
+from fastapi.responses import RedirectResponse, FileResponse
 from fastapi.staticfiles import StaticFiles
 
 from app.api.health import router as health_router
@@ -32,9 +32,9 @@ def validate_payload(payload: dict[str, Any]) -> TelemetryPayload:
 FRONTEND_DIR = Path(__file__).resolve().parents[2] / "frontend"
 
 @app.get("/dashboard/", include_in_schema=False)
-def dashboard_home() -> RedirectResponse:
-    """Abre por padrão a interface Clima aprovada, preservando o legado por URL."""
-    return RedirectResponse(url="/dashboard/weather.html")
+def dashboard_home() -> FileResponse:
+    """Serve diretamente a interface Clima aprovada, mantendo status HTTP 200."""
+    return FileResponse(str(FRONTEND_DIR / "weather.html"))
 
 
 if FRONTEND_DIR.is_dir():
