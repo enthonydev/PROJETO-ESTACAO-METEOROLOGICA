@@ -12,3 +12,6 @@ venv/
 
 # Artefatos locais
 .DS_Store
+
+# Credenciais Wi-Fi/MQTT ESP32 (somente local)
+**/local_config.h
