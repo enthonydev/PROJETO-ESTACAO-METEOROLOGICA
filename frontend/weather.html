@@ -299,10 +299,10 @@ footer{padding:22px 4px 0;color:rgba(255,255,255,.48);font-size:.68rem;display:f
       <div class="section-title"><h2>Sistema</h2><span>integração local</span></div>
       <div class="status-grid">
         <div class="status-item"><span>API REST</span><strong id="apiStatus">Aguardando</strong></div>
-        <div class="status-item"><span>Armazenamento</span><strong>Temporário</strong></div>
-        <div class="status-item"><span>MQTT</span><strong>Não conectado</strong></div>
+        <div class="status-item"><span>Armazenamento</span><strong>API / banco configurado</strong></div>
+        <div class="status-item"><span>MQTT</span><strong>Verificar logs do worker</strong></div>
         <div class="status-item"><span>Frontend</span><strong>API REST</strong></div>
-        <div class="status-item"><span>Hardware</span><strong id="hardwareStatus">Aguardando ponte</strong></div>
+        <div class="status-item"><span>Origem física</span><strong id="hardwareStatus">Não verificada</strong></div>
         <div class="status-item"><span>Schema</span><strong>v1.0</strong></div>
       </div>
     </aside>
@@ -467,12 +467,12 @@ async function refreshRealData(){
    textById("lightValue",fmtMetric(m.luminosity_pct,0,"%"));
    textById("rainValue",m.rain_mm===null||m.rain_mm===undefined?"Sem dado":fmtMetric(m.rain_mm,1," mm"));
    textById("apiStatus","Conectada");
-   textById("hardwareStatus","Leituras recebidas");
+   textById("hardwareStatus","A confirmar em bancada");
    textById("dataValue","Recebendo");
-   textById("dataNote","Dados recebidos por API local");
+   textById("dataNote","API REST (origem por verificar)");
    const ts=new Date(latest.timestamp);
    const dateLabel=Number.isNaN(ts.getTime())?"horário desconhecido":ts.toLocaleString("pt-BR");
-   textById("meta","Última leitura: "+dateLabel+" · fonte: ESP32 / ponte serial");
+   textById("meta","Última leitura: "+dateLabel+" · fonte: API REST");
    const items=Array.isArray(history.items)?history.items:[];
    for(const [key,d] of Object.entries(datasets)){
      d.vals=items.map(item=>item?.measurements?.[key]).filter(v=>typeof v==="number"&&Number.isFinite(v));
@@ -483,7 +483,7 @@ async function refreshRealData(){
    drawChart(false);
  }catch(error){
    textById("apiStatus",error.message);
-   textById("hardwareStatus","Sem dados atuais");
+   textById("hardwareStatus","Não verificada");
    textById("dataValue",lastSuccessfulRead?"Atrasado":"Aguardando");
    textById("dataNote",lastSuccessfulRead?"Verifique ponte serial":"Inicie a ponte serial do ESP32");
    if(!lastSuccessfulRead)textById("meta","Aguardando dados reais: "+error.message);
