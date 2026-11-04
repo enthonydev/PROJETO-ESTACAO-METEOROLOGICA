@@ -45,6 +45,8 @@ def main() -> None:
         )
 
     client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2)
+    if settings.mqtt_username and settings.mqtt_password:
+        client.username_pw_set(settings.mqtt_username, settings.mqtt_password)
     client.on_connect = on_connect
     client.on_message = on_message
 
