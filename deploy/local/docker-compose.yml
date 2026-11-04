@@ -1,0 +1,27 @@
+# Ambiente opcional de integracao N2 - Docker Desktop.
+# MQTT sera acessivel via LAN; mantenha apenas em rede autorizada.
+services:
+  postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: estacao
+      POSTGRES_DB: estacao
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Defina POSTGRES_PASSWORD no .env local}
+    ports:
+      - "127.0.0.1:5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U estacao -d estacao"]
+      interval: 5s
+      retries: 10
+  broker:
+    image: eclipse-mosquitto:2
+    ports:
+      - "1883:1883"
+    volumes:
+      - ./mosquitto.conf:/mosquitto/config/mosquitto.conf:ro
+      - ./secrets:/mosquitto/secrets
+    restart: unless-stopped
+volumes:
+  pgdata:

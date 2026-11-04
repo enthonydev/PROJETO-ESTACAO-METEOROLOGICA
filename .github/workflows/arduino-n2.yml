@@ -1,0 +1,37 @@
+name: Compilar firmware Arduino integrado N2
+on:
+  pull_request:
+    paths:
+      - "firmware/arduino/Estacao_Integrada_N2/**"
+      - ".github/workflows/arduino-n2.yml"
+  workflow_dispatch:
+
+jobs:
+  compile-arduino:
+    name: Verificar compilacao ESP32 sem hardware
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - name: Instalar Arduino CLI
+        uses: arduino/setup-arduino-cli@v2
+      - name: Instalar core ESP32
+        shell: bash
+        run: |
+          URL="https://espressif.github.io/arduino-esp32/package_esp32_index.json"
+          arduino-cli core update-index --additional-urls "$URL"
+          arduino-cli core install esp32:esp32 --additional-urls "$URL"
+      - name: Instalar bibliotecas
+        shell: bash
+        run: |
+          arduino-cli lib install "Adafruit SSD1306"
+          arduino-cli lib install "Adafruit GFX Library"
+          arduino-cli lib install "DHT sensor library"
+          arduino-cli lib install "PubSubClient"
+          arduino-cli lib install "Adafruit BMP280 Library"
+          arduino-cli lib install "Adafruit BME280 Library"
+      - name: Compilar codigo de integracao sem novas entradas fisicas
+        shell: bash
+        run: |
+          cp firmware/arduino/Estacao_Integrada_N2/local_config.example.h firmware/arduino/Estacao_Integrada_N2/local_config.h
+          arduino-cli compile --fqbn esp32:esp32:esp32 firmware/arduino/Estacao_Integrada_N2

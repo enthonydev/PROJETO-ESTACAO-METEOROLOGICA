@@ -21,6 +21,8 @@ class Settings:
     database_url: str | None = os.getenv("DATABASE_URL")
     mqtt_broker_host: str = os.getenv("MQTT_BROKER_HOST", "localhost")
     mqtt_broker_port: int = int(os.getenv("MQTT_BROKER_PORT", "1883"))
+    mqtt_username: str | None = os.getenv("MQTT_USERNAME")
+    mqtt_password: str | None = os.getenv("MQTT_PASSWORD")
     mqtt_subscription_topic: str = os.getenv(
         "MQTT_SUBSCRIPTION_TOPIC", "estacao/+/telemetry"
     )
