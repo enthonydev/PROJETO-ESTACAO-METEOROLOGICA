@@ -83,6 +83,25 @@ def send_payload(api_url: str, payload: dict) -> None:
             raise RuntimeError(f"Resposta HTTP inesperada: {response.status}")
 
 
+def send_digital(api_url: str, station_id: str, rain_detected: bool, dark: bool) -> None:
+    payload = {
+        "station_id": station_id,
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "rain_detected": rain_detected,
+        "dark": dark,
+    }
+    body = json.dumps(payload).encode("utf-8")
+    request = Request(
+        api_url.rstrip("/") + "/api/v1/digital",
+        data=body,
+        headers={"Content-Type": "application/json"},
+        method="POST",
+    )
+    with urlopen(request, timeout=5) as response:
+        if response.status != 201:
+            raise RuntimeError("Status inesperado no endpoint digital")
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--port", required=True, help="Porta ESP32, ex.: COM7")
@@ -104,6 +123,8 @@ def main() -> int:
             # Algumas placas ESP32 reiniciam ao abrir a porta USB serial.
             time.sleep(2)
             device.reset_input_buffer()
+            rain_state = None
+            dark_state = None
             while True:
                 raw = device.readline()
                 if not raw:
@@ -113,9 +134,16 @@ def main() -> int:
                 if item is None:
                     continue
                 if item["type"] == "rain":
-                    print("Chuva digital:", "SIM" if item["detected"] else "NAO")
+                    rain_state = item["detected"]
+                    print("Chuva digital:", "SIM" if rain_state else "NAO")
                 elif item["type"] == "light":
-                    print("Luz digital:", "ESCURO" if item["dark"] else "CLARO")
+                    dark_state = item["dark"]
+                    print("Luz digital:", "ESCURO" if dark_state else "CLARO")
+                if item["type"] in ("rain", "light") and rain_state is not None and dark_state is not None:
+                    try:
+                        send_digital(args.api, args.station_id, rain_state, dark_state)
+                    except (HTTPError, URLError, TimeoutError, RuntimeError) as exc:
+                        print(f"Falha no envio digital: {exc}", file=sys.stderr)
                 elif item["type"] == "dht":
                     payload = make_payload(args.station_id, item)
                     try:
