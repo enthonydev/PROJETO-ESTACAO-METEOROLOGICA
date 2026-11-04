@@ -70,6 +70,11 @@ jobs:
           TEST_DATABASE_URL: postgresql://estacao:estacao@localhost:5432/estacao_test
         run: PYTHONPATH=backend python -m pytest backend/tests/test_postgres_repository.py -q
 
+      - name: Validar estados digitais no PostgreSQL
+        env:
+          TEST_DATABASE_URL: postgresql://estacao:estacao@localhost:5432/estacao_test
+        run: PYTHONPATH=backend python -m pytest backend/tests/test_digital_postgres.py -q
+
       - name: Instalar broker MQTT para integração
         shell: bash
         run: |
