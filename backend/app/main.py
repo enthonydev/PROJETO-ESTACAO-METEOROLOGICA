@@ -8,6 +8,7 @@ from fastapi.responses import RedirectResponse, FileResponse
 from fastapi.staticfiles import StaticFiles
 
 from app.api.health import router as health_router
+from app.api.digital import router as digital_router
 from app.api.stations import router as stations_router
 from app.api.telemetry import router as telemetry_router
 from app.schemas.telemetry import TelemetryPayload
@@ -18,6 +19,7 @@ app = FastAPI(title="Backend da Estação Meteorológica", version="0.2.0")
 app.include_router(health_router)
 app.include_router(stations_router)
 app.include_router(telemetry_router)
+app.include_router(digital_router)
 
 
 @app.post("/api/v1/telemetry/validate", response_model=TelemetryPayload)
