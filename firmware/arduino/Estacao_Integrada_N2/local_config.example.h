@@ -16,6 +16,7 @@ const char* MQTT_PASSWORD = "SENHA_DO_BROKER";
 
 // Sensor de pressao: ativar so apos soldar, revisar 3V3, pinagem e modulo.
 #define ENABLE_BMP280 0
+#define ENABLE_BME280 0 // alternativa caso o modulo real seja BME280
 // MQ-135: nao ativar sem alimentacao 5V correta e saida analogica
 // medida/limitada a faixa segura do ESP32. Usar somente GPIO ADC1 livre.
 #define ENABLE_MQ135 0
