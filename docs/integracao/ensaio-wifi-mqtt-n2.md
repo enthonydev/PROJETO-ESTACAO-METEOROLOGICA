@@ -56,6 +56,7 @@ Criar tabelas, no mesmo PowerShell:
 
 ```powershell
 Get-Content database/migrations/001_schema_inicial.sql | docker compose -f deploy/local/docker-compose.yml --env-file .env exec -T postgres psql -U estacao -d estacao
+Get-Content database/migrations/002_estado_digital.sql | docker compose -f deploy/local/docker-compose.yml --env-file .env exec -T postgres psql -U estacao -d estacao
 ```
 
 Definir `DATABASE_URL` no ambiente local e iniciar backend + worker em **terminais separados**. Substitua o exemplo por suas credenciais locais, sem copiá-las para chat, GitHub ou vídeo:
@@ -96,7 +97,7 @@ Painel:
 http://127.0.0.1:8000/dashboard/?station=estacao-esp32-real
 ```
 
-Sensores opcionais só devem aparecer como reais se a leitura respectiva estiver validada e integrada. Chuva DO não mede mm; LDR DO não mede porcentagem. O tópico `estacao/<station_id>/digital` é diagnóstico auxiliar, não parte do contrato MQTT de medidas numéricas v1.0; o dashboard ainda não exibe esses dois estados remotos.
+Sensores opcionais só devem aparecer como reais se a leitura respectiva estiver validada e integrada. Chuva DO não mede mm; LDR DO não mede porcentagem. O tópico `estacao/<station_id>/digital` é diagnóstico auxiliar, não parte do contrato MQTT de medidas numéricas v1.0. O worker salva esse estado na migration 002 e o dashboard consulta `/api/v1/stations/{id}/digital/latest` para mostrar **CHUVA: SIM/NAO** e **LUZ: CLARO/ESCURO** sem inventar grandezas; a funcionalidade **ainda depende de validação com ESP32 real**.
 
 ## 4. Registro
 
