@@ -15,6 +15,12 @@
 #if ENABLE_BMP280
 #include <Adafruit_BMP280.h>
 #endif
+#if ENABLE_BME280
+#include <Adafruit_BME280.h>
+#endif
+#if ENABLE_BMP280 && ENABLE_BME280
+#error "Escolher BMP280 OU BME280, nunca ambos"
+#endif
 
 static_assert(sizeof(WIFI_PROFILES) / sizeof(WIFI_PROFILES[0]) >= 2, "Configurar ao menos duas redes");
 #define PIN_DHT 16
@@ -31,6 +37,10 @@ PubSubClient mqtt(wifiTransport);
 #if ENABLE_BMP280
 Adafruit_BMP280 bmp;
 bool bmpOk = false;
+#endif
+#if ENABLE_BME280
+Adafruit_BME280 bme;
+bool bmeOk = false;
 #endif
 
 const unsigned long SENSOR_INTERVAL = 2000;
@@ -129,6 +139,12 @@ void readSensors(){
     if(!isfinite(pressure)||pressure<=0)pressure=NAN;
   }
 #endif
+#if ENABLE_BME280
+  if(bmeOk){
+    pressure=bme.readPressure()/100.0f;
+    if(!isfinite(pressure)||pressure<=0)pressure=NAN;
+  }
+#endif
 #if ENABLE_MQ135
   mqRaw=analogRead(MQ135_ADC_PIN); // 0..4095, somente se entrada protegida
 #endif
@@ -222,6 +238,10 @@ void setup(){
 #if ENABLE_BMP280
   bmpOk=bmp.begin(0x76)||bmp.begin(0x77);
   Serial.println(bmpOk?"[BMP280] Encontrado":"[BMP280] Nao encontrado");
+#endif
+#if ENABLE_BME280
+  bmeOk=bme.begin(0x76)||bme.begin(0x77);
+  Serial.println(bmeOk?"[BME280] Encontrado":"[BME280] Nao encontrado");
 #endif
 #if ENABLE_MQ135
   analogReadResolution(12);
