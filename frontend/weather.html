@@ -268,8 +268,8 @@ footer{padding:22px 4px 0;color:rgba(255,255,255,.48);font-size:.68rem;display:f
         <div class="tile tilt"><div class="k">Umidade</div><div class="v" id="humidityValue">--</div><div class="u">relativa (%)</div></div>
         <div class="tile tilt"><div class="k">Pressão</div><div class="v" id="pressureValue">--</div><div class="u">hPa · sensor pendente</div></div>
         <div class="tile tilt"><div class="k">Qualidade do ar</div><div class="v" id="airValue">--</div><div class="u">sensor pendente</div></div>
-        <div class="tile tilt"><div class="k">Luminosidade</div><div class="v" id="lightValue">--</div><div class="u">percentual não medido</div></div>
-        <div class="tile tilt"><div class="k">Chuva</div><div class="v" id="rainValue">Sem dado</div><div class="u">mm não medidos; digital na OLED</div></div>
+        <div class="tile tilt"><div class="k">Luminosidade</div><div class="v" id="lightValue">--</div><div class="u" id="lightNote">percentual não medido</div></div>
+        <div class="tile tilt"><div class="k">Chuva</div><div class="v" id="rainValue">Sem dado</div><div class="u" id="rainNote">mm não medidos; digital na OLED</div></div>
         <div class="tile tilt"><div class="k">Conexão</div><div class="v" id="dataValue">Aguardando</div><div class="u" id="dataNote">USB serial → API local</div></div>
       </div>
     </aside>
@@ -466,6 +466,31 @@ async function refreshRealData(){
    textById("airValue",fmtMetric(m.air_quality_raw,0,""));
    textById("lightValue",fmtMetric(m.luminosity_pct,0,"%"));
    textById("rainValue",m.rain_mm===null||m.rain_mm===undefined?"Sem dado":fmtMetric(m.rain_mm,1," mm"));
+   // Estados digitais são independentes de mm de chuva e de percentual LDR.
+   // A falta de dados digitais não impede o painel de mostrar DHT/pressão/ar.
+   try{
+     const digital=await getJSON(endpoint+"/digital/latest");
+     const digitalAt=new Date(digital.timestamp);
+     const ageMs=Date.now()-digitalAt.getTime();
+     if(digital.station_id===stationId&&Number.isFinite(ageMs)&&ageMs>=-60000&&ageMs<=120000){
+       if(m.rain_mm===null||m.rain_mm===undefined){
+         textById("rainValue",digital.rain_detected?"DETECTADA":"SEM CHUVA");
+         textById("rainNote","detecção digital; não mede milímetros");
+       }
+       if(m.luminosity_pct===null||m.luminosity_pct===undefined){
+         textById("lightValue",digital.dark?"ESCURO":"CLARO");
+         textById("lightNote","estado digital; não mede percentual");
+       }
+     }else{
+       if(m.rain_mm===null||m.rain_mm===undefined)textById("rainValue","Sem dado recente");
+       if(m.luminosity_pct===null||m.luminosity_pct===undefined)textById("lightValue","--");
+     }
+   }catch(e){
+     // Endpoints de estado digital ainda não são obrigatórios em versões antigas.
+     if(m.rain_mm===null||m.rain_mm===undefined)textById("rainValue","Sem dado");
+     if(m.luminosity_pct===null||m.luminosity_pct===undefined)textById("lightValue","--");
+   }
+
    textById("apiStatus","Conectada");
    textById("hardwareStatus","A confirmar em bancada");
    textById("dataValue","Recebendo");
