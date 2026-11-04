@@ -1,3 +1,22 @@
+## Preparação da entrega N2 — 13 e 16 de novembro de 2026
+
+**Situação:** infraestrutura de software pronta para ensaios; **estresse Wi-Fi e integração real ESP32 → MQTT → PostgreSQL → dashboard ainda precisam de execução presencial**. O roteiro acadêmico e as orientações para o vídeo ainda serão fornecidos pela equipe.
+
+- [Plano de fechamento com checklist verificável](docs/academico/n2/plano-fechamento-13-16-novembro.md)
+- [Roteiro de integração Wi-Fi/MQTT (casa, UNIP e terceira rede)](docs/integracao/ensaio-wifi-mqtt-n2.md)
+- [Firmware experimental Arduino N2](firmware/arduino/Estacao_Integrada_N2/Estacao_Integrada_N2.ino)
+- [Exemplo de configuração local, sem senhas](firmware/arduino/Estacao_Integrada_N2/local_config.example.h)
+- [Ambiente Docker opcional de PostgreSQL/Mosquitto](deploy/local/docker-compose.yml)
+- [Verificador de leitura real via API](scripts/check_live_station.py)
+
+**Atenção:** o firmware que efetivamente foi validado em hardware é o **DEV 1.1**. A versão N2 acrescenta suporte a Wi-Fi, MQTT, NTP e integração futura com **BMP280 OU BME280** e MQ-135, mas essas funções novas **não foram compiladas nem validadas na placa**. Configurações reais de rede devem ficar em `local_config.h`, protegido por `.gitignore`. Não conectar novos sensores sem inspeção da tensão, pinos e limites de GPIO.
+
+### O que está pronto
+
+Backend FastAPI, schema v1.0, worker MQTT, PostgreSQL e dashboard Clima têm código e testes automatizados; o CI havia validado o fluxo com **publisher sintético**. A bancada confirmou DHT22, OLED, LDR digital e chuva digital. Para a entrega final precisamos juntar essas partes com **leituras físicas reais em Wi-Fi**, validar falhas/reconexões, revisar o cabeamento e produzir evidências e vídeo exigidos pelo professor.
+
+---
+
 ## Interface Clima iOS (atualização)
 
 A interface visual aprovada anteriormente foi recuperada do protótipo `preview_weather_ultra_interativo.html` e integrada ao backend existente, preservando animações, ambiente dinâmico, cards e gráfico interativo.
