@@ -23,3 +23,36 @@ class FirmwareApplication:
 
     def read_local_state(self):
         return self.sensor_service.read()
+
+
+def run_wifi():
+    import network
+    import time
+
+    from services.wifi import WifiConnection, load_profiles
+
+    try:
+        profiles = load_profiles()
+    except (ValueError, OSError):
+        print("Wi-Fi: configuração local inválida ou inacessível")
+        return
+    if not profiles:
+        print("Wi-Fi: sem perfis configurados")
+        return
+
+    wlan = network.WLAN(network.STA_IF)
+    wifi = WifiConnection(wlan, profiles, time)
+    connected = False
+    try:
+        while True:
+            online = wifi.poll()
+            if online != connected:
+                print("Wi-Fi: conectado" if online else "Wi-Fi: desconectado")
+                connected = online
+            time.sleep_ms(100)
+    except KeyboardInterrupt:
+        pass
+
+
+if __name__ == "__main__":
+    run_wifi()
