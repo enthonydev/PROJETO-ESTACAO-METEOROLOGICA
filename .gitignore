@@ -12,3 +12,6 @@ venv/
 
 # Artefatos locais
 .DS_Store
+
+# Perfis Wi-Fi provisionados localmente no ESP32
+wifi_profiles.json
