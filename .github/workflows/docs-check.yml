@@ -77,7 +77,9 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y mosquitto mosquitto-clients
           sudo systemctl stop mosquitto || true
-          mosquitto -c backend/tests/integration/mosquitto-ci.conf -d
+          config_file="${GITHUB_WORKSPACE}/backend/tests/integration/mosquitto-ci.conf"
+          test -r "$config_file"
+          mosquitto -c "$config_file" -d
           sleep 1
           mosquitto_pub -h 127.0.0.1 -p 1883 -t ci/health -m ok
 
