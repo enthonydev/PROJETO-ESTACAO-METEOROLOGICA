@@ -1,3 +1,16 @@
+## Migração da bancada para MicroPython — 12/11/2026
+
+O programa integrado está em `firmware/src/main.py`: DHT22, chuva digital, luz digital, OLED, pressão **DEMO** e Wi-Fi com múltiplas redes/reconexão sem bloquear as leituras. Os GPIOs permanecem iguais aos do sketch Arduino. O firmware Arduino continua preservado como alternativa.
+
+**Estado:** testes automatizados aprovados; gravação e validação física do MicroPython pendentes. Wi-Fi conectado não significa telemetria MQTT publicada: nesta etapa, o dashboard recebe temperatura e umidade pela ponte USB já existente. Pressão DEMO aparece na OLED/Serial e não é enviada como medição real ao dashboard.
+
+- [Instalar, executar e recuperar o firmware](docs/integracao/migracao-micropython-bancada.md)
+- [Ajustes de apresentação, entrega e vídeo](docs/academico/n2/atualizacao-micropython-video-entrega.md)
+
+As seções datadas abaixo registram o histórico anterior; este bloco descreve o novo pacote preparado.
+
+---
+
 ## Interface Clima iOS (atualização)
 
 A interface visual aprovada anteriormente foi recuperada do protótipo `preview_weather_ultra_interativo.html` e integrada ao backend existente, preservando animações, ambiente dinâmico, cards e gráfico interativo.
