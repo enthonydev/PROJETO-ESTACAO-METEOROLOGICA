@@ -1,4 +1,4 @@
-"""Ponte experimental: ESP32 Arduino USB serial -> ingestao HTTP local do FastAPI.
+"""Ponte experimental: ESP32 Arduino/MicroPython USB serial -> ingestao HTTP local do FastAPI.
 
 Nao substitui MQTT e nao preenche campos sem medicao valida.
 Requer: pip install pyserial
@@ -23,7 +23,7 @@ LUZ_RE = re.compile(r"^Luminosidade:\s*(CLARO|ESCURO)$")
 
 
 def parse_line(line: str) -> dict | None:
-    """Extrai somente valores presentes no log Arduino validado."""
+    """Extrai somente valores presentes no log serial da bancada."""
     line = line.strip()
     match = DHT_RE.match(line)
     if match:

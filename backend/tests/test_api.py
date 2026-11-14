@@ -49,3 +49,18 @@ def test_invalid_payload_is_rejected() -> None:
     )
 
     assert response.status_code == 422
+
+
+def test_ct03_professor_rejects_temperature_150_c():
+    payload = load_fixture("telemetry-valid.json")
+    payload["measurements"]["temperature_c"] = 150.0
+    response = client.post("/api/v1/telemetry/validate", json=payload)
+    assert response.status_code == 422
+    assert response.json()["detail"] == "Payload de telemetria inválido"
+
+
+def test_dht22_temperature_boundaries_are_inclusive():
+    for temperature, expected in [(-40.0, 200), (80.0, 200), (-40.1, 422), (80.1, 422)]:
+        payload = load_fixture("telemetry-valid.json")
+        payload["measurements"]["temperature_c"] = temperature
+        assert client.post("/api/v1/telemetry/validate", json=payload).status_code == expected

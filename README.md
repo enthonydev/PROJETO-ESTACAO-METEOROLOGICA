@@ -1,3 +1,22 @@
+## Vídeo técnico de demonstração
+
+[Assistir à versão de revisão V4](https://drive.google.com/file/d/1SrcJ2QnRNz8wEY-R91ABU_-5YaKo75Hn/view)
+
+A edição com as novas falas MicroPython ainda será incorporada. Dashboard: consulta automática a cada 2 s nesta branch; validar a latência ponta a ponta na bancada.
+
+## Migração da bancada para MicroPython — 12/11/2026
+
+O programa integrado está em `firmware/src/main.py`: DHT22, chuva digital, luz digital, OLED, pressão **DEMO** e Wi-Fi com múltiplas redes/reconexão sem bloquear as leituras. Os GPIOs permanecem iguais aos do sketch Arduino. O firmware Arduino continua preservado como alternativa.
+
+**Estado:** testes automatizados aprovados; gravação e validação física do MicroPython pendentes. Wi-Fi conectado não significa telemetria MQTT publicada: nesta etapa, o dashboard recebe temperatura e umidade pela ponte USB já existente. Pressão DEMO aparece na OLED/Serial e não é enviada como medição real ao dashboard.
+
+- [Instalar, executar e recuperar o firmware](docs/integracao/migracao-micropython-bancada.md)
+- [Ajustes de apresentação, entrega e vídeo](docs/academico/n2/atualizacao-micropython-video-entrega.md)
+
+As seções datadas abaixo registram o histórico anterior; este bloco descreve o novo pacote preparado.
+
+---
+
 ## Interface Clima iOS (atualização)
 
 A interface visual aprovada anteriormente foi recuperada do protótipo `preview_weather_ultra_interativo.html` e integrada ao backend existente, preservando animações, ambiente dinâmico, cards e gráfico interativo.
@@ -7,7 +26,7 @@ A interface visual aprovada anteriormente foi recuperada do protótipo `preview_
 - `http://127.0.0.1:8000/dashboard/index.html` preserva a interface antiga somente como legado.
 - A UI **não inventa** valores de sensores ausentes nem previsões horárias. Com ponte serial ativa, mostra temperatura e umidade reais e seus históricos.
 - O ambiente dinâmico é visual, não substitui dados meteorológicos externos.
-- Atualização automática a cada 10 s, por consultas REST locais; não exige nova dependência de frontend.
+- Atualização automática a cada 2 s, por consultas REST locais; não exige nova dependência de frontend.
 
 Para instalar/executar o backend e a ponte serial, consulte [o ensaio USB](docs/integracao/ensaio-serial-dev-1.1.md). O usuário que já iniciou a versão anterior deve parar o Uvicorn com Ctrl+C, baixar a `main` atualizada e iniciar novamente. Não há novo pacote Python para instalar.
 

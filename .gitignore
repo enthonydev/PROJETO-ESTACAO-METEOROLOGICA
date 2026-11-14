@@ -12,3 +12,10 @@ venv/
 
 # Artefatos locais
 .DS_Store
+
+# Credenciais locais e copia de seguranca da flash
+wifi_profiles.json
+mqtt_config.json
+backups/
+.tools-venv/
+firmware-images/
