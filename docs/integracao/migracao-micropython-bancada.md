@@ -63,7 +63,7 @@ Feche o monitor USB e execute:
 powershell -ExecutionPolicy Bypass -File .\ABRIR_DASHBOARD.ps1 -Porta COM7
 ```
 
-O comando instala dependências, abre dois terminais — API e ponte USB — e a página da estação. Aguarde a API iniciar; a ponte tenta novamente se ela ainda não estiver pronta. Atualização visual a cada 10 s. Encerre os dois terminais com Ctrl+C ao terminar.
+O comando instala dependências, abre dois terminais — API e ponte USB — e a página da estação. Aguarde a API iniciar; a ponte tenta novamente se ela ainda não estiver pronta. Atualização visual a cada 2 s. Encerre os dois terminais com Ctrl+C ao terminar.
 
 Temperatura e umidade vêm das linhas reais do DHT. Sem PostgreSQL, o histórico é temporário e se perde ao encerrar a API. Pressão DEMO permanece apenas na OLED/Serial; chuva digital não mede milímetros, e LDR digital não mede porcentagem. MQTT do ESP32 não foi adicionado nesta etapa: conectar ao Wi-Fi e enviar telemetria ao broker são verificações distintas.
 

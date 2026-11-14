@@ -19,7 +19,7 @@ class Location(StrictModel):
 
 
 class Measurements(StrictModel):
-    temperature_c: float | None = None
+    temperature_c: float | None = Field(default=None, ge=-40, le=80, allow_inf_nan=False)
     humidity_pct: float | None = None
     pressure_hpa: float | None = None
     air_quality_raw: float | None = None

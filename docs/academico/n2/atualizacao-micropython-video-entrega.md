@@ -44,3 +44,7 @@ Para edição Remotion: espelhar horizontalmente apenas os clipes de câmera, ma
 ## O que depende da equipe
 
 Conectar e gravar a placa; confirmar sensores, OLED, USB e reconexão; registrar uma captura real do terminal/dashboard; regravar somente as falas incompatíveis. Os materiais anteriores de entrega não devem ser chamados de versão final atualizada até incorporar este ajuste e as evidências novas. As assinaturas da declaração continuam sendo dos integrantes.
+
+## Revisão de aderência ao roteiro
+
+CT01: variação de temperatura DHT22; CT02: queda e reconexão Wi-Fi sem travamento; CT03: rejeição de temperatura de 150 °C; CT04: marcador no mapa nas coordenadas. O CT03 foi adicionado explicitamente aos testes de API. CT04 continua pendente. O polling do painel foi reduzido de 10 s para 2 s para caber no orçamento de atualização de 5 s do roteiro; a latência real exige medição na bancada.
