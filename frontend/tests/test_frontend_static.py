@@ -61,3 +61,12 @@ def test_ids_referenciados_no_js_existem_no_html():
     ids = set(re.findall(r'id="([^"]+)"', HTML))
     for match in re.findall(r'getElementById\("([^"]+)"\)', JS):
         assert match in ids, f"ID usado no JS não existe no HTML: {match}"
+
+
+def test_dashboard_polling_respects_professor_five_second_budget():
+    import re
+    from pathlib import Path
+    source = (Path(__file__).resolve().parents[1] / "weather.html").read_text()
+    match = re.search(r"setInterval\(refreshRealData,\s*(\d+)\)", source)
+    assert match is not None
+    assert 0 < int(match.group(1)) <= 5000

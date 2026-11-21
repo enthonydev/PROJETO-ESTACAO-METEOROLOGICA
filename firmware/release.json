@@ -1,0 +1,6 @@
+{
+  "board": "ESP32_GENERIC",
+  "version": "1.26.1",
+  "url": "https://micropython.org/resources/firmware/ESP32_GENERIC-20250911-v1.26.1.bin",
+  "sha256": "6b5272b6edd15fc4d1627ec559a27a5d5a7b86e5ea7f8013941eb10c877edd4e"
+}

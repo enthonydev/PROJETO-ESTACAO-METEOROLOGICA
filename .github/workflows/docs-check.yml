@@ -77,9 +77,25 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y mosquitto mosquitto-clients
           sudo systemctl stop mosquitto || true
-          mosquitto -c backend/tests/integration/mosquitto-ci.conf -d
-          sleep 1
-          mosquitto_pub -h 127.0.0.1 -p 1883 -t ci/health -m ok
+          # Start in foreground as a managed background process so failures
+          # are visible and no daemon privilege drop hides the config file.
+          # Mosquitto without -c uses its local-only defaults, enough for
+          # integration tests on 127.0.0.1 and avoids AppArmor config denial.
+          mosquitto -p 1883 -v > /tmp/mosquitto-ci.log 2>&1 &
+          broker_pid=$!
+          for attempt in $(seq 1 20); do
+            if mosquitto_pub -h 127.0.0.1 -p 1883 -t ci/health -m ok >/dev/null 2>&1; then
+              echo "MQTT broker ready (pid=$broker_pid)"
+              exit 0
+            fi
+            if ! kill -0 "$broker_pid" 2>/dev/null; then
+              cat /tmp/mosquitto-ci.log
+              exit 1
+            fi
+            sleep 1
+          done
+          cat /tmp/mosquitto-ci.log
+          exit 1
 
       - name: Validar fluxo MQTT PostgreSQL API
         env:

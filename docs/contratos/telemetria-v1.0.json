@@ -28,10 +28,23 @@
     "location": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["latitude", "longitude"],
+      "required": [
+        "latitude",
+        "longitude"
+      ],
       "properties": {
-        "latitude": { "type": ["number", "null"] },
-        "longitude": { "type": ["number", "null"] }
+        "latitude": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "longitude": {
+          "type": [
+            "number",
+            "null"
+          ]
+        }
       }
     },
     "measurements": {
@@ -46,12 +59,44 @@
         "rain_mm"
       ],
       "properties": {
-        "temperature_c": { "type": ["number", "null"] },
-        "humidity_pct": { "type": ["number", "null"] },
-        "pressure_hpa": { "type": ["number", "null"] },
-        "air_quality_raw": { "type": ["number", "null"] },
-        "luminosity_pct": { "type": ["number", "null"] },
-        "rain_mm": { "type": ["number", "null"] }
+        "temperature_c": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "minimum": -40,
+          "maximum": 80
+        },
+        "humidity_pct": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "pressure_hpa": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "air_quality_raw": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "luminosity_pct": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "rain_mm": {
+          "type": [
+            "number",
+            "null"
+          ]
+        }
       }
     },
     "quality": {
@@ -66,19 +111,36 @@
         "rain"
       ],
       "properties": {
-        "temperature": { "$ref": "#/$defs/quality_status" },
-        "humidity": { "$ref": "#/$defs/quality_status" },
-        "pressure": { "$ref": "#/$defs/quality_status" },
-        "air_quality": { "$ref": "#/$defs/quality_status" },
-        "luminosity": { "$ref": "#/$defs/quality_status" },
-        "rain": { "$ref": "#/$defs/quality_status" }
+        "temperature": {
+          "$ref": "#/$defs/quality_status"
+        },
+        "humidity": {
+          "$ref": "#/$defs/quality_status"
+        },
+        "pressure": {
+          "$ref": "#/$defs/quality_status"
+        },
+        "air_quality": {
+          "$ref": "#/$defs/quality_status"
+        },
+        "luminosity": {
+          "$ref": "#/$defs/quality_status"
+        },
+        "rain": {
+          "$ref": "#/$defs/quality_status"
+        }
       }
     }
   },
   "$defs": {
     "quality_status": {
       "type": "string",
-      "enum": ["ok", "suspect", "invalid", "error"]
+      "enum": [
+        "ok",
+        "suspect",
+        "invalid",
+        "error"
+      ]
     }
   }
 }
