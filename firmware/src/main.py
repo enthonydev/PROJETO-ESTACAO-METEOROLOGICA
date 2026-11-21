@@ -90,6 +90,19 @@ def run_station():
         dht.DHT22(Pin(16)), Pin(17, Pin.IN, Pin.PULL_UP),
         Pin(5, Pin.IN), time, random.getrandbits, lambda: Oled(bus),
     )
+    from services.mqtt_publisher import load_config, run_station_mqtt
+    try:
+        mqtt_config = load_config()
+    except (ValueError, OSError):
+        print("[MQTT] Configuracao invalida; USB e OLED continuam sem MQTT.")
+        mqtt_config = None
+    if mqtt_config:
+        import asyncio
+        try:
+            asyncio.run(run_station_mqtt(station, wifi, wlan, mqtt_config))
+        except KeyboardInterrupt:
+            print("[SISTEMA] Loop interrompido. Terminal USB disponivel.")
+        return
     connected = False
     try:
         while True:

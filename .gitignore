@@ -19,3 +19,6 @@ mqtt_config.json
 backups/
 .tools-venv/
 firmware-images/
+
+# Credenciais locais opcionais do publicador MQTT
+mqtt_config.json
